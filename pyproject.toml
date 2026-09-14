@@ -56,3 +56,10 @@ eeg_steptype = ["py.typed"]
 # scripts/stim_module/ carries pre-existing style debt (mostly E702) outside the
 # CI gate; both are excluded rather than rewritten.
 extend-exclude = ["outputs", "scripts/stim_module"]
+
+[tool.ruff.lint]
+# Pin the rule set instead of inheriting whatever the installed ruff defaults
+# to. The dev extra is not version-pinned, and ruff 0.16 widened its defaults
+# (RUF100/RUF012 and friends), which failed CI on a tree that lints clean with
+# 0.15. These four are ruff historical defaults.
+select = ["E4", "E7", "E9", "F"]
