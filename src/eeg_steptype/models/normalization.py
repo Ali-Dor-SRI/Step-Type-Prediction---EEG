@@ -37,6 +37,10 @@ def make_normalizer(model_name: str, cfg: dict, n_features=None):
         from .eegnet import make_normalizer as make_eegnet_normalizer
 
         return make_eegnet_normalizer(cfg, n_features=n_features)
+    if model_name == "eegnet_torch":
+        from .eegnet_torch import make_normalizer as make_eegnet_torch_normalizer
+
+        return make_eegnet_torch_normalizer(cfg, n_features=n_features)
     if model_name == "eegnext":
         from .eegnext import make_normalizer as make_eegnext_normalizer
 

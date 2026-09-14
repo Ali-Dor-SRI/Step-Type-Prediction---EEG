@@ -3,7 +3,7 @@
 _EEG **step-type** classification (straight `One` vs diagonal `Two`) from CNV
 signals recorded during a stepping task. MSc thesis project._
 
-**Status:** living document · **Last updated:** 2026-06-10 · **Owner:** Ali
+**Status:** living document · **Last updated:** 2026-09-14 · **Owner:** Ali
 
 This document is the single place to (a) understand every model in the
 pipeline, (b) see what each tunable actually controls, (c) read the real
@@ -29,6 +29,7 @@ results we have so far, and (d) decide what to do next. Figures are a mix of
   - [5.5 Riemannian — covariance comparator](#55-riemannian--covariance-comparator)
   - [5.6 CNN (EEGNet-lite hybrid)](#56-cnn-eegnet-lite-hybrid)
   - [5.7 EEGNet (hybrid)](#57-eegnet-hybrid)
+  - [5.7b EEGNet — PyTorch port](#57b-eegnet--pytorch-port-eegnet_torch)
   - [5.8 EEGNeXt — sophisticated hybrid CNN](#58-eegnext--sophisticated-hybrid-cnn)
   - [5.9 Shrinkage-LDA CNV benchmark](#59-shrinkage-lda-cnv-benchmark)
 - [6. Tuning machinery shared across models](#6-tuning-machinery-shared-across-models)
@@ -70,6 +71,7 @@ results we have so far, and (d) decide what to do next. Figures are a mix of
 | Riemannian | Covariance + LDA | Raw epoch tensor | Comparator | 0.53 | Calibrated but flat |
 | CNN | Conv NN (hybrid) | Tensor + tabular | Comparator | 0.63 baseline (late) | Promising; window-limited |
 | EEGNet | Conv NN (hybrid) | Tensor + tabular | Comparator | **0.94** baseline (full, P13) | Strongest single-subject signal |
+| EEGNet (PyTorch port) | Conv NN (hybrid) | Tensor + tabular | Framework port of EEGNet | 0.59 (P13, held-out, one-subject check) | Parity-tested against Keras; same model, not a new one |
 | EEGNeXt | Multi-scale conv + SE + residual (hybrid) | Tensor + tabular | Comparator | not yet run | Sophisticated upgrade of EEGNet |
 | Shrinkage-LDA | Linear discriminant | 9-ch ERP bins | ERP benchmark | not yet run | Cheap sanity baseline |
 
@@ -103,8 +105,8 @@ most important architectural fact:
   slopes, PSD band-powers, eLORETA source activations. Used by **XGBoost, SVM,
   Logistic, LSTM, Shrinkage-LDA**.
 - **Raw epoch tensor** `(n_epochs, n_channels, n_times)` — cleaned scalp EEG.
-  Used by **Riemannian, CNN, EEGNet, EEGNeXt** (the neural models also *fuse*
-  in the tabular branch).
+  Used by **Riemannian, CNN, EEGNet, EEGNet-torch, EEGNeXt** (the neural
+  models also *fuse* in the tabular branch).
 
 **Prediction windows.** Primary = **late CNV (1.0–2.0 s)**, where foot-motor
 preparation is expected to peak. Secondary = **full CNV (0.0–2.0 s)**. Feature
@@ -126,7 +128,8 @@ inner-vs-outer AUC gap honest. Counts below are nominal/illustrative.
 | Gain prune + refit | on | XGB only |
 | SHAP prune + refit (`quantile 0.20`) | derived | XGB only |
 
-Tensor models (Riemannian / CNN / EEGNet / EEGNeXt) **skip the funnel** —
+Tensor models (Riemannian / CNN / EEGNet / EEGNet-torch / EEGNeXt) **skip the
+funnel** —
 feature selection is undefined on `(n_epochs, n_channels, n_times)` input.
 
 ---
@@ -142,7 +145,9 @@ reorganisation are marked `[NEW]`.
 ML/
 ├── run.py                            — single-process pipeline driver (--stages preprocess/src/features/train/visualize)
 ├── Makefile                          — install / smoke / test / train shortcuts
-├── pyproject.toml                    — package metadata; extras: [lstm], [riemannian], [dev]
+├── pyproject.toml                    — package metadata; extras: [lstm], [torch], [riemannian], [dev]
+├── Dockerfile / .dockerignore        — CPU-only image (py3.12, dev+torch extras); CMD runs pytest
+├── .github/workflows/ci.yml          — CI: ruff + pytest on py3.12, and the suite inside the image
 │
 ├── MODELS.md                         — this document (architectures, results, decisions)
 ├── XGB_MODEL_SUMMARY.md              — XGBoost-focused status report (§3.5 has pooling results)
@@ -161,6 +166,7 @@ ML/
 │   ├── riemannian.yaml               — Riemannian model overlay (full window, tensor input path)
 │   ├── cnn.yaml                      — CNN overlay (require_source, full window)
 │   ├── eegnet.yaml                   — EEGNet overlay (require_source, full window)
+│   ├── eegnet_torch.yaml             — EEGNet PyTorch-port overlay (clone of eegnet.yaml)
 │   ├── eegnext.yaml                  — EEGNeXt overlay (multi-scale kernels, SE, residual blocks)
 │   ├── features_rich.yaml            — rich feature-set override (more bin widths + stats)
 │   ├── pooling_compare.yaml   [NEW]  — 8-subject / reduced-feature pooling comparison overlay
@@ -237,6 +243,7 @@ ML/
 │   │   ├── riemannian.py             — xDAWN + tangent-space + FBCSP → shrinkage-LDA factory
 │   │   ├── cnn.py                    — EEGNet-lite hybrid CNN factory
 │   │   ├── eegnet.py                 — EEGNet hybrid factory (max-norm weight constraints)
+│   │   ├── eegnet_torch.py           — PyTorch port of eegnet (nn.Module + sklearn wrapper)
 │   │   └── eegnext.py                — multi-scale + SE + residual hybrid CNN factory
 │   │
 │   └── viz/
@@ -250,6 +257,7 @@ ML/
 │   ├── test_smoke_pipeline.py        — synthetic end-to-end pipeline check (< 60 s, no real data)
 │   ├── test_basis_features.py        — shape-decomposition (Legendre/B-spline/fPCA) unit tests
 │   ├── test_stability_select.py      — stability-selection unit tests (synthetic data, no MNE)
+│   ├── test_eegnet_torch.py          — PyTorch port: Keras parity, max-norm, wrapper, end-to-end
 │   └── test_pooling.py       [NEW]  — pooling data-sharing semantics (per/partial/full, 4-subject toy)
 │
 ├── docs/
@@ -283,8 +291,15 @@ ML/
 | 5 | Riemannian | `models/riemannian.py` | `pyriemann` + sklearn LDA | GridSearchCV | nfilter, covariance estimator, shrinkage, bands |
 | 6 | CNN | `models/cnn.py` | Keras + scikeras | GridSearchCV | filters, kernels, pooling, dropout, l2, lr, fusion |
 | 7 | EEGNet | `models/eegnet.py` | Keras + scikeras | GridSearchCV | F1, depth_mult, F2, kernels, dropout, norm_rate, lr |
+| 7b | EEGNet (PyTorch port) | `models/eegnet_torch.py` | PyTorch (hand-rolled sklearn wrapper) | GridSearchCV | identical to row 7 (F1, depth_mult, F2, kernels, dropout, norm_rate, lr) |
 | 8 | EEGNeXt | `models/eegnext.py` | Keras + scikeras | GridSearchCV | multi-scale kernels, F1/F2, depth_mult, SE ratio, residual depth, dropout, norm_rate, lr, fusion |
 | 9 | Shrinkage-LDA | `features/cnv_benchmark.py` + LDA | sklearn | none (closed-form) | bin width, channel set, shrinkage |
+
+**Nine of these are registered** in `MODEL_FACTORIES` (`models/train.py`) and
+selectable with `--model`: `xgb`, `svm`, `lstm`, `logistic`, `riemannian`,
+`cnn`, `eegnet`, `eegnet_torch`, `eegnext`. Row 9, the shrinkage-LDA CNV
+benchmark, is a feature block (`features/cnv_benchmark.py`) plus a stock
+sklearn LDA rather than a registered factory, so it is not selectable that way.
 
 **Training workflow modules** (not model factories — they reuse the same factories above):
 
@@ -571,6 +586,81 @@ above, but with EEGNet's signature **max-norm weight constraints** (depthwise
 > **0.94 (P13)** and **0.82 (P15)**, cohort baseline often 0.6–0.7. This is the
 > strongest neural signal so far and reinforces the full-window finding. See the
 > CNN-vs-EEGNet comparison in §7.
+
+---
+
+### 5.7b EEGNet — PyTorch port (`eegnet_torch`)
+
+A layer-for-layer PyTorch port of §5.7, registered as its own model
+(`--model eegnet_torch` / `--speed-tier eegnet_torch`; `configs/eegnet_torch.yaml`
+clones `configs/eegnet.yaml`). The Keras `eegnet` is untouched — it produced the
+recorded results. The port is a plain `torch.nn.Module` (`EEGNetTorch`) whose
+`forward` takes `(batch, n_channels, n_times)`, braindecode's input convention,
+so a braindecode/eegdash training loop could take the module as it is (not
+exercised here) — wrapped in a hand-rolled scikit-learn estimator (`EEGNetTorchClassifier`) so it
+runs as-is under the nested-CV driver's GridSearchCV and
+`scripts/08_tensor_model_diagnostics.py`. CPU only, and it imports neither
+skorch nor TensorFlow. It does not import braindecode either; the fold-local
+standardizer it reuses from `cnn.py` calls braindecode's
+`exponential_moving_standardize` when that package is installed, exactly as the
+Keras path does.
+
+| Aspect | Keras original | Port |
+|---|---|---|
+| Layer stack | temporal conv → BN → depthwise spatial → BN → ELU → pool 4 → dropout → separable conv → BN → ELU → pool 8 → dropout → flatten (+ tabular/fusion branch) → 1 sigmoid unit | identical order and shapes |
+| Max-norm | `max_norm(1.0)` on the depthwise kernel, `max_norm(norm_rate)` on fusion + classifier (Keras `axis=0`) | PyTorch has no constraint API, so the port re-applies Keras's formula over the same axes **after every optimizer step** |
+| "same" padding | TF puts an even kernel's extra sample on the right | explicit `ZeroPad2d` with the same split |
+| Flatten order | channels-last | permuted to channels-last before flattening |
+| Initialisation | `glorot_uniform` | same limits, including Keras's depthwise fan convention |
+| BatchNorm | momentum 0.99, ε 1e-3 | momentum 0.01 (PyTorch spelling of the same decay), ε 1e-3 |
+| Optimiser / loss | Adam (ε 1e-7); BCE + L2(1e-4) on the tabular dense kernel | same, and the L2 term is in the validation loss too, as Keras reports it |
+| Training | 50 epochs, batch 16, `validation_split=0.2`, EarlyStopping(`val_loss`, patience 10, `restore_best_weights`) | same, including Keras 3 restoring the best epoch even when training is not cut short |
+| Standardisation | per-channel exponential-moving, inside each fold | the same transformer, routed by `normalization.py` |
+| Seeding | scikeras is left unseeded | torch and numpy seeded from `modeling.random_state` |
+
+**Inherited behaviour, deliberately reproduced.** Keras takes `validation_split`
+from the *trailing* fraction of the training fold, before shuffling. The epoch
+tensor is stacked One-then-Two and scikit-learn returns sorted fold indices, so
+that tail is almost entirely `Two` — early stopping watches a single-class
+validation set. The port reproduces this for parity; changing it would change
+the Keras models' behaviour too, so it is left as a separate decision.
+
+**Parity tests** (`tests/test_eegnet_torch.py`): trainable and non-trainable
+parameter counts against constants recorded from the Keras model (six shapes,
+including the real 64 × 2049 tensor) *and* against a live Keras build; a forward
+pass with the Keras weights copied in, agreeing to `atol=1e-5`; the max-norm
+helper against Keras's own `MaxNorm`; the bound still holding after real
+training steps, with a control that fails if the constraint call is removed; the
+validation-split and early-stopping semantics; the sklearn wrapper on synthetic
+fixtures; and an end-to-end `--model eegnet_torch` run of `scripts/04_train.py`
+on `configs/smoke.yaml` plus the overlay. **The live Keras-vs-PyTorch tests run
+only where TensorFlow is installed (`.venv312`); they skip in CI and in the
+Docker image, neither of which installs TensorFlow.** The recorded-constant
+tests cover those environments.
+
+**On real data: a one-subject sanity check, not a parity claim.**
+
+| P13, `--speed-tier`, 2 outer folds × 1 repeat, full-CNV window | fold AUCs | mean AUC | wall time |
+|---|---|---|---|
+| `eegnet` (Keras) | 0.690 / 0.540 | 0.615 | 59 s |
+| `eegnet_torch` | 0.638 / 0.548 | 0.593 | 34 s |
+
+Same participant, same inputs (80 epochs × 64 channels × 2049 samples, plus
+25,857 tabular features of which 4,800 are source-space), same CV and grid, run
+back to back in `.venv312` on 2026-09-14. One subject and two folds cannot
+establish equivalence, and this is not offered as one: the two recorded Keras
+EEGNet cohort runs put P13 at **0.44** (2026-05-29) and **0.615** (2026-05-30)
+under the same config, because scikeras is unseeded — a run-to-run spread wider
+than the gap between the two models above. Read it as "the port trains and
+scores in the same range on real data", nothing more. It has not been run on any
+other participant.
+
+> **Note on the 0.94 quoted in §5.7 and §7.** That figure is the `baseline_auc`
+> of `scripts/08_tensor_model_diagnostics.py`, which refits on *all* of a
+> participant's epochs and then scores those same epochs — the script says so
+> itself ("not a held-out performance estimate"). It is an in-sample fit, not a
+> held-out result. The held-out nested-CV numbers for P13 are the ones in the
+> table above.
 
 ---
 
@@ -897,6 +987,7 @@ Ordered by expected payoff (synthesized from the diagnostics above and
 | Models | Riemannian (xDAWN + TS + FBCSP → LDA) | ✅ scaffolded · 🟡 screened |
 | Models | CNN hybrid (tensor + tabular) | 🟡 starter diagnostics only |
 | Models | EEGNet hybrid | 🟡 starter diagnostics only |
+| Models | EEGNet PyTorch port (`eegnet_torch`) | ✅ implemented + parity-tested · 🟡 one-subject sanity run (P13) |
 | Models | EEGNeXt (multi-scale + SE + residual hybrid) | ✅ implemented + wired · ⚪ not yet run (needs TF) |
 | Models | BiLSTM with **true per-timestep windowing** | ⬜ blocked on windowing |
 | Models | Shrinkage-LDA CNV benchmark | ⚪ enabled flag off |
@@ -915,6 +1006,8 @@ Ordered by expected payoff (synthesized from the diagnostics above and
 | Analysis | Sliding-window AUC time-course | ⚪ configured, not run |
 | Docs | `docs/OVERFITTING_GAP_SOLUTIONS.md` — gap-remediation guide | ✅ |
 | Tests | `tests/test_pooling.py` — pooling data-sharing semantics | ✅ |
+| Tests | `tests/test_eegnet_torch.py` — Keras-parity + wrapper + end-to-end | ✅ |
+| Infra | Dockerfile + GitHub Actions CI (ruff, pytest, suite in the container) | ✅ |
 
 ---
 
@@ -958,6 +1051,10 @@ cnn / eegnet:                         # defaults; param_grid overridable per con
   separable_filters/f2: 16
   dropout(_rate): 0.5
   learning_rate: 1e-3
+
+eegnet_torch:                         # configs/eegnet_torch.yaml; PyTorch port
+  # Same defaults and single-candidate grid as eegnet above, with scikeras's
+  # model__ prefix dropped (f1, depth_multiplier, f2, kernel_length, ...).
 
 eegnext:                              # configs/eegnext.yaml; sophisticated CNN
   temporal_kernels: [[16, 32, 64]]    # multi-scale temporal stem

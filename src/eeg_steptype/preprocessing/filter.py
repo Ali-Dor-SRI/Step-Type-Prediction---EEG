@@ -59,9 +59,9 @@ def apply_notch(raw: mne.io.BaseRaw, cfg: dict) -> mne.io.BaseRaw:
 
 
 def apply_bandpass(raw: mne.io.BaseRaw, cfg: dict) -> mne.io.BaseRaw:
-    l, h = cfg["preprocessing"]["filter"]["bandpass"]
-    log.info("Bandpass %s–%s Hz", l, h)
-    raw.filter(l_freq=l, h_freq=h)
+    l_freq, h_freq = cfg["preprocessing"]["filter"]["bandpass"]
+    log.info("Bandpass %s–%s Hz", l_freq, h_freq)
+    raw.filter(l_freq=l_freq, h_freq=h_freq)
     return raw
 
 

@@ -1,5 +1,123 @@
 # Changelog
 
+## 2026-09-14 — PyTorch EEGNet port, Docker image, GitHub Actions CI (v2.6.0)
+
+### Added
+
+- **`models/eegnet_torch.py`** — a layer-for-layer PyTorch port of the Keras
+  `models/eegnet.py`, registered as the `eegnet_torch` model / `--speed-tier
+  eegnet_torch` (`configs/eegnet_torch.yaml`, a clone of `configs/eegnet.yaml`).
+  The Keras model is unchanged. Two pieces: `EEGNetTorch`, a plain
+  `torch.nn.Module` whose `forward` takes `(batch, n_channels, n_times)`
+  (braindecode's input convention, so a braindecode/eegdash training loop could
+  take it as is — not exercised here) plus an optional tabular tensor for the
+  hybrid fusion branch;
+  and `EEGNetTorchClassifier`, a hand-rolled scikit-learn estimator (no skorch)
+  that runs unchanged under the nested-CV driver's GridSearchCV and
+  `scripts/08_tensor_model_diagnostics.py`. CPU only, and neither skorch nor
+  braindecode is imported by the port (the fold-local standardizer it reuses
+  from `cnn.py` calls braindecode when installed, as the Keras path does).
+  Mirrored from the Keras file: the layer sequence; the **max-norm
+  constraints**, which PyTorch has no API for and which are therefore
+  re-applied with Keras's own formula, over the same axes, after every
+  optimizer step (depthwise spatial filters to 1.0, fusion and classifier
+  dense weights to `norm_rate`); TensorFlow "same" padding; the channels-last
+  flatten order; glorot-uniform init with Keras's fan convention; BatchNorm
+  momentum/epsilon; Adam's epsilon; the L2 penalty on the tabular dense
+  kernel; and the training loop (50 epochs, batch 16, `validation_split=0.2`,
+  early stopping on `val_loss` with `restore_best_weights`). Unlike the Keras
+  path, every fit seeds torch and numpy from `modeling.random_state`.
+- **`tests/test_eegnet_torch.py`** (26 tests) — parameter counts against
+  constants recorded from the Keras model (six shapes, including the real
+  64 × 2049 tensor) *and* against a live Keras build; a forward pass with the
+  Keras weights copied in, agreeing to `atol=1e-5`; the max-norm helper against
+  Keras's `MaxNorm` and the bound holding after real training steps, with a
+  control that fails if the constraint call is removed; Keras validation-split
+  and early-stopping semantics; the sklearn wrapper; the overlay being a
+  faithful clone; and an end-to-end `--model eegnet_torch` CLI run on
+  `configs/smoke.yaml` plus the overlay. The live Keras comparisons skip where
+  TensorFlow is absent (CI, the Docker image); the recorded constants cover
+  those environments.
+- **`Dockerfile` + `.dockerignore`** — CPU-only `python:3.12-slim` image
+  installing `-e ".[dev,torch]"` from the PyTorch CPU index, `CMD` runs
+  `pytest -q`. No TensorFlow. The ignore list keeps `data/`, `outputs/`,
+  `legacy/`, the venvs, `docs/models_figs/`, `fsaverage/` and all
+  `.fif/.parquet/.npz/.bdf/.h5` files out of the build context.
+- **`.github/workflows/ci.yml`** — on push and pull request: `ruff check .` plus
+  `pytest -q` on Python 3.12 with the CPU torch wheels (pip cached), printing
+  the collected-test count; and a second job that builds the image and runs the
+  suite inside it.
+- **`[torch]` extra** in `pyproject.toml`, and a `[tool.ruff]` section that
+  lints the package, tests and CLI drivers while excluding `outputs/` (recorded
+  -result harnesses, never edited) and `scripts/stim_module/` (pre-existing
+  style debt).
+- **`tests/conftest.py`** — a `synthetic_epoch_tensor` fixture (shuffled
+  `(n_epochs, n_channels, n_times)` data with a learnable class signal).
+
+### Changed
+
+- **`models/train.py`** — `eegnet_torch` added to `MODEL_FACTORIES` and
+  `NEURAL_HYBRID_MODELS`. It is registered through a small `_lazy()` factory
+  wrapper because its module imports torch: a classical XGB run, and each of
+  its joblib workers, must not pay that import.
+- **`models/normalization.py`** — routes `eegnet_torch` to the same fold-local
+  exponential-moving standardizer the Keras EEGNet uses.
+- **`run.py`** — imports `NEURAL_HYBRID_MODELS` from the training driver rather
+  than keeping a second copy, and adds the `eegnet_torch` tier.
+- **`scripts/04_train.py`, `07_feature_informativeness.py`,
+  `08_tensor_model_diagnostics.py`** — `eegnet_torch` added to the `SPEED_TIERS`
+  maps and to 08's tensor / full-CNV model sets.
+- **`scripts/06_compare_runs.py`** — the five inline "single tier" model sets
+  collapsed into one `SINGLE_TIER_MODELS` tuple, so registering a tensor model
+  is one edit; `eegnet_torch` added there and to the name-inference fallbacks
+  (before `eegnet`, so the longer token wins).
+- **`tests/test_imports.py`** — `eegnet_torch` in the import list, plus
+  `test_every_hybrid_neural_model_is_wired_into_every_registry`, which loops
+  over `NEURAL_HYBRID_MODELS` and checks each one across the registry,
+  normalizer, the four `SPEED_TIERS` maps, 08's sets, 06's tuple and inference,
+  its `configs/<model>.yaml` overlay, and the SCRIPT_GUIDES value lists. The
+  fsaverage preflight test now skips under
+  `EEG_STEPTYPE_SKIP_FSAVERAGE_TESTS=1` (its BEM is a network download and is
+  not in the repo), which CI and the image set.
+- **Version 2.5.0 → 2.6.0**, matched across `pyproject.toml` (which had been
+  left at 0.1.0), `CITATION.cff` and the README BibTeX block.
+- Lint fixes for the CI gate: unused imports in `features/tensor.py`,
+  `models/lstm.py`, `docs/make_models_figs.py`, `scripts/_xgb_perf_snapshot.py`;
+  an ambiguous `l` in `preprocessing/filter.py`; an f-string without
+  placeholders in `06_compare_runs.py`; `noqa` markers in `tests/conftest.py`.
+
+### Results — a one-subject sanity check, not a parity claim
+
+P13, `--speed-tier` runs, 2 outer folds × 1 repeat, full-CNV window, same
+inputs (80 epochs × 64 channels × 2049 samples + 25,857 tabular features),
+`.venv312`, 2026-09-14:
+
+| model | fold AUCs | mean AUC | wall time |
+|---|---|---|---|
+| `eegnet` (Keras) | 0.690 / 0.540 | 0.615 | 59 s |
+| `eegnet_torch` | 0.638 / 0.548 | 0.593 | 34 s |
+
+One subject and two folds cannot establish equivalence. The two recorded Keras
+EEGNet cohort runs put P13 at 0.44 (2026-05-29) and 0.615 (2026-05-30) under the
+same config, because scikeras is unseeded — a run-to-run spread wider than the
+gap between the two models here. The port has not been run on any other
+participant.
+
+### Notes
+
+- **Inherited Keras behaviour, reproduced deliberately:** `validation_split`
+  takes the *trailing* fraction of the training fold before shuffling. The
+  epoch tensor is stacked One-then-Two and scikit-learn returns sorted fold
+  indices, so that tail is almost entirely `Two` and early stopping watches a
+  single-class validation set. Changing it would change `cnn`/`eegnet`/`eegnext`
+  too, so it is left as a separate decision.
+- **The 0.94 for P13 quoted in `MODELS.md` §5.7/§7** is the `baseline_auc` of
+  `scripts/08_tensor_model_diagnostics.py`, which refits on all of a
+  participant's epochs and scores those same epochs — an in-sample fit, as that
+  script states, not a held-out result. Recorded in `MODELS.md` §5.7b.
+- Test suite: **125 → 153 collected**, all passing in `.venv312`. Without
+  TensorFlow (`.venv`, CI, the container) the 10 live-Keras parity tests skip.
+
 ## 2026-06-12 — Rich-pooling sub-loop: cheap ANOVA pre-filter (`modeling.pre_kbest`)
 
 Sub-loop on `perf/agentic-improvements` testing cross-subject **partial pooling on the

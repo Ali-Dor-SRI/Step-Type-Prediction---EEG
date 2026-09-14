@@ -23,24 +23,26 @@ from eeg_steptype.logging_utils import setup_logging, get_logger
 from eeg_steptype.preprocessing import pipeline as preprocess
 from eeg_steptype.source_localization import pipeline as src_loc
 from eeg_steptype.features import assemble as features
-from eeg_steptype.models.train import run as run_train
+from eeg_steptype.models.train import NEURAL_HYBRID_MODELS, run as run_train
 
 
 STAGES = ["preprocess", "src", "features", "train"]
-# Hybrid tensor models also need the source + tabular feature stages built before
-# training (the full prediction window is now the default for every model and is
-# set in configs/default.yaml, so this set no longer governs the window).
-NEURAL_HYBRID_MODELS = {"cnn", "eegnet", "eegnext"}
+# Hybrid tensor models (NEURAL_HYBRID_MODELS, imported from the training
+# driver so the two cannot drift) also need the source + tabular feature stages
+# built before training (the full prediction window is now the default for
+# every model and is set in configs/default.yaml, so this set no longer
+# governs the window).
 NEURAL_FEATURE_STAGES = ["src", "features"]
 
 SPEED_TIERS = {
-    "lightning":  "configs/lightning.yaml",
-    "express":    "configs/express.yaml",
-    "quick":      "configs/quick.yaml",
-    "riemannian": "configs/riemannian.yaml",
-    "cnn":        "configs/cnn.yaml",
-    "eegnet":     "configs/eegnet.yaml",
-    "eegnext":    "configs/eegnext.yaml",
+    "lightning":    "configs/lightning.yaml",
+    "express":      "configs/express.yaml",
+    "quick":        "configs/quick.yaml",
+    "riemannian":   "configs/riemannian.yaml",
+    "cnn":          "configs/cnn.yaml",
+    "eegnet":       "configs/eegnet.yaml",
+    "eegnet_torch": "configs/eegnet_torch.yaml",
+    "eegnext":      "configs/eegnext.yaml",
 }
 
 

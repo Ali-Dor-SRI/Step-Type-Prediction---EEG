@@ -13,6 +13,7 @@ smoke config is active.
 from __future__ import annotations
 
 import copy
+import importlib
 import os
 import re
 import time
@@ -52,6 +53,21 @@ from .evaluate import participant_metrics, cv_rollup
 
 
 log = get_logger(__name__)
+
+
+def _lazy(module: str, attr: str):
+    """Resolve ``models.<module>.<attr>`` on first call instead of at import.
+
+    For model modules that import a heavy framework when they load
+    (``eegnet_torch`` imports PyTorch): classical runs, and their joblib
+    workers, import this driver without paying for it.
+    """
+
+    def call(*args, **kwargs):
+        return getattr(importlib.import_module(f".{module}", __package__), attr)(*args, **kwargs)
+
+    call.__name__ = call.__qualname__ = attr
+    return call
 
 
 # --- Model registry -------------------------------------------------------
@@ -118,6 +134,16 @@ MODEL_FACTORIES: dict[str, dict] = {
         "supports_shap": False,
         "data_representation": "tensor",
     },
+    # PyTorch port of eegnet (same layers, constraints and training settings).
+    # Registered lazily because its module imports torch.
+    "eegnet_torch": {
+        "make":         _lazy("eegnet_torch", "make_eegnet_torch"),
+        "param_grid":   _lazy("eegnet_torch", "param_grid"),
+        "rfecv_base":   None,
+        "supports_gain": False,
+        "supports_shap": False,
+        "data_representation": "tensor",
+    },
     "eegnext": {
         "make":         eegnext_factory.make_eegnext,
         "param_grid":   eegnext_factory.param_grid,
@@ -131,7 +157,7 @@ MODEL_FACTORIES: dict[str, dict] = {
 # Hybrid neural models fuse the raw epoch tensor with the XGB-style tabular
 # branch and are constructed with an ``input_shape`` kwarg (unlike lstm, which
 # takes ``n_features``, or riemannian, which builds its own pipeline).
-NEURAL_HYBRID_MODELS = {"cnn", "eegnet", "eegnext"}
+NEURAL_HYBRID_MODELS = {"cnn", "eegnet", "eegnet_torch", "eegnext"}
 
 
 def _participant_metrics_path(rdir, participant_id: str):

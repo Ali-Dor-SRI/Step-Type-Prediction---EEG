@@ -1,0 +1,34 @@
+# Keep the build context to code + configs. On the development machine data/
+# and outputs/ are OneDrive-linked junctions holding many GB of epochs,
+# features and runs -- none of it belongs in the image.
+data/
+outputs/
+legacy/
+_repo_export/
+sandbox/
+.artifact-sync-backups/
+.venv*
+docs/models_figs/
+
+# Large binary artifacts anywhere in the tree (a bare `*.fif` would match the
+# context root only, hence `**/`).
+**/*.fif
+**/*.parquet
+**/*.npz
+**/*.bdf
+**/*.h5
+
+# fsaverage source-space assets (~300 MB). Only the fsaverage preflight test
+# uses them, and it skips in the image (EEG_STEPTYPE_SKIP_FSAVERAGE_TESTS).
+fsaverage/
+
+# VCS, caches, machine-local config.
+.git/
+.github/
+**/__pycache__/
+**/*.py[cod]
+.pytest_cache/
+.ruff_cache/
+**/*.egg-info/
+configs/local.yaml
+configs/_*.yaml

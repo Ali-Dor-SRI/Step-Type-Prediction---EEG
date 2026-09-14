@@ -44,12 +44,23 @@ optional dependency groups defined in `pyproject.toml`:
 
 | Extra        | Adds                                | When to install                              |
 |--------------|-------------------------------------|----------------------------------------------|
-| `lstm`       | `tensorflow`, `scikeras`            | Required to run `--model lstm`.              |
+| `lstm`       | `tensorflow`, `scikeras`            | Required for the Keras models: `--model lstm`, `cnn`, `eegnet`, `eegnext`. |
+| `torch`      | `torch` (CPU wheels are enough)     | Required to run `--model eegnet_torch`, the PyTorch EEGNet port. |
 | `riemannian` | `pyriemann`                         | Required for the Riemannian comparator stub. |
 | `dev`        | `pytest`, `ruff`                    | Required to run the test suite and linter.   |
 
 If you don't need a group, skip it: `pip install -e ".[dev]"` is enough for
 running classical models and tests.
+
+Install the `torch` extra from the PyTorch CPU index, or pip resolves the
+multi-gigabyte CUDA build on Linux:
+
+```powershell
+pip install -e ".[dev,torch]" --extra-index-url https://download.pytorch.org/whl/cpu
+```
+
+(`braindecode`, a core dependency, already pulls torch in; the extra states the
+requirement explicitly and is what the Dockerfile and CI install.)
 
 Bash / Linux / WSL equivalent:
 
@@ -126,6 +137,23 @@ LSTM `ModuleNotFoundError: tensorflow` — you skipped the `lstm` extra. Re-run
 `ModuleNotFoundError: eeg_steptype` — you forgot the `-e .` install step.
 Re-run `pip install -e .` from the repo root.
 
+### 1.6 Container and CI
+
+The whole suite also runs in a CPU-only container built from the `Dockerfile`
+at the repo root (Python 3.12, the `dev` + `torch` extras, no TensorFlow):
+
+```powershell
+docker build -t eeg-steptype .
+docker run --rm eeg-steptype          # CMD is `pytest -q`
+```
+
+`.github/workflows/ci.yml` runs on every push and pull request and does the
+same two things: `ruff check .` plus `pytest -q` on Python 3.12, and a second
+job that builds the image and runs the suite inside it. Two groups of tests
+skip in those environments: the live Keras-vs-PyTorch parity checks (no
+TensorFlow installed) and the fsaverage preflight check (its BEM is a network
+download, so `EEG_STEPTYPE_SKIP_FSAVERAGE_TESTS=1` is set).
+
 ---
 
 ## 2. Variables Reference
@@ -140,7 +168,7 @@ subset relevant to their stage.
 | Flag | Values | Default | Effect |
 |---|---|---|---|
 | `--config PATH` | path to a YAML file | `configs/default.yaml` (implicit) | Layered overlay on top of `default.yaml` and `local.yaml`. Right-most overlay wins on key conflicts. |
-| `--speed-tier NAME` | `lightning`, `express`, `quick`, `riemannian`, `cnn`, `eegnet`, `eegnext` | (none) | Shortcut for `--config configs/<tier>.yaml`. Ignored if `--config` is also passed. `lightning` / `express` / `quick` are XGB-family speed trims; `riemannian` / `cnn` / `eegnet` / `eegnext` are separate model + data paths (epoch tensors instead of the flat parquet). See [§3.5](#35-speed-tiered-runs). |
+| `--speed-tier NAME` | `lightning`, `express`, `quick`, `riemannian`, `cnn`, `eegnet`, `eegnet_torch`, `eegnext` | (none) | Shortcut for `--config configs/<tier>.yaml`. Ignored if `--config` is also passed. `lightning` / `express` / `quick` are XGB-family speed trims; `riemannian` / `cnn` / `eegnet` / `eegnet_torch` / `eegnext` are separate model + data paths (epoch tensors instead of the flat parquet). See [§3.5](#35-speed-tiered-runs). |
 | `--prediction-window NAME` | named window from `prediction_windows` in config, e.g. `full_cnv`, `late_cnv` | `full_cnv` | Overrides `features.min_time` / `features.max_time` for this run only. Affects feature extraction and training. Omit it to use the default full-CNV window. |
 | `--participant-override-mode MODE` | `raw_assembly_only`, `full`, `none` | `raw_assembly_only` | How aggressively to apply per-participant YAMLs from `configs/overrides/Pxx.yaml`. `raw_assembly_only` keeps preprocessing uniform across the cohort. `full` opts into every per-participant tweak. `none` ignores the override files entirely. |
 
@@ -155,7 +183,7 @@ subset relevant to their stage.
 | Flag | Values | Default | Effect |
 |---|---|---|---|
 | `--stages STAGE ...` | subset of `preprocess`, `src`, `features`, `train` | all four | Which pipeline stages to execute, in the listed order. Skipped stages assume their inputs already exist on disk. (`run.py` only.) |
-| `--model NAME` | `xgb`, `svm`, `lstm`, `logistic`, `riemannian`, `cnn`, `eegnet`, `eegnext` | `cfg["modeling"]["default_model"]` if set (e.g. `riemannian` under `--speed-tier riemannian`), otherwise `xgb` | Which model factory to use during the `train` stage. See `src/eeg_steptype/models/README.md` for architectures. `riemannian` uses only the epoch-tensor cache; `cnn`, `eegnet`, and `eegnext` fuse that tensor with the XGB-style feature parquet (`eegnext` is the more sophisticated multi-scale + SE-attention + residual CNN). |
+| `--model NAME` | `xgb`, `svm`, `lstm`, `logistic`, `riemannian`, `cnn`, `eegnet`, `eegnet_torch`, `eegnext` | `cfg["modeling"]["default_model"]` if set (e.g. `riemannian` under `--speed-tier riemannian`), otherwise `xgb` | Which model factory to use during the `train` stage. See `src/eeg_steptype/models/README.md` for architectures. `riemannian` uses only the epoch-tensor cache; `cnn`, `eegnet`, `eegnet_torch`, and `eegnext` fuse that tensor with the XGB-style feature parquet (`eegnext` is the more sophisticated multi-scale + SE-attention + residual CNN; `eegnet_torch` is the PyTorch port of `eegnet` and needs the `torch` extra rather than TensorFlow). |
 | `--channel-mode MODE` | `full`, `roi` | `cfg["channel_selection"]["mode"]` (default `full`) | Train on every electrode (`full`) or only the medial foot-motor ROI defined under `channel_selection.roi.channels` (`roi`). Always `full` for tensor-input models. |
 | `--cv-mode MODE` | `repeated_stratified`, `grouped`, `chronological` | `cfg["modeling"]["cv"]["mode"]` (default `repeated_stratified`) | Outer cross-validation strategy. `grouped` uses `block_id` so trials from the same recording block stay together. `chronological` is a no-shuffle temporal sanity check. |
 | `--run-id NAME` | any string | auto-generated `<model>_<channel_mode>_<window>_<timestamp>` | Name of the output directory under `outputs/runs/`. Useful for resuming a run from per-participant CSV checkpoints. |
@@ -316,6 +344,9 @@ python run.py --speed-tier eegnet  --participants P25 --stages train
 # eegnext -- sophisticated CNN: multi-scale temporal stem + SE channel attention
 # + residual separable blocks (still hybrid, full_cnv window).
 python run.py --speed-tier eegnext --participants P25 --stages train
+# eegnet_torch -- the same EEGNet through PyTorch instead of Keras
+# (configs/eegnet_torch.yaml clones the eegnet overlay). Needs the torch extra.
+python run.py --speed-tier eegnet_torch --participants P25 --stages train
 ```
 
 ### 3.6 Stage-by-stage runs
@@ -607,8 +638,8 @@ the flat per-bin aggregates:
 
 | Cache file                                                              | Built by stage 3 for…              | Consumed by                           |
 |-------------------------------------------------------------------------|------------------------------------|---------------------------------------|
-| `data/features/<pid>_<cond>_features_t<min>-<max>[_b<bin>].parquet`     | `assemble.build_for_participant`   | `xgb`, `svm`, `logistic`, `lstm`, plus the tabular branch of `cnn`/`eegnet` |
-| `data/features/tensor/<pid>_<cond>_epochs_t<min>-<max>.npz`             | `tensor.build_tensor_for_participant` | `riemannian`, plus the tensor branch of `cnn`/`eegnet` |
+| `data/features/<pid>_<cond>_features_t<min>-<max>[_b<bin>].parquet`     | `assemble.build_for_participant`   | `xgb`, `svm`, `logistic`, `lstm`, plus the tabular branch of `cnn`/`eegnet`/`eegnet_torch`/`eegnext` |
+| `data/features/tensor/<pid>_<cond>_epochs_t<min>-<max>.npz`             | `tensor.build_tensor_for_participant` | `riemannian`, plus the tensor branch of `cnn`/`eegnet`/`eegnet_torch`/`eegnext` |
 
 Both are keyed by the prediction window (`_t<min>-<max>`), so the same
 participant can have, for example, `features_t0p0-2p0.parquet` for the

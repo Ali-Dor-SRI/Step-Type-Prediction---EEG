@@ -10,6 +10,7 @@ Submodules:
     logistic            tiny logistic-regression factory used by smoke tests
     cnn                 small EEGNet-inspired tensor CNN
     eegnet              compact EEGNet-style tensor CNN
+    eegnet_torch        PyTorch port of eegnet (nn.Module + sklearn wrapper)
     eegnext             multi-scale + SE-attention + residual hybrid CNN
     riemannian          xDAWN/covariance tensor comparator
     evaluate            confusion-matrix metrics + cohort rollup

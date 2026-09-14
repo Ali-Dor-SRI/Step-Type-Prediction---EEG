@@ -1,3 +1,5 @@
+[![CI](https://github.com/Aria-Doroodchi/Step-Type-Prediction---EEG/actions/workflows/ci.yml/badge.svg)](https://github.com/Aria-Doroodchi/Step-Type-Prediction---EEG/actions/workflows/ci.yml)
+
 # Single-Trial Movement-Intent Decoding from EEG
 
 A single-trial EEG decoding pipeline that predicts an upcoming movement —
@@ -32,7 +34,7 @@ Mapping the repository onto the stages a motor-BCI decoding team would recognise
 | **Signal conditioning** | ZapLine line-noise removal, PyPREP bad-channel detection, ASR, common-average → Picard ICA, current-source-density (CSD) referencing, AutoReject epoch repair |
 | **Neural source estimation** | eLORETA cortical source reconstruction (cached forward + inverse operators) |
 | **Feature extraction** | pre-movement amplitudes & slopes, Morlet time-frequency PSD across bands, source-space activity; Riemannian (xDAWN-covariance tangent-space) and FBCSP-style mu/beta log-variance features are scaffolded alongside |
-| **Decoders** | XGBoost, SVM, logistic regression, LSTM, and hybrid attention CNNs (EEGNet / EEGNeXt — multi-scale temporal stem + squeeze-and-excitation channel attention + residual separable blocks) |
+| **Decoders** | XGBoost, SVM, logistic regression, LSTM, and hybrid attention CNNs (EEGNet / EEGNeXt — multi-scale temporal stem + squeeze-and-excitation channel attention + residual separable blocks). EEGNet also ships as a PyTorch port (`eegnet_torch`), parity-tested against the Keras original |
 | **Model selection** | corr → KBest → RFECV → gain → SHAP feature pruning, GridSearch, per-participant **nested** cross-validation |
 | **Evaluation** | single-trial AUC / accuracy, a sliding-window AUC time-course, cohort roll-ups, and reproducible git-stamped runs |
 
@@ -297,6 +299,16 @@ pip install -e .[dev,lstm]         # editable install + extras
 The optional `lstm` extra pulls in TensorFlow + scikeras (large download);
 omit it if you only run XGBoost / SVM / logistic.
 
+The `torch` extra covers the PyTorch EEGNet port (`--model eegnet_torch`) and
+needs no TensorFlow. CPU wheels are enough:
+
+```bash
+pip install -e ".[dev,torch]" --extra-index-url https://download.pytorch.org/whl/cpu
+```
+
+The test suite also runs in a container — `docker build -t eeg-steptype .` then
+`docker run --rm eeg-steptype` — which is what the `docker` CI job does.
+
 ### R side
 
 The legacy R scripts in `02_models/R/` and `03_visualization/R/` are kept
@@ -342,7 +354,7 @@ BibTeX example:
   author  = {Doroodchi, Ali},
   title   = {Step-Type Prediction from EEG Signals},
   year    = {2026},
-  version = {2.5.0},
+  version = {2.6.0},
   url     = {https://github.com/Aria-Doroodchi/Step-Type-Prediction---EEG}
 }
 ```
