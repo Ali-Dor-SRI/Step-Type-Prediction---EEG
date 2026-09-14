@@ -31,10 +31,11 @@ python run.py --stages train --speed-tier quick --parallel-participants 6
 | `express`    | xgb / svm / logistic | ~4-8 min  | 2-4%              | 1 iter, step 0.2    | halving random, 25 iters, `n_estimators≤400`      | kept             | **skipped**      | 5 folds × 2    |
 | `quick`      | xgb / svm / logistic | ~10-15 min| <1.5%             | 2 iters, step 0.1   | halving random, 50 iters, `n_estimators≤600`      | kept             | kept (1 pass)    | 5 folds × 5    |
 | `riemannian` | riemannian (auto) | ~0.5-2 min | (separate baseline) | n/a (tensor input) | grid over `features__nfilter` × covariance estimator | n/a              | n/a              | 5 folds × 5    |
-| `cnn` / `eegnet` / `eegnext` | hybrid CNN (auto) | ~2-15 min† | (separate baseline) | n/a (tensor input) | grid over the model's param grid | n/a | n/a | 2 folds × 1 |
+| `cnn` / `eegnet` / `eegnet_torch` / `eegnext` | hybrid CNN (auto) | ~2-15 min† | (separate baseline) | n/a (tensor input) | grid over the model's param grid | n/a | n/a | 2 folds × 1 |
 | `default`    | xgb (and others, slow) | ~60-180 min | (baseline)    | 5 iters, step 0.05  | halving random, 100 iters, `n_estimators≤1000`    | kept             | kept (1 pass)    | 5 folds × 20   |
 
-† Requires the `lstm` extra (TensorFlow + scikeras). `eegnext` is the deepest of
+† `cnn` / `eegnet` / `eegnext` require the `lstm` extra (TensorFlow + scikeras);
+`eegnet_torch` requires the `torch` extra instead. `eegnext` is the deepest of
 the three (multi-scale stem + SE attention + residual blocks) and the slowest.
 
 The "time/participant" figures assume a typical multi-core workstation with
@@ -59,9 +60,11 @@ parallel.participants` once the joblib pool is saturated.
   `full_cnv` (0-2 s) window like every other model. Use as a comparator to the
   tree/kernel models, not as a faster XGB. The "AUC drop" column doesn't apply
   because there's no XGB baseline being approximated.
-- **cnn / eegnet / eegnext** — hybrid neural comparators on the epoch tensor
+- **cnn / eegnet / eegnet_torch / eegnext** — hybrid neural comparators on the epoch tensor
   fused with the tabular feature parquet (`full_cnv` window, `require_source`).
-  `cnn` and `eegnet` are compact EEGNet-style starters; `eegnext` adds a
+  `cnn` and `eegnet` are compact EEGNet-style starters; `eegnet_torch` is the
+  PyTorch port of `eegnet` (same layers and training settings, `torch` extra
+  instead of TensorFlow); `eegnext` adds a
   multi-scale temporal stem, squeeze-and-excitation channel attention, and
   residual separable blocks for when those starters leave signal on the table.
   All need the `lstm` extra (TensorFlow).

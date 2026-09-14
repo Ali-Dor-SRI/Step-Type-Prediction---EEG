@@ -42,6 +42,27 @@ The real `01_preprocess.py` stage isn't covered here because it requires
 make smoke    # runs configs/smoke.yaml end-to-end on the first participant
 ```
 
+## `test_eegnet_torch.py` — the PyTorch EEGNet port
+
+Checks `models/eegnet_torch.py` against the Keras `models/eegnet.py` it ports:
+
+- parameter counts vs constants recorded from the Keras model (these run
+  anywhere, including CI, which installs no TensorFlow);
+- live parity where TensorFlow *is* installed (`.venv312`): parameter counts, a
+  forward pass with the Keras weights copied in, and the max-norm constraint
+  against Keras's own `MaxNorm`. These skip elsewhere;
+- the max-norm bound after real training steps, with a control run that proves
+  the check fails when the constraint is skipped;
+- Keras validation-split and early-stopping semantics;
+- the scikit-learn wrapper (fit / predict / clone / determinism) and the config
+  overlay being a faithful clone of `configs/eegnet.yaml`;
+- an end-to-end `scripts/04_train.py --model eegnet_torch` run on
+  `configs/smoke.yaml` plus the overlay, on synthetic epochs in `tmp_path`.
+
+```bash
+pytest tests/test_eegnet_torch.py -q
+```
+
 ## Running everything
 
 ```bash

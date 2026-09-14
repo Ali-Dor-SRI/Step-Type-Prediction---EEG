@@ -48,6 +48,7 @@ SPEED_TIERS = {
     "riemannian": "configs/riemannian.yaml",
     "cnn": "configs/cnn.yaml",
     "eegnet": "configs/eegnet.yaml",
+    "eegnet_torch": "configs/eegnet_torch.yaml",
     "eegnext": "configs/eegnext.yaml",
 }
 

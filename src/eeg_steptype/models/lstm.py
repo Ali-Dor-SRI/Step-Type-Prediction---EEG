@@ -15,7 +15,6 @@ def make_lstm(cfg: dict, *, n_features: int, n_timesteps: int = 1):
     by units / dropout drawn from cfg["modeling"]["lstm"].
     """
     from scikeras.wrappers import KerasClassifier
-    import tensorflow as tf
     from tensorflow.keras.models import Sequential
     from tensorflow.keras.layers import LSTM, Dense, Dropout, Bidirectional, Input
 

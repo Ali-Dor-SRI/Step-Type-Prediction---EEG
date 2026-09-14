@@ -1,0 +1,67 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  PYTHONUTF8: "1"
+  MPLBACKEND: Agg
+  # The fsaverage BEM is a network download (mne.datasets.fetch_fsaverage) and
+  # is not in the repo, so the one test that resolves it skips here.
+  EEG_STEPTYPE_SKIP_FSAVERAGE_TESTS: "1"
+  TORCH_INDEX: https://download.pytorch.org/whl/cpu
+
+jobs:
+  tests:
+    name: Python 3.12 - ruff + pytest (CPU torch, no TensorFlow)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: pyproject.toml
+
+      - name: Install package with the dev + torch extras
+        # torch/torchaudio come from the CPU index first so nothing later
+        # resolves the multi-GB CUDA wheels from PyPI.
+        run: |
+          python -m pip install --upgrade pip
+          pip install torch torchaudio --index-url "$TORCH_INDEX"
+          pip install -e ".[dev,torch]" --extra-index-url "$TORCH_INDEX"
+
+      - name: Ruff
+        run: ruff check .
+
+      - name: Pytest
+        run: pytest -q
+
+      - name: Collected test count
+        run: pytest --collect-only -q | tail -1
+
+  docker:
+    name: Docker image - pytest inside the container
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build image
+        run: docker build -t eeg-steptype:ci .
+
+      - name: Image size
+        run: docker image ls eeg-steptype:ci --format '{{.Repository}}:{{.Tag}} {{.Size}}'
+
+      - name: Run the test suite in the container
+        run: docker run --rm eeg-steptype:ci

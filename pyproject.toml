@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "eeg_steptype"
-version = "0.1.0"
+version = "2.6.0"
 description = "Step-type prediction from EEG signals (MSc thesis pipeline)."
 readme = "README.md"
 requires-python = ">=3.10"
@@ -36,6 +36,11 @@ dependencies = [
 lstm = ["tensorflow>=2.13", "scikeras>=0.12"]
 cnn = ["tensorflow>=2.13", "scikeras>=0.12"]
 eegnet = ["tensorflow>=2.13", "scikeras>=0.12"]
+# PyTorch EEGNet port (models/eegnet_torch.py). CPU wheels are enough:
+#   pip install -e ".[torch]" --extra-index-url https://download.pytorch.org/whl/cpu
+# braindecode (a core dependency) already pulls torch in; this extra states the
+# requirement explicitly and is what the Dockerfile and CI install.
+torch = ["torch>=2.1"]
 riemannian = ["pyriemann>=0.7"]
 dev  = ["pytest>=7", "ruff>=0.1"]
 
@@ -44,3 +49,10 @@ where = ["src"]
 
 [tool.setuptools.package-data]
 eeg_steptype = ["py.typed"]
+
+[tool.ruff]
+# Lint the package, its tests and the CLI drivers with ruff's default rules.
+# outputs/ holds recorded-result harness scripts that are never edited, and
+# scripts/stim_module/ carries pre-existing style debt (mostly E702) outside the
+# CI gate; both are excluded rather than rewritten.
+extend-exclude = ["outputs", "scripts/stim_module"]

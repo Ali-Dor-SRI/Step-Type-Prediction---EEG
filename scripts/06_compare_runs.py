@@ -37,6 +37,13 @@ import pandas as pd
 import yaml
 
 
+# Models that run on one dedicated tier named after the model
+# (configs/<model>.yaml): the covariance comparator and the tensor neural
+# models. Every tier/model classification below reads this one tuple, so
+# registering a new tensor model is a single edit here.
+SINGLE_TIER_MODELS = ("riemannian", "cnn", "eegnet", "eegnet_torch", "eegnext")
+
+
 # ---------------------------------------------------------------------------
 def main() -> None:
     p = argparse.ArgumentParser()
@@ -57,7 +64,7 @@ def main() -> None:
     )
     p.add_argument(
         "--default-tier", default=None,
-        choices=["lightning", "express", "quick", "riemannian", "cnn", "eegnet", "eegnext"],
+        choices=["lightning", "express", "quick", *SINGLE_TIER_MODELS],
         help=(
             "Tier to assign when neither the run directory name nor the "
             "config snapshot reveals one. Useful when run-ids were named "
@@ -132,7 +139,7 @@ def _expand_run_dirs(patterns: list[str]) -> list[Path]:
 def _load_run(run_dir: Path, *, default_tier: str | None = None) -> dict:
     metrics = run_dir / "metrics.csv"
     if not metrics.exists():
-        raise FileNotFoundError(f"missing metrics.csv")
+        raise FileNotFoundError("missing metrics.csv")
     df = pd.read_csv(metrics)
     if df.empty:
         raise ValueError("metrics.csv is empty")
@@ -163,8 +170,9 @@ def _infer_model(df: pd.DataFrame, cfg: dict, run_dir: Path) -> str:
     if default:
         return str(default)
     name = run_dir.name.lower()
-    # eegnext before eegnet so the more specific token wins the name match.
-    for m in ("riemannian", "eegnext", "eegnet", "cnn", "logistic", "xgb", "svm", "lstm"):
+    # Longer tokens first so the more specific name wins the match
+    # (eegnext / eegnet_torch before eegnet).
+    for m in ("riemannian", "eegnext", "eegnet_torch", "eegnet", "cnn", "logistic", "xgb", "svm", "lstm"):
         if m in name:
             return m
     return "unknown"
@@ -191,8 +199,9 @@ def _infer_tier(cfg: dict, run_dir: Path, *, default_tier: str | None = None) ->
 
     # 2. Run-directory name token.
     name = run_dir.name.lower()
-    # eegnext before eegnet so the more specific token wins the name match.
-    for t in ("riemannian", "eegnext", "eegnet", "cnn", "lightning", "express", "quick"):
+    # Longer tokens first so the more specific name wins the match
+    # (eegnext / eegnet_torch before eegnet).
+    for t in ("riemannian", "eegnext", "eegnet_torch", "eegnet", "cnn", "lightning", "express", "quick"):
         if t in name:
             return t
 
@@ -238,7 +247,7 @@ def _tier_from_modeling_signature(cfg: dict) -> str | None:
     default_model = m.get("default_model")
 
     # Tensor-model tiers pin default_model.
-    if default_model in {"riemannian", "cnn", "eegnet", "eegnext"}:
+    if default_model in SINGLE_TIER_MODELS:
         return str(default_model)
 
     # Lightning: aggressive trim. 3x1 CV, no RFECV, no SHAP, grid search.
@@ -313,7 +322,7 @@ def diagnostic_2_slope(runs: list[dict]) -> pd.DataFrame:
                 "lightning_auc": float(lightning.mean()) if lightning is not None and len(lightning) else float("nan"),
                 "slope (Express − Lightning)": float("nan"),
                 "interpretation": "n/a (single-tier model)"
-                if model in {"riemannian", "cnn", "eegnet", "eegnext"} else "missing tier run",
+                if model in SINGLE_TIER_MODELS else "missing tier run",
             })
             continue
         ex_mean = float(express.mean())
@@ -342,7 +351,7 @@ def diagnostic_3_variance(runs: list[dict]) -> pd.DataFrame:
     for r in runs:
         # Only consider primary-tier results: express for tabular models, or
         # each tensor model's single tier.
-        if r["tier"] not in ("express", "riemannian", "cnn", "eegnet", "eegnext"):
+        if r["tier"] not in ("express", *SINGLE_TIER_MODELS):
             continue
         df = r["metrics"]
         if "auc" not in df.columns or "participant_id" not in df.columns:
@@ -366,7 +375,7 @@ def diagnostic_3_variance(runs: list[dict]) -> pd.DataFrame:
 def diagnostic_4_inner_outer_gap(runs: list[dict]) -> pd.DataFrame:
     rows = []
     for r in runs:
-        if r["tier"] not in ("express", "riemannian", "cnn", "eegnet", "eegnext"):
+        if r["tier"] not in ("express", *SINGLE_TIER_MODELS):
             continue
         df = r["metrics"]
         if "inner_best_score" not in df.columns or "overall_accuracy" not in df.columns:
@@ -397,7 +406,7 @@ def diagnostic_4_inner_outer_gap(runs: list[dict]) -> pd.DataFrame:
 def diagnostic_5_ranking(runs: list[dict]) -> tuple[pd.DataFrame, pd.DataFrame]:
     by_part: dict[str, dict[str, float]] = defaultdict(dict)
     for r in runs:
-        if r["tier"] not in ("express", "riemannian", "cnn", "eegnet", "eegnext"):
+        if r["tier"] not in ("express", *SINGLE_TIER_MODELS):
             continue
         df = r["metrics"]
         if "auc" not in df.columns or "participant_id" not in df.columns:
