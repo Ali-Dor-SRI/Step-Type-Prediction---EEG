@@ -19,8 +19,8 @@ source-space activity reconstructed via eLORETA.
 Originally developed as an MSc neuroscience thesis on movement planning.
 
 > **Scope.** This is an *offline* decoder: trained and evaluated on recorded
-> EEG, single-trial and per-participant. It is not a real-time / closed-loop
-> system — it is the same signal-processing and modelling stack a motor BCI
+> EEG, single-trial and per-participant. It does not run online or in closed
+> loop — it is the same signal-processing and modelling stack a motor BCI
 > relies on, applied retrospectively.
 
 ---
@@ -35,7 +35,7 @@ Mapping the repository onto the stages a motor-BCI decoding team would recognise
 | **Neural source estimation** | eLORETA cortical source reconstruction (cached forward + inverse operators) |
 | **Feature extraction** | pre-movement amplitudes & slopes, Morlet time-frequency PSD across bands, source-space activity; Riemannian (xDAWN-covariance tangent-space) and FBCSP-style mu/beta log-variance features are scaffolded alongside |
 | **Decoders** | XGBoost, SVM, logistic regression, LSTM, and hybrid attention CNNs (EEGNet / EEGNeXt — multi-scale temporal stem + squeeze-and-excitation channel attention + residual separable blocks). EEGNet also ships as a PyTorch port (`eegnet_torch`), parity-tested against the Keras original |
-| **Model selection** | corr → KBest → RFECV → gain → SHAP feature pruning, GridSearch, per-participant **nested** cross-validation |
+| **Model selection** | for the tabular models, a corr → ANOVA k-best → stability-selection funnel, plus gain and SHAP pruning for XGBoost (legacy RFECV opt-in), fit inside each training fold; the tensor models skip it. Hyperparameter search inside per-participant **nested** cross-validation |
 | **Evaluation** | single-trial AUC / accuracy, a sliding-window AUC time-course, cohort roll-ups, and reproducible git-stamped runs |
 
 ---
@@ -61,7 +61,7 @@ make all                        # all stages, default model = xgb
 make train MODEL=lstm           # just the training stage with a different model
 make all OVERRIDE_MODE=full     # opt into participant-specific fine-tuning
 make train CHANNEL_MODE=roi     # train on medial foot-motor ROI features
-make train PREDICTION_WINDOW=full_cnv  # secondary full-window analysis
+make train PREDICTION_WINDOW=late_cnv  # secondary late-window (1–2 s) comparison
 ```
 
 See [`SCRIPT_GUIDES.md`](SCRIPT_GUIDES.md) for copy-paste commands covering
@@ -205,7 +205,7 @@ raw_assembly:
 raw .bdf  ──►  01_preprocess          (ZapLine, PyPREP bads, ASR, CAR→Picard ICA→CSD, autoreject)
            ──►  02_source_localize    (cached forward + inverse, eLORETA)
            ──►  03_extract_features   (amplitude, slopes, PSD → parquet)
-           ──►  04_train              (corr → KBest → RFECV → gain → SHAP → GridSearch)
+           ──►  04_train              (tabular: corr → k-best → stability selection → gain/SHAP prune; nested search)
            ──►  05_visualize
 ```
 
@@ -285,6 +285,20 @@ Every training run writes a stamped folder under `outputs/runs/<run_id>/`:
 
 This means a result can be reproduced by checking out the recorded git SHA
 and running `python run.py --config <runs/.../config.yaml>`.
+
+### Confidence intervals
+
+The `auc_ci95` and `overall_accuracy_ci95` columns in each run's `rollup.csv`,
+and the `ci95` / `±` columns of the screening reports, are **fold-level**:
+1.96 · SD / √n over all outer CV folds pooled across participants
+(`src/eeg_steptype/models/evaluate.py:65,68`). Folds from the same participant
+are not independent, so that interval is too narrow for a claim about the
+cohort. Where these docs quote a headline result they also give a
+**participant-level** interval: average each participant's folds first, then
+take 1.96 · SD / √n over participants. For the full-CNV XGBoost result
+(`bin_full_cnv_rich_mean_0125_xgb`, AUC 0.655, n = 20 participants × 10 folds)
+the fold-level interval is ±0.025 and the participant-level interval is ±0.060.
+An unlabelled `±` or `ci95` in this repository is fold-level.
 
 ---
 

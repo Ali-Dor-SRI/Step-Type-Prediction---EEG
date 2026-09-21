@@ -1,5 +1,20 @@
 # Changelog
 
+## 2026-09-21 — Documentation corrections
+
+Docs only: no code, config, model or result changed. Each value was re-read from
+the run artifact or source line it cites.
+
+- **CV design of the 0.655 run:** `bin_full_cnv_rich_mean_0125_xgb` and the five late-window binning runs are express tier, 5 splits × 2 repeats with 2 inner folds (10 folds per participant), not 5 × 20 — fixed in XGB_MODEL_SUMMARY §3.1/§3.4/§3.5, the 2026-06-12 entry below, `RICH_POOLING_SUMMARY.md` and the perf-loop `LEDGER.md`.
+- **Inner-CV metric:** no config sets `modeling.scoring`, so the binary models' inner search scores accuracy (`models/train.py:791`); every binary gap (+0.169; +0.173 → −0.014; +0.198 → −0.039; +0.177 → −0.036) is inner accuracy − held-out AUC, and the XGB_MODEL_SUMMARY §3.1 column that read "Inner-CV AUC" is relabelled, as are the pooling tables in MODELS §7 and `docs/OVERFITTING_GAP_SOLUTIONS.md`.
+- **Confidence intervals:** the `ci95` written by `evaluate.py` is fold-level (1.96·SD/√n over CV folds) and is now labelled so in the screening reports, MODELS §7 and XGB_MODEL_SUMMARY §3.3; headline results also carry a participant-level interval (0.655: ±0.060 participant-level vs ±0.025 fold-level), method in README → Confidence intervals.
+- **Primary window:** MODELS §1/§2, XGB_MODEL_SUMMARY §3, SCRIPT_GUIDES §3.9 and a README example comment called late CNV (1–2 s) primary; `configs/default.yaml` makes full CNV (0–2 s) primary.
+- **Late-window comparator:** the matched late-window value for 0.655 is 0.568 (same `rich_mean_0125` recipe, n = 20); the D1 rows had paired 0.65 with 0.58 (the n = 8 screen) or 0.56.
+- **Pooling lift:** +0.031 (t = 1.27, n = 20) is from the reduced ~2.3k-feature fast set (`r1_pool_confirm20`) and +0.0386 (t = 1.17) from the rich set; each mention now names its set, and the 2026-06-10 entry below no longer calls the 4-fold × 1-repeat confirm "express CV".
+- **BiLSTM:** MODELS §8 implied an invalidated LSTM result; there is none — it was left out of screening because the driver feeds one timestep per feature.
+- **Feature-selection scope:** README presented the corr → k-best → RFECV → gain → SHAP funnel as the selection stage for every decoder; it runs for the tabular models only (stability selection is the default selector, RFECV legacy) and the tensor models skip it.
+- **Status and wording:** MODELS §8/§9 now record the finished 20-subject pooling confirms, the README scope note no longer uses "real-time", and the 2026-05-29 screening summary carries a dated note that the default window has since changed.
+
 ## 2026-09-14 — PyTorch EEGNet port, Docker image, GitHub Actions CI (v2.6.0)
 
 ### Added
@@ -148,7 +163,7 @@ unblocks it; everything else is config + docs.
 
 | arm | cohort AUC | gap |
 |---|---|---|
-| recorded rich per-participant (heavy funnel + src, 5×20 CV) | 0.655 | +0.169 |
+| recorded rich per-participant (heavy funnel + src, 5×2 express CV) | 0.655 | +0.169 |
 | per_participant (matched: no-src, light funnel) | 0.5990 | +0.1978 |
 | **partial (rich pooled)** | **0.6376** | **−0.0385** |
 
@@ -214,7 +229,7 @@ on the full 20-subject cohort as the strongest lever on the inner-vs-outer overf
     epochs, same test folds (paired), subject-grouped inner CV. Enable via `configs/pooling.yaml`
     or set the key directly. `full` = leave-one-subject-out transfer.
 
-### Results (20-subject cohort, 2.3k fast feature set, express CV; `r1_pool_confirm20`)
+### Results (20-subject cohort, 2.3k fast feature set, 4-fold × 1-repeat CV with 2 inner folds; `r1_pool_confirm20`)
 
 | mode | cohort AUC | overfit gap |
 |---|---|---|

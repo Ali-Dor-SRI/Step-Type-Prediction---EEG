@@ -421,16 +421,16 @@ python run.py --speed-tier express --participants P25 --model xgb --channel-mode
 
 ### 3.9 Prediction-window analyses
 
-Late CNV (primary, default):
-
-```powershell
-python run.py --speed-tier express --participants P25 --prediction-window late_cnv
-```
-
-Full 0-2 s window (secondary analysis):
+Full CNV, 0-2 s (primary, default):
 
 ```powershell
 python run.py --speed-tier express --participants P25 --prediction-window full_cnv
+```
+
+Late CNV, 1-2 s (secondary comparison):
+
+```powershell
+python run.py --speed-tier express --participants P25 --prediction-window late_cnv
 ```
 
 ### 3.10 Cross-validation strategy switches

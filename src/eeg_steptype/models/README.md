@@ -226,7 +226,7 @@ other models use — `eegnext` is wired into all of them, no bespoke tooling:
   (`metrics.csv`, `rollup.csv`, config snapshot, git SHA) via the generic
   `train.py` → `evaluate.py` path. `scripts/05_visualize.py` plots it.
 - **Cross-model screening** (`scripts/06_compare_runs.py`) aggregates runs into
-  the five diagnostics (AUC ± CI, tier slope, fold variance, inner-vs-outer gap,
+  the five diagnostics (AUC ± fold-level CI, tier slope, fold variance, inner-vs-outer gap,
   per-participant ranking); `eegnext` is recognised as a tensor-model tier.
 - **Occlusion diagnostics** (`scripts/08_tensor_model_diagnostics.py`) — the
   same channel/time-occlusion probe used for `cnn`/`eegnet`:

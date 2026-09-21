@@ -20,7 +20,7 @@ the best-AUC region trustworthy.
 
 | arm | cohort AUC | gap | note |
 |---|---|---|---|
-| recorded rich per-participant (heavy funnel + src, 5×20 CV) | **0.655** | **+0.169** | project's best per-subject AUC, optimistic gap |
+| recorded rich per-participant (heavy funnel + src, 5×2 express CV) | **0.655** | **+0.169** | project's best per-subject AUC, optimistic gap |
 | per_participant (matched: no-src, light funnel, 4-fold) | 0.5990 | +0.1978 | the clean paired baseline |
 | **partial (rich pooled)** | **0.6376** | **−0.0385** | **+0.0386 paired (t=1.17); gap collapses** |
 
