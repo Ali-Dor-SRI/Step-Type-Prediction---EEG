@@ -16,6 +16,10 @@ cross-validation and fully reproducible, stamped runs. Features come from
 electrode-level amplitudes, power spectral density (Morlet TFR), and
 source-space activity reconstructed via eLORETA.
 
+A second package, `eeg_statetype`, reuses the same machinery for a three-class
+motor-state problem (quiet standing vs straight step vs diagonal step) on a
+32-participant subset of the same recordings.
+
 Originally developed as an MSc neuroscience thesis on movement planning.
 
 > **Scope.** This is an *offline* decoder: trained and evaluated on recorded
@@ -37,6 +41,62 @@ Mapping the repository onto the stages a motor-BCI decoding team would recognise
 | **Decoders** | XGBoost, SVM, logistic regression, LSTM, and hybrid attention CNNs (EEGNet / EEGNeXt — multi-scale temporal stem + squeeze-and-excitation channel attention + residual separable blocks). EEGNet also ships as a PyTorch port (`eegnet_torch`), parity-tested against the Keras original |
 | **Model selection** | for the tabular models, a corr → ANOVA k-best → stability-selection funnel, plus gain and SHAP pruning for XGBoost (legacy RFECV opt-in), fit inside each training fold; the tensor models skip it. Hyperparameter search inside per-participant **nested** cross-validation |
 | **Evaluation** | single-trial AUC / accuracy, a sliding-window AUC time-course, cohort roll-ups, and reproducible git-stamped runs |
+
+---
+
+## Results
+
+Every number below is **single-trial, per-participant and held out** under nested
+cross-validation, with the feature-selection funnel refit inside each training
+fold. Chance is 0.50 AUC for the binary task and 0.333 accuracy for the
+three-class one.
+
+| Task | Window | Cohort | Outer CV | Held-out score | 95% CI (participant-level) |
+|---|---|---|---|---|---|
+| straight vs diagonal step | full CNV, 0–2 s | 20 | 5 × 2 | **0.655** AUC | ±0.060 |
+| straight vs diagonal step | late CNV, 1–2 s (same recipe) | 20 | 5 × 2 | 0.568 AUC | ±0.062 |
+| standing vs straight vs diagonal | 0–2 s | 32 | 5 × 10 | **0.878** macro-OVR AUC | ±0.018 |
+
+All three use XGBoost. Intervals are participant-level; see
+[Confidence intervals](#confidence-intervals) for why the fold-level `ci95` in
+the run folders is narrower (±0.025, ±0.025 and ±0.003 respectively).
+
+**What the numbers say.**
+
+- **The prediction window matters more than the model.** Five binning recipes on
+  the late window span only 0.558–0.568; moving the same `rich_mean_0125` recipe
+  to the full window lifts XGBoost to 0.655. Details in
+  [`XGB_MODEL_SUMMARY.md`](XGB_MODEL_SUMMARY.md) §3.1.
+- **Cross-subject partial pooling buys honesty more than accuracy.** It collapses
+  the inner-vs-outer gap from +0.173 to −0.014 on the reduced ~2.3k-feature set
+  (and +0.198 → −0.039 on the rich set), but the paired AUC lift is **+0.031
+  (t = 1.27, n = 20), which is not statistically significant** — +0.0386
+  (t = 1.17) on the rich set. `modeling.pooling.mode: partial` is an opt-in;
+  the default stays per-participant.
+- **In the three-class task, standing is the easy class for an uninteresting
+  reason.** Per-class recall is standing 0.964, straight 0.628, diagonal 0.611
+  against 0.333 chance. The stimulation train runs continuously and matched
+  across all three states, so it cannot separate them; what separates standing
+  from stepping is **gross movement** — postural EMG, motion and cable artifact.
+  The confound-free contrast is **straight vs diagonal**, which shares both
+  movement and stimulation.
+- **The binary and three-class overfit gaps are not the same quantity.** No
+  committed config sets `modeling.scoring`, so the binary inner search scores
+  accuracy and its gap is inner accuracy − held-out AUC; the three-class search
+  scores macro-OVR AUC (`roc_auc_ovr`), so its 0.047 gap is AUC − AUC.
+
+**What these numbers are not.** EEGNet's 0.94 on P13 is an in-sample
+diagnostic fit that refits and scores on the same epochs, not a held-out result.
+EEGNeXt is implemented and wired in but has never been run. There is no BiLSTM
+result: it was left out of screening because the driver feeds one timestep per
+feature. `eegnet_torch` has one two-fold sanity run on one participant.
+
+**Where the numbers live.** The three-class run's per-fold metrics are in the
+repository at `outputs/state_module/runs/state_screen_xgb_combined/`. The binary
+runs under `outputs/runs/` are **not** in Git (they are large and synced through
+OneDrive), so the binary table is reproducible here only from the aggregated
+screening reports in [`outputs/screening/`](outputs/screening), whose intervals
+are fold-level.
 
 ---
 
@@ -107,9 +167,10 @@ python scripts/04_train.py --model xgb --prediction-window full_cnv
 │   ├── default.yaml          # all knobs: paths, participants, params, grids
 │   ├── local.yaml.example    # per-machine override (commit local.yaml as gitignored)
 │   ├── smoke.yaml            # tiny config for end-to-end smoke runs
-│   └── overrides/            # one YAML per participant — preserves manual cuts/appends
-│       ├── P01.yaml … P39.yaml
-│       └── README.md
+│   ├── overrides/            # one YAML per participant — preserves manual cuts/appends
+│   │   ├── P01.yaml … P39.yaml
+│   │   └── README.md
+│   └── state/                # 3-class cohort configs (screen32.yaml = full cohort)
 │
 ├── src/eeg_steptype/         # importable package (pip install -e .)
 │   ├── config.py             # YAML loading + per-participant merge
@@ -131,10 +192,18 @@ python scripts/04_train.py --model xgb --prediction-window full_cnv
 │   │   └── evaluate.py       # confusion matrix + cohort rollup
 │   └── viz/                  # plots
 │
+├── src/eeg_statetype/        # second package: 3-class motor state
+│   │                         #   (standing / straight / diagonal)
+│   ├── preprocessing/        # state events, standing windows, epoching
+│   ├── features/             # shared blocks + per-epoch SEP features
+│   ├── models/               # reuses eeg_steptype's driver; 3-class evaluate
+│   └── viz/                  # result plots
+│
 ├── scripts/                  # thin per-stage CLI orchestrators
 │   ├── 01_preprocess.py        02_source_localize.py
 │   ├── 03_extract_features.py  04_train.py
-│   └── 05_visualize.py
+│   ├── 05_visualize.py
+│   └── state_module/         # 3-class cohort runner, ablation, reports
 │
 ├── tests/                    # smoke tests
 │   ├── test_imports.py       # every module imports cleanly
@@ -152,6 +221,7 @@ python scripts/04_train.py --model xgb --prediction-window full_cnv
 │   └── figs/                   topomaps, brain plots
 │
 ├── run.py                    # single-process pipeline driver
+├── run_state.py              # same, for the 3-class state pipeline
 ├── Makefile                  # `make smoke`, `make preprocess`, `make train MODEL=…`
 ├── pyproject.toml            # installable package
 ├── requirements.txt

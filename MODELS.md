@@ -72,7 +72,7 @@ results we have so far, and (d) decide what to do next. Figures are a mix of
 | BiLSTM | Recurrent NN | Sequence | Deep comparator | no result (excluded from screening) | Driver feeds one timestep per feature; needs real windowing first |
 | Riemannian | Covariance + LDA | Raw epoch tensor | Comparator | 0.53 | Calibrated but flat |
 | CNN | Conv NN (hybrid) | Tensor + tabular | Comparator | 0.63 baseline (late) | Promising; window-limited |
-| EEGNet | Conv NN (hybrid) | Tensor + tabular | Comparator | **0.94** baseline (full, P13) | Strongest single-subject signal |
+| EEGNet | Conv NN (hybrid) | Tensor + tabular | Comparator | **0.94** baseline (full, P13) — **in-sample**, not held out (§5.7b) | Strongest single-subject signal |
 | EEGNet (PyTorch port) | Conv NN (hybrid) | Tensor + tabular | Framework port of EEGNet | 0.59 (P13, held-out, one-subject check) | Parity-tested against Keras; same model, not a new one |
 | EEGNeXt | Multi-scale conv + SE + residual (hybrid) | Tensor + tabular | Comparator | not yet run | Sophisticated upgrade of EEGNet |
 | Shrinkage-LDA | Linear discriminant | 9-ch ERP bins | ERP benchmark | not yet run | Cheap sanity baseline |
@@ -869,7 +869,8 @@ global model.
 ![REAL · eegnet vs cnn](docs/models_figs/real_eegnet_vs_cnn.png)
 
 The full-window EEGNet baseline beats the late-window CNN baseline for **most
-participants**, and reaches 0.94 on P13 — independent corroboration of the
+participants**, and reaches 0.94 on P13 (an **in-sample** diagnostic fit — see
+§5.7b) — independent corroboration of the
 window effect from a completely different model family.
 
 ### CNN time-occlusion — which moments matter
