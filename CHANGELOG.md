@@ -1,5 +1,21 @@
 # Changelog
 
+## 2026-09-22 — README results section
+
+- **`README.md`** — a **Results** section: the three headline numbers (binary
+  0.655 full-CNV and 0.568 late-CNV at n = 20, three-class 0.878 at n = 32), each
+  with its participant-level 95% CI and outer-CV design, the window-vs-binning
+  finding, the pooling result stated as the non-significant +0.031 it is, the
+  gross-movement caveat on standing recall, and an explicit list of what the
+  numbers are *not* (EEGNet's 0.94 is in-sample, EEGNeXt never run, no BiLSTM
+  result, `eegnet_torch` one-subject). It also says which run artifacts are in
+  the repository and which are not.
+- **`README.md`** — the repository-layout tree and the intro now show the second
+  package (`src/eeg_statetype/`, `configs/state/`, `scripts/state_module/`,
+  `run_state.py`).
+- **`MODELS.md`** — the §1 roster table and §7 now mark EEGNet's 0.94 on P13 as
+  in-sample, matching the note already in §5.7b.
+
 ## 2026-09-22 — Three-class motor-state module merged (v2.7.0)
 
 `feat/state-classification` merged into `main`. It adds a **second decoding
