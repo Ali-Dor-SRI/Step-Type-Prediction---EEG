@@ -1,8 +1,9 @@
 # Closing the inner-vs-outer overfitting gap (XGBoost)
 
 _Companion to [`XGB_MODEL_SUMMARY.md`](../XGB_MODEL_SUMMARY.md). Focus: the
-**+0.17 to +0.24 AUC gap** between the inner-CV score the hyperparameter search
-sees and the held-out outer-fold AUC actually reported._
+**+0.17 to +0.24 gap** between the inner-CV score the hyperparameter search
+sees (accuracy — see "Metric mismatch" in §1) and the held-out outer-fold AUC
+actually reported._
 
 **Goal (per discussion):** both *honest numbers* (a non-optimistic inner
 estimate) **and** *better generalization* (higher held-out AUC). Runtime is
@@ -159,7 +160,7 @@ python scripts/09_pooling_comparison.py --config configs/pooling_compare.yaml
 feature set (~2.3k cols) for tractability — the **relative** gap is the point,
 not the absolute AUC. Source: `outputs/runs/pooling_compare_demo/pooling_summary.csv`.
 
-| mode | folds | held-out AUC | inner-CV | **gap (inner − outer)** |
+| mode | folds | held-out AUC | inner-CV accuracy | **gap (inner acc − outer AUC)** |
 |---|---|---|---|---|
 | `per_participant` (baseline) | 32 | 0.567 | 0.744 | **+0.177** |
 | `full` (leave-subject-out) | 8 | 0.626 | 0.611 | **−0.015** |

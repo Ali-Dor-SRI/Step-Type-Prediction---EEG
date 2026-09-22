@@ -11,11 +11,11 @@ _Generated 2026-05-15 15:56:38 by `scripts/06_compare_runs.py`_
 
 All five diagnostics are computed on the **Express** tier (primary tier; for Riemannian: the `riemannian` tier — its single config). Diagnostic 2 (tier-response slope) additionally consumes the **Lightning** tier runs for the three classical models.
 
-## Diagnostic 1 — Mean test AUC ± 95% CI
+## Diagnostic 1 — Mean test AUC ± fold-level 95% CI
 
-Per-fold ROC-AUC averaged across all CV folds × participants, with a Wald 95% CI. Higher mean is better; tighter CI means more consistent estimates.
+Per-fold ROC-AUC averaged across all CV folds × participants, with a fold-level Wald 95% CI (1.96 · SD / √n over folds; folds from one participant are not independent, so this is narrower than a participant-level interval — see [README — Confidence intervals](README.md#confidence-intervals)). Higher mean is better; tighter CI means more consistent estimates.
 
-| model | tier | n_folds | mean_auc | ci95 | sd |
+| model | tier | n_folds | mean_auc | ci95 (fold-level) | sd |
 |---|---|---|---|---|---|
 | logistic | express | 110 | 0.6485 | ± 0.0291 | 0.1557 |
 | riemannian | riemannian | 275 | 0.4888 | ± 0.0176 | 0.1490 |

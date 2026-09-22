@@ -16,10 +16,13 @@ logistic.py             — sklearn LogisticRegression factory (baseline / smoke
 lstm.py                 — Keras Sequential BiLSTM factory (deep comparator)
 riemannian.py           — covariance-based comparator (XdawnCovariances + MDM)
 cnn.py                  — convolutional comparator (Braindecode-style)
+eegnet.py               — compact EEGNet hybrid (Keras; max-norm constraints)
+eegnet_torch.py         — PyTorch port of eegnet (nn.Module + sklearn wrapper)
+eegnext.py              — multi-scale + SE-attention + residual hybrid CNN
 ```
 
 Every model is registered in `MODEL_FACTORIES` in `train.py`. Pick one on the
-CLI with `--model {xgb,svm,lstm,logistic}`.
+CLI with `--model {xgb,svm,lstm,logistic,riemannian,cnn,eegnet,eegnet_torch,eegnext}`.
 
 ## Training driver — what `train.py` does
 
@@ -223,7 +226,7 @@ other models use — `eegnext` is wired into all of them, no bespoke tooling:
   (`metrics.csv`, `rollup.csv`, config snapshot, git SHA) via the generic
   `train.py` → `evaluate.py` path. `scripts/05_visualize.py` plots it.
 - **Cross-model screening** (`scripts/06_compare_runs.py`) aggregates runs into
-  the five diagnostics (AUC ± CI, tier slope, fold variance, inner-vs-outer gap,
+  the five diagnostics (AUC ± fold-level CI, tier slope, fold variance, inner-vs-outer gap,
   per-participant ranking); `eegnext` is recognised as a tensor-model tier.
 - **Occlusion diagnostics** (`scripts/08_tensor_model_diagnostics.py`) — the
   same channel/time-occlusion probe used for `cnn`/`eegnet`:

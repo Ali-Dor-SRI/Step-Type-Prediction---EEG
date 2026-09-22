@@ -6,6 +6,7 @@ without touching real data. Always run this BEFORE the slower
 """
 
 import importlib
+import os
 import sys
 import types
 
@@ -57,6 +58,7 @@ PACKAGE_MODULES = [
     "eeg_steptype.models.riemannian",
     "eeg_steptype.models.cnn",
     "eeg_steptype.models.eegnet",
+    "eeg_steptype.models.eegnet_torch",
     "eeg_steptype.models.eegnext",
     "eeg_steptype.models.lstm",
     # viz
@@ -201,6 +203,14 @@ def test_source_asset_preflight_rejects_one_layer_bem(monkeypatch, tmp_path):
     assert "3-layer BEM" in str(exc.value)
 
 
+@pytest.mark.skipif(
+    os.environ.get("EEG_STEPTYPE_SKIP_FSAVERAGE_TESTS") == "1",
+    reason=(
+        "no fsaverage BEM installed here (CI and the Docker image); installing it is a "
+        "network download via mne.datasets.fetch_fsaverage. The other preflight tests "
+        "cover the resolution logic itself."
+    ),
+)
 def test_default_source_asset_preflight_accepts_resolved_fsaverage():
     from eeg_steptype.config import load_config
     from eeg_steptype.preflight import locate_source_assets, run_preflight
@@ -1213,3 +1223,83 @@ def test_eegnext_has_full_recorder_and_diagnostic_parity():
     assert compare._infer_model(pd.DataFrame(), {}, _Run("screen_eegnext_full")) == "eegnext"
     assert compare._infer_model(pd.DataFrame(), {}, _Run("screen_eegnet_full")) == "eegnet"
     assert compare._infer_tier({}, _Run("run_eegnext_p25")) == "eegnext"
+
+
+def test_every_hybrid_neural_model_is_wired_into_every_registry():
+    """Registering a hybrid neural model touches a dozen places; lock all of them.
+
+    The eegnext guard above pins one model. This one loops over
+    ``NEURAL_HYBRID_MODELS``, so every hybrid model -- ``eegnet_torch`` and
+    whatever comes next -- has to be wired everywhere. It also covers the
+    places that guard does not reach: ``run.py``'s tier map and neural stage
+    expansion, the 04/07 speed-tier maps, 06's single-tier tuple, the
+    ``configs/<model>.yaml`` overlay, and the SCRIPT_GUIDES value lists.
+    """
+    import importlib.util
+    from pathlib import Path
+
+    import pandas as pd
+    import yaml
+
+    import run as run_driver
+    from eeg_steptype.models import MODEL_FACTORIES
+    from eeg_steptype.models.normalization import make_normalizer
+    from eeg_steptype.models.train import NEURAL_HYBRID_MODELS, _effective_channel_mode
+
+    root = Path(__file__).resolve().parents[1]
+
+    def _load(path: Path):
+        spec = importlib.util.spec_from_file_location(path.stem, path)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        return module
+
+    train_cli = _load(root / "scripts" / "04_train.py")
+    informativeness = _load(root / "scripts" / "07_feature_informativeness.py")
+    diagnostics = _load(root / "scripts" / "08_tensor_model_diagnostics.py")
+    compare = _load(root / "scripts" / "06_compare_runs.py")
+    guides = (root / "SCRIPT_GUIDES.md").read_text(encoding="utf-8").splitlines()
+    model_row = next(line for line in guides if line.startswith("| `--model NAME`"))
+    tier_row = next(line for line in guides if line.startswith("| `--speed-tier NAME`"))
+
+    # run.py reuses the driver's set instead of keeping a second copy.
+    assert run_driver.NEURAL_HYBRID_MODELS is NEURAL_HYBRID_MODELS
+
+    class _Run:
+        def __init__(self, name):
+            self.name = name
+
+    for model in sorted(NEURAL_HYBRID_MODELS):
+        factory = MODEL_FACTORIES[model]
+        assert factory["data_representation"] == "tensor"
+        assert not factory["supports_gain"] and not factory["supports_shap"]
+        assert factory["param_grid"]({}), f"{model}: empty default param grid"
+        assert _effective_channel_mode(
+            {"channel_selection": {"mode": "roi", "roi": {"channels": ["Cz"]}}}, model, "roi",
+        ) == "full"
+        assert make_normalizer(model, {"modeling": {model: {}}}) is not None
+        assert run_driver._expand_stages_for_model(["train"], model) == [
+            "src", "features", "train",
+        ]
+
+        overlay = f"configs/{model}.yaml"
+        for tiers in (
+            run_driver.SPEED_TIERS,
+            train_cli.SPEED_TIERS,
+            informativeness.SPEED_TIERS,
+            diagnostics.SPEED_TIERS,
+        ):
+            assert tiers[model] == overlay
+        assert model in diagnostics.TENSOR_MODELS
+        assert model in diagnostics.FULL_CNV_DEFAULT_MODELS
+        assert model in compare.SINGLE_TIER_MODELS
+        assert compare._infer_model(pd.DataFrame(), {}, _Run(f"screen_{model}_full")) == model
+        assert compare._infer_tier({}, _Run(f"run_{model}_p25")) == model
+        assert compare._tier_from_modeling_signature({"modeling": {"default_model": model}}) == model
+
+        cfg = yaml.safe_load((root / overlay).read_text(encoding="utf-8"))
+        assert cfg["modeling"]["default_model"] == model
+        assert cfg["_prediction_window"] == "full_cnv"
+        assert cfg["modeling"][model]["tabular_features"]["require_source"] is True
+        assert f"`{model}`" in model_row, f"{model} missing from the SCRIPT_GUIDES --model row"
+        assert f"`{model}`" in tier_row, f"{model} missing from the SCRIPT_GUIDES --speed-tier row"

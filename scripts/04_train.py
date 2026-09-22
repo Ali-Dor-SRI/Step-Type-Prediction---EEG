@@ -23,13 +23,14 @@ from eeg_steptype.models.train import run as run_train, MODEL_FACTORIES
 
 
 SPEED_TIERS = {
-    "lightning":  "configs/lightning.yaml",
-    "express":    "configs/express.yaml",
-    "quick":      "configs/quick.yaml",
-    "riemannian": "configs/riemannian.yaml",
-    "cnn":        "configs/cnn.yaml",
-    "eegnet":     "configs/eegnet.yaml",
-    "eegnext":    "configs/eegnext.yaml",
+    "lightning":    "configs/lightning.yaml",
+    "express":      "configs/express.yaml",
+    "quick":        "configs/quick.yaml",
+    "riemannian":   "configs/riemannian.yaml",
+    "cnn":          "configs/cnn.yaml",
+    "eegnet":       "configs/eegnet.yaml",
+    "eegnet_torch": "configs/eegnet_torch.yaml",
+    "eegnext":      "configs/eegnext.yaml",
 }
 
 

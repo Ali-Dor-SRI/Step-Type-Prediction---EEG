@@ -1,11 +1,42 @@
-# Step Type Prediction — EEG
+[![CI](https://github.com/Aria-Doroodchi/Step-Type-Prediction---EEG/actions/workflows/ci.yml/badge.svg)](https://github.com/Aria-Doroodchi/Step-Type-Prediction---EEG/actions/workflows/ci.yml)
 
-Machine-learning pipeline for predicting **step type** — *straight* (`One`)
-vs *diagonal* (`Two`) — from EEG signals recorded during a stepping task.
-Part of an MSc thesis project.
+# Single-Trial Movement-Intent Decoding from EEG
 
-Features come from electrode-level amplitudes, power spectral density
-(Morlet TFR), and source-space activity reconstructed via eLORETA.
+A single-trial EEG decoding pipeline that predicts an upcoming movement —
+a *straight* (`One`) vs *diagonal* (`Two`) step — from the pre-movement
+preparation signal (the contingent negative variation, CNV). In
+brain–computer-interface terms this is a **motor-intent decoding** problem:
+read the cortical preparation that precedes a movement and classify what the
+movement will be, one trial at a time.
+
+The repository implements a complete decoding stack — artifact-robust
+preprocessing, cortical source reconstruction, and a model zoo spanning
+classical ML through an attention-based CNN — with per-participant nested
+cross-validation and fully reproducible, stamped runs. Features come from
+electrode-level amplitudes, power spectral density (Morlet TFR), and
+source-space activity reconstructed via eLORETA.
+
+Originally developed as an MSc neuroscience thesis on movement planning.
+
+> **Scope.** This is an *offline* decoder: trained and evaluated on recorded
+> EEG, single-trial and per-participant. It does not run online or in closed
+> loop — it is the same signal-processing and modelling stack a motor BCI
+> relies on, applied retrospectively.
+
+---
+
+## The decoding stack
+
+Mapping the repository onto the stages a motor-BCI decoding team would recognise:
+
+| Decoding stage | What this pipeline does |
+|---|---|
+| **Signal conditioning** | ZapLine line-noise removal, PyPREP bad-channel detection, ASR, common-average → Picard ICA, current-source-density (CSD) referencing, AutoReject epoch repair |
+| **Neural source estimation** | eLORETA cortical source reconstruction (cached forward + inverse operators) |
+| **Feature extraction** | pre-movement amplitudes & slopes, Morlet time-frequency PSD across bands, source-space activity; Riemannian (xDAWN-covariance tangent-space) and FBCSP-style mu/beta log-variance features are scaffolded alongside |
+| **Decoders** | XGBoost, SVM, logistic regression, LSTM, and hybrid attention CNNs (EEGNet / EEGNeXt — multi-scale temporal stem + squeeze-and-excitation channel attention + residual separable blocks). EEGNet also ships as a PyTorch port (`eegnet_torch`), parity-tested against the Keras original |
+| **Model selection** | for the tabular models, a corr → ANOVA k-best → stability-selection funnel, plus gain and SHAP pruning for XGBoost (legacy RFECV opt-in), fit inside each training fold; the tensor models skip it. Hyperparameter search inside per-participant **nested** cross-validation |
+| **Evaluation** | single-trial AUC / accuracy, a sliding-window AUC time-course, cohort roll-ups, and reproducible git-stamped runs |
 
 ---
 
@@ -30,7 +61,7 @@ make all                        # all stages, default model = xgb
 make train MODEL=lstm           # just the training stage with a different model
 make all OVERRIDE_MODE=full     # opt into participant-specific fine-tuning
 make train CHANNEL_MODE=roi     # train on medial foot-motor ROI features
-make train PREDICTION_WINDOW=full_cnv  # secondary full-window analysis
+make train PREDICTION_WINDOW=late_cnv  # secondary late-window (1–2 s) comparison
 ```
 
 See [`SCRIPT_GUIDES.md`](SCRIPT_GUIDES.md) for copy-paste commands covering
@@ -174,7 +205,7 @@ raw_assembly:
 raw .bdf  ──►  01_preprocess          (ZapLine, PyPREP bads, ASR, CAR→Picard ICA→CSD, autoreject)
            ──►  02_source_localize    (cached forward + inverse, eLORETA)
            ──►  03_extract_features   (amplitude, slopes, PSD → parquet)
-           ──►  04_train              (corr → KBest → RFECV → gain → SHAP → GridSearch)
+           ──►  04_train              (tabular: corr → k-best → stability selection → gain/SHAP prune; nested search)
            ──►  05_visualize
 ```
 
@@ -255,6 +286,20 @@ Every training run writes a stamped folder under `outputs/runs/<run_id>/`:
 This means a result can be reproduced by checking out the recorded git SHA
 and running `python run.py --config <runs/.../config.yaml>`.
 
+### Confidence intervals
+
+The `auc_ci95` and `overall_accuracy_ci95` columns in each run's `rollup.csv`,
+and the `ci95` / `±` columns of the screening reports, are **fold-level**:
+1.96 · SD / √n over all outer CV folds pooled across participants
+(`src/eeg_steptype/models/evaluate.py:65,68`). Folds from the same participant
+are not independent, so that interval is too narrow for a claim about the
+cohort. Where these docs quote a headline result they also give a
+**participant-level** interval: average each participant's folds first, then
+take 1.96 · SD / √n over participants. For the full-CNV XGBoost result
+(`bin_full_cnv_rich_mean_0125_xgb`, AUC 0.655, n = 20 participants × 10 folds)
+the fold-level interval is ±0.025 and the participant-level interval is ±0.060.
+An unlabelled `±` or `ci95` in this repository is fold-level.
+
 ---
 
 ## Setup
@@ -267,6 +312,16 @@ pip install -e .[dev,lstm]         # editable install + extras
 
 The optional `lstm` extra pulls in TensorFlow + scikeras (large download);
 omit it if you only run XGBoost / SVM / logistic.
+
+The `torch` extra covers the PyTorch EEGNet port (`--model eegnet_torch`) and
+needs no TensorFlow. CPU wheels are enough:
+
+```bash
+pip install -e ".[dev,torch]" --extra-index-url https://download.pytorch.org/whl/cpu
+```
+
+The test suite also runs in a container — `docker build -t eeg-steptype .` then
+`docker run --rm eeg-steptype` — which is what the `docker` CI job does.
 
 ### R side
 
@@ -292,4 +347,28 @@ uniform AutoReject-local epoch repair/rejection.
 
 ## License
 
-TBD
+Released under the [PolyForm Noncommercial License 1.0.0](LICENSE): free to
+use, modify, and redistribute **for noncommercial purposes** — including
+research, teaching, personal study, and use by academic, nonprofit,
+public-research, and government organizations (regardless of funding source) —
+provided the copyright and license notices are kept intact. **Commercial use is
+not granted by this license.**
+
+Copyright (c) 2026 Ali Doroodchi
+
+## Citation
+
+If you use this software, its models, or its results in academic work, please
+cite it. GitHub's **"Cite this repository"** sidebar — generated from
+[`CITATION.cff`](CITATION.cff) — exports ready-made APA and BibTeX entries.
+BibTeX example:
+
+```bibtex
+@software{doroodchi_steptype_eeg_2026,
+  author  = {Doroodchi, Ali},
+  title   = {Step-Type Prediction from EEG Signals},
+  year    = {2026},
+  version = {2.6.0},
+  url     = {https://github.com/Aria-Doroodchi/Step-Type-Prediction---EEG}
+}
+```

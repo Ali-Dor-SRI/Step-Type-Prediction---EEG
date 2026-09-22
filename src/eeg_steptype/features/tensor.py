@@ -19,7 +19,6 @@ from pathlib import Path
 
 import mne
 import numpy as np
-import pandas as pd
 
 from ..config import apply_participant_override
 from ..io import ensure_dir, epoch_tensor_path, epochs_path

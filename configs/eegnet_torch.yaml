@@ -1,0 +1,82 @@
+# =====================================================================
+# EEGNet (PyTorch port) tier — the `eegnet` tier run through
+# models/eegnet_torch.py instead of Keras + scikeras.
+#
+# Cloned from configs/eegnet.yaml: same data, window, CV, search and training
+# settings, so the two can be compared run for run. Needs the `torch` extra,
+# not TensorFlow.
+#
+# Tensor input: data/features/tensor/<pid>_<cond>_epochs_t0p0-2p0.npz.
+#
+# Activate with:
+#     python run.py --speed-tier eegnet_torch --participants P25 --stages train
+#     python scripts/04_train.py --config configs/eegnet_torch.yaml configs/single.yaml
+# =====================================================================
+
+features:
+  bin_n: 0.0625
+  min_time: 0.0
+  max_time: 2.0
+  blocks: [amplitude, slopes, psd, src]
+  amplitude:
+    bin_widths: [0.0625]
+    stats: [mean, std, min, max]
+
+_prediction_window: full_cnv
+
+modeling:
+  test_size: 0.30
+  random_state: 1          # also seeds torch + numpy inside every eegnet_torch fit
+  default_model: eegnet_torch
+
+  cv:
+    mode: repeated_stratified
+    n_splits: 2
+    n_repeats: 1
+    inner_splits: 2
+    chronological_check: false
+
+  search:
+    method: grid
+    n_jobs: 1
+
+  rfecv:
+    enabled: false
+  gain_prune:
+    enabled: false
+  shap_prune:
+    enabled: false
+
+  parallel:
+    participants: 1
+
+  eegnet_torch:
+    tabular_features:
+      enabled: true
+      require_source: true
+    epochs: 50
+    batch_size: 16
+    validation_split: 0.2
+    patience: 10
+    verbose: 0
+    standardize:
+      factor_new: 0.001
+      init_block_size: 1000
+      eps: 1.0e-4
+    param_grid:
+      # The same single candidate as configs/eegnet.yaml. Keys drop scikeras's
+      # `model__` prefix: the torch estimator takes the hyperparameters directly.
+      f1: [8]
+      depth_multiplier: [2]
+      f2: [16]
+      kernel_length: [64]
+      separable_kernel_length: [16]
+      dropout_rate: [0.5]
+      tabular_units: [32]
+      fusion_units: [32]
+      learning_rate: [0.001]
+      norm_rate: [0.25]
+
+logging:
+  level: INFO
+  stamp_runs: true

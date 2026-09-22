@@ -3,6 +3,12 @@
 _Compiled 2026-05-29. Synthesizes the 9 screening reports in `outputs/screening/`
 (generated 2026-05-14 → 2026-05-17 by `scripts/06_compare_runs.py`)._
 
+> **Note (2026-09-21).** This summary predates the switch of the default window:
+> full CNV (0.0–2.0 s) is now the primary window for every model
+> (`prediction_windows.primary`, `configs/default.yaml`) and late CNV is the
+> secondary comparison. The D1 intervals below are fold-level; see
+> [README — Confidence intervals](../../README.md#confidence-intervals).
+
 ## Context
 
 The project predicts **step type** — straight (`One`) vs diagonal (`Two`) — from
