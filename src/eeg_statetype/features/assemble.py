@@ -10,7 +10,6 @@ dropped by an inner join.
 from __future__ import annotations
 
 import mne
-import numpy as np
 import pandas as pd
 
 from eeg_steptype.features.amplitude import binned_amplitude_features

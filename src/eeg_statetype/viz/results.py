@@ -22,7 +22,6 @@ import matplotlib.pyplot as plt
 import mne
 
 from ..io import (
-    epochs_path,
     source_epochs_path,
     sep_epochs_path,
     outputs_root,

@@ -1,5 +1,58 @@
 # Changelog
 
+## 2026-09-22 — Three-class motor-state module merged (v2.7.0)
+
+`feat/state-classification` merged into `main`. It adds a **second decoding
+package** beside the binary CNV one; nothing in `eeg_steptype` changes.
+
+### Added
+
+- **`src/eeg_statetype/`** — a parallel package classifying **standing vs
+  straight step vs diagonal step** (three classes). It reuses `eeg_steptype`'s
+  nested-CV driver, feature-selection funnel and search machinery, and adds its
+  own event handling (`preprocessing/events_state.py`), standing-window epoching,
+  a per-epoch SEP feature block (`features/sep.py`) and a 3-class `evaluate.py`
+  (3×3 confusion, per-class recall, macro-OVR AUC, macro-F1).
+- **`configs/state/`** — cohort configs (`smoke`, `screen`, `screen20`,
+  `screen32`, `cohort_fast`, `default`) plus per-participant overrides.
+  `screen32.yaml` is the definitive 32-participant cohort.
+- **`scripts/state_module/`** and `run_state.py` — cohort runner, 4-arm ablation,
+  trigger/sfreq inventory, override generation, and the report builders.
+- **`outputs/reports/`** — the 3-class state report and the step-type supervisor
+  report (HTML + DOCX, ~10 MB of rendered figures and documents).
+
+### Results (32 participants, `state_screen_xgb_combined`)
+
+Macro-OVR AUC **0.878 ± 0.018** (participant-level 95% CI; ±0.003 fold-level),
+accuracy 0.734, inner-vs-outer gap 0.047. Per-class recall: standing 0.964,
+straight 0.628, diagonal 0.611, against 0.333 chance. The 4-arm ablation puts
+`src` (eLORETA) at +0.015 AUC and finds the SEP block adds nothing
+(combined 0.878 ≈ window 0.877). Unlike the binary models, this search *does*
+score macro-OVR AUC (`modeling.scoring: roc_auc_ovr`), so its gap is AUC − AUC.
+The run's `metrics.csv` and `rollup.csv` were already tracked on `main`.
+
+### Changed
+
+- **`outputs/state_module/LEDGER.md`** — validity trap #2 ("e-stim rhythm cue")
+  is marked **superseded**: the stimulation train is continuous and matched
+  across all three states, so it cannot separate them. Standing's 0.964 recall is
+  inflated by **gross movement** (postural EMG, motion and cable artifact), which
+  is what the module's own report says. The dated entries keep their original
+  text with correction notes. The ablation tables now label their `±` as
+  fold-level and the headline carries the participant-level interval.
+- **`pyproject.toml`** — ruff's exclude list extends to the report builders
+  (`scripts/_report_*.py`, `scripts/state_module/build_report*.py`,
+  `regen_fig5_uv.py`): one-shot figure/DOCX emitters in a semicolon-dense style
+  (~380 E702/E701), the same pre-existing debt already excluded for
+  `scripts/stim_module/`. The state pipeline scripts stay inside the CI gate.
+- Four unused imports removed from `src/eeg_statetype/` so the package lints
+  clean under the pinned rule set.
+- **Version 2.6.0 → 2.7.0** across `pyproject.toml`, `CITATION.cff` and the
+  README BibTeX block.
+
+Test suite unchanged at **153 collected** (152 passed, 1 skipped without the
+fsaverage BEM); the state package ships no tests of its own.
+
 ## 2026-09-21 — Documentation corrections
 
 Docs only: no code, config, model or result changed. Each value was re-read from

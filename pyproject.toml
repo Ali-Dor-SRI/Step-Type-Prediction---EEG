@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "eeg_steptype"
-version = "2.6.0"
+version = "2.7.0"
 description = "Step-type prediction from EEG signals (MSc thesis pipeline)."
 readme = "README.md"
 requires-python = ">=3.10"
@@ -54,8 +54,19 @@ eeg_steptype = ["py.typed"]
 # Lint the package, its tests and the CLI drivers with ruff's default rules.
 # outputs/ holds recorded-result harness scripts that are never edited, and
 # scripts/stim_module/ carries pre-existing style debt (mostly E702) outside the
-# CI gate; both are excluded rather than rewritten.
-extend-exclude = ["outputs", "scripts/stim_module"]
+# CI gate; both are excluded rather than rewritten. The report builders
+# (scripts/_report_*.py, scripts/state_module/build_report*.py, regen_fig5_uv.py)
+# are the same kind of debt — one-shot figure/DOCX emitters written in a
+# semicolon-dense style (~380 E702/E701). The state pipeline scripts themselves
+# (run_cohort, screen_ablation, facts_01_inventory, gen_overrides,
+# smoke_preprocess) stay inside the gate.
+extend-exclude = [
+    "outputs",
+    "scripts/stim_module",
+    "scripts/_report_*.py",
+    "scripts/state_module/build_report*.py",
+    "scripts/state_module/regen_fig5_uv.py",
+]
 
 [tool.ruff.lint]
 # Pin the rule set instead of inheriting whatever the installed ruff defaults

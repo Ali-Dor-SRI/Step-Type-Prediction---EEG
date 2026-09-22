@@ -368,7 +368,7 @@ BibTeX example:
   author  = {Doroodchi, Ali},
   title   = {Step-Type Prediction from EEG Signals},
   year    = {2026},
-  version = {2.6.0},
+  version = {2.7.0},
   url     = {https://github.com/Aria-Doroodchi/Step-Type-Prediction---EEG}
 }
 ```

@@ -23,7 +23,6 @@ from eeg_steptype.models.train import (
     _outer_splits,
     _make_search_cv,
     _bounded_splits,
-    _param_grid_size,
     _cv_config,
     _apply_channel_selection,
     _effective_channel_mode,

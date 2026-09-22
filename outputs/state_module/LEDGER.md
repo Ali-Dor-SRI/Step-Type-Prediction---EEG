@@ -92,6 +92,20 @@ Verified event order within a stepping prompt (P29, P03), relative to `256` cue:
    standing↔stepping with no brain signal. Mitigation plan: blank/interpolate the
    stim-artifact intervals before window-feature extraction + a stim-artifact-only
    control. To implement in Phase 1–2; flagged loudly.
+
+   > **SUPERSEDED — correction 2026-09-22.** The premise is wrong: the
+   > foot-stimulation train is **continuous and matched across all three states**,
+   > stepping included (confirmed by Ali 2026-07-06; the manuscript records
+   > stimulation as ongoing throughout the stepping-with-stimulation block). There
+   > is no standing-vs-stepping rhythm difference for the model to exploit, and the
+   > ±12 ms artifact intervals are blanked before window features are extracted
+   > anyway. What actually inflates standing's recall is **gross movement** —
+   > postural EMG, motion and cable artifact that accompany whole-body stepping.
+   > This matches the project's own report
+   > (`outputs/reports/state_3class_2026-06-26/EEG_State_Report.html` §8) and
+   > replaces the "trap #2" framing wherever it appears below. The conclusion it
+   > licenses is unchanged: **straight vs diagonal is the confound-free contrast**,
+   > because those two share both movement and stimulation.
 3. **Class imbalance** — standing epoch count is a free parameter; balance to the
    stepping count (~40/condition; fewer for half/irregular sessions), fixed seed,
    stratified CV, plus `sample_weight="balanced"`.
@@ -186,7 +200,10 @@ Code (state package): `preprocessing/{events_state,load,epoching,pipeline}.py`,
 
 ### Honest framing / validity (to verify at cohort scale + ablation)
 - **Standing is easily separated (0.975 recall) — partly confounded by stim
-  rhythm (trap #2).** Standing = continuous 0.52 s e-stims; stepping = 4 clustered.
+  rhythm (trap #2).** *(Corrected 2026-09-22 — see the superseded trap #2 note
+  above: the stimulation train is continuous and matched across all three states,
+  so the confound is **gross movement**, not stim rhythm. The rest of this bullet's
+  conclusion stands.)* Standing = continuous 0.52 s e-stims; stepping = 4 clustered.
   Artifacts are blanked, but the *blank pattern* itself differs by condition, so
   window-feature standing↔stepping separation is not fully clean. **`straight` vs
   `diagonal` is the confound-free comparison** (both stepping, identical stim
@@ -248,7 +265,7 @@ xgb, per-participant nested CV `repeated_stratified` 5×10 (n_repeats=10).
 Search budget right-sized for the preview (n_iter=30, n_estimators=400); the
 full-32 run will use the full search. Figures in `outputs/state_module/figs/`.
 
-### 4-arm ablation (cohort macro-OVR AUC ± CI95; chance: AUC 0.5 / acc 0.333)
+### 4-arm ablation (cohort macro-OVR AUC ± fold-level CI95; chance: AUC 0.5 / acc 0.333)
 | arm | blocks | macroAUC | acc | standing | straight | diagonal | overfit gap |
 |---|---|---|---|---|---|---|---|
 | **combined** | amp+slopes+psd+src+sep | **0.869±0.006** | 0.718 | 0.976 | 0.602 | 0.578 | 0.042 |
@@ -270,9 +287,11 @@ full-32 run will use the full search. Figures in `outputs/state_module/figs/`.
   ~5 h eLORETA bottleneck.
 - **Which states are separable?** standing is near-perfectly detected (recall
   ~0.97–0.98); straight vs diagonal is the hard part (~0.58 each). **Validity
-  caveat (trap #2):** standing's separability is partly the stim-rhythm confound,
-  not only motor state — artifacts are blanked but the blank *pattern* differs by
-  condition. The confound-free comparison is **straight vs diagonal** (both
+  caveat (corrected 2026-09-22):** standing's separability is partly a **gross-movement**
+  confound — postural EMG and motion artifact — not only motor state. *(This bullet
+  originally blamed the stim rhythm; the stimulation train is continuous and matched
+  across all three states, so it cannot separate them. See the superseded trap #2
+  note.)* The confound-free comparison is **straight vs diagonal** (both
   stepping, identical stim structure): ~0.58 recall, modestly above the 0.5
   two-way chance — i.e. the original CNV binary signal persists in the 3-class
   setting. A stim-artifact-only control is the remaining check (Phase 4).
@@ -296,7 +315,7 @@ src ~6.6 + features ~1.5; all 1024 Hz). Ran in a detached visible PowerShell
 window (idle-sleep disabled + keep-awake); survived a Claude-session restart.
 Reused the 8 trained participants from checkpoints.
 
-### 20-participant ablation (macro-OVR AUC ± CI95; chance AUC 0.5 / acc 0.333)
+### 20-participant ablation (macro-OVR AUC ± fold-level CI95; chance AUC 0.5 / acc 0.333)
 | arm | macroAUC | acc | mF1 | standing | straight | diagonal | gap |
 |---|---|---|---|---|---|---|---|
 | **combined** | **0.886±0.004** | 0.748 | 0.742 | 0.950 | 0.658 | 0.636 | 0.043 |
@@ -327,13 +346,24 @@ both Stim+Standing recordings). Same config as the 20-run (reduced search, full
 CV n_repeats=10) so the 20 trained participants were reused. Detached visible
 PowerShell window; survived a session restart. This is the definitive cohort result.
 
-### 32-participant ablation (macro-OVR AUC ± CI95; chance AUC 0.5 / acc 0.333)
+### 32-participant ablation (macro-OVR AUC ± fold-level CI95; chance AUC 0.5 / acc 0.333)
 | arm | macroAUC | acc | mF1 | standing | straight | diagonal | gap |
 |---|---|---|---|---|---|---|---|
 | **combined** | **0.878±0.003** | 0.734 | 0.728 | 0.964 | 0.628 | 0.611 | 0.047 |
 | **window** | 0.877±0.003 | 0.733 | 0.727 | 0.962 | 0.629 | 0.607 | 0.047 |
 | **electrode** | 0.862±0.003 | 0.710 | 0.702 | 0.973 | 0.585 | 0.570 | 0.056 |
 | **sep** | 0.584±0.005 | 0.404 | 0.393 | 0.465 | 0.375 | 0.372 | 0.029 |
+
+> **Which interval this is — added 2026-09-22.** The `±` above is what
+> `cohort_rollup` writes: 1.96 · SD / √n over **all 1,600 outer folds**
+> (32 participants × 5 splits × 10 repeats). Folds from one participant are not
+> independent, so it understates cohort uncertainty. Averaging each participant's
+> folds first and taking 1.96 · SD / √32 over the 32 participant means gives the
+> **participant-level** interval: **combined ±0.018**, window ±0.018,
+> electrode ±0.018, sep ±0.028. Quote **0.878 ± 0.018** outside this ledger.
+> Computed from `outputs/state_module/runs/state_screen_xgb_combined/metrics.csv`,
+> which is tracked on `main`. Same fold-vs-participant distinction as the binary
+> side — see [README — Confidence intervals](../../README.md#confidence-intervals).
 
 ### Final verdicts (n=8 → 20 → 32 trajectory)
 - **SEP adds nothing — CONFIRMED at full cohort.** combined 0.878 ≈ window 0.877
@@ -344,9 +374,13 @@ PowerShell window; survived a session restart. This is the definitive cohort res
   lifts the confound-free stepping recall by ~0.04 (straight 0.629 vs 0.585;
   diagonal 0.607 vs 0.570). The n=8 "drop src" call was premature; at the full
   cohort src earns its keep for the hard straight-vs-diagonal problem.
-- **Headline (full cohort): macro-OVR AUC 0.878 ± 0.003, acc 0.734, gap 0.047.**
-  Tight CI. Per-class: standing 0.96 (confound caveat unchanged — artifact-only
-  control still the key pending check), straight 0.63, diagonal 0.61. The
-  confound-free straight-vs-diagonal recall (~0.62) is the honest core signal.
+- **Headline (full cohort): macro-OVR AUC 0.878 ± 0.018 (participant-level;
+  ± 0.003 fold-level), acc 0.734, gap 0.047.** Per-class: standing 0.96 —
+  inflated by **gross movement** (postural EMG, motion and cable artifact), not by
+  the stimulation train, which is continuous and matched across all three states
+  *(corrected 2026-09-22; the "artifact-only control" this line used to call the
+  key pending check was aimed at the retired stim-rhythm framing)* — straight 0.63,
+  diagonal 0.61. The confound-free straight-vs-diagonal recall (~0.62 against
+  0.333 chance) is the honest core signal.
 - Cohort now COMPLETE (32/32). Report regenerated to n=32:
   `outputs/reports/state_3class_2026-06-26/EEG_State_Report.html`.

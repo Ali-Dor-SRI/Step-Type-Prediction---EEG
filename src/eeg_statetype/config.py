@@ -18,7 +18,7 @@ from __future__ import annotations
 
 import copy
 from pathlib import Path
-from typing import Any, Sequence
+from typing import Sequence
 
 from eeg_steptype.config import deep_merge, load_yaml
 
