@@ -8,7 +8,7 @@ CNV signals recorded during a stepping task. MSc thesis project._
 comparators (SVM, logistic, BiLSTM, Riemannian, CNN, EEGNet, shrinkage-LDA) see
 [`MODELS.md`](MODELS.md).
 
-**Status:** living document · **Compiled:** 2026-06-08 · **Owner:** Ali
+**Status:** living document · **Compiled:** 2026-06-08 · **Corrected:** 2026-09-21 · **Owner:** Ali
 
 **Performance source:** recorded full nested-CV runs under `outputs/runs/*xgb*`
 (screening runs 2026-05-14 → 2026-05-29), re-aggregated for this report, plus a
@@ -130,33 +130,44 @@ changed results so far:
 ## 3. Current performance
 
 > **Headline:** XGBoost is the **best classical model in the project**, and the
-> only one clearly above chance on the primary late window. But (a) its absolute
-> AUC is modest (~0.56 late / ~0.65 full), (b) it **overfits the inner CV by
-> +0.17 to +0.24 AUC**, and (c) the **prediction window matters more than any
-> tuning done so far**.
+> only one clearly above chance on the late window. But (a) its absolute
+> AUC is modest (0.568 late / 0.655 full on the same `rich_mean_0125` recipe,
+> n = 20; participant-level 95% CI ±0.060 on the 0.655), (b) its **inner-CV
+> accuracy sits +0.17 to +0.24 above its held-out AUC**, and (c) the **prediction
+> window matters more than any tuning done so far**.
 
-### 3.1 Cohort AUC by configuration (recorded full nested-CV runs, n = 20)
+### 3.1 Cohort AUC by configuration (recorded nested-CV runs, express tier 5 × 2, n = 20)
 
-| Window | Binning | Test AUC | Inner-CV AUC | Overfit gap | Source run |
-|---|---|---|---|---|---|
-| **late_cnv** (1–2 s) | stats_pyramid_core | **0.558** | 0.794 | **+0.236** | `bin_late_cnv_stats_pyramid_core_xgb` |
-| late_cnv | pyramid_mean_core | 0.568 | 0.783 | +0.215 | `bin_late_cnv_pyramid_mean_core_xgb` |
-| late_cnv | rich_mean_0125 | 0.568 | 0.778 | +0.210 | `bin_late_cnv_rich_mean_0125_xgb` |
-| late_cnv | stats_0125 | 0.564 | 0.783 | +0.220 | `bin_late_cnv_stats_0125_xgb` |
-| late_cnv | pyramid_mean_fine | 0.559 | 0.777 | +0.218 | `bin_late_cnv_pyramid_mean_fine_xgb` |
-| **full_cnv** (0–2 s) | rich_mean_0125 | **0.655** | 0.824 | **+0.169** | `bin_full_cnv_rich_mean_0125_xgb` |
+| Window | Binning | Test AUC | 95% CI (participant-level) | Inner-CV accuracy | Gap (inner acc − test AUC) | Source run |
+|---|---|---|---|---|---|---|
+| **late_cnv** (1–2 s) | stats_pyramid_core | **0.558** | ±0.058 | 0.794 | **+0.236** | `bin_late_cnv_stats_pyramid_core_xgb` |
+| late_cnv | pyramid_mean_core | 0.568 | ±0.057 | 0.783 | +0.215 | `bin_late_cnv_pyramid_mean_core_xgb` |
+| late_cnv | rich_mean_0125 | 0.568 | ±0.062 | 0.778 | +0.210 | `bin_late_cnv_rich_mean_0125_xgb` |
+| late_cnv | stats_0125 | 0.564 | ±0.057 | 0.783 | +0.220 | `bin_late_cnv_stats_0125_xgb` |
+| late_cnv | pyramid_mean_fine | 0.559 | ±0.055 | 0.777 | +0.218 | `bin_late_cnv_pyramid_mean_fine_xgb` |
+| **full_cnv** (0–2 s) | rich_mean_0125 | **0.655** | ±0.060 | 0.824 | **+0.169** | `bin_full_cnv_rich_mean_0125_xgb` |
 
-Smaller early-cohort screens corroborate the level: rich-feature n=11 → 0.654,
-express n=8 → 0.578, lightning n=8 → 0.561.
+All six runs are express tier: outer `RepeatedStratifiedKFold` 5 splits × 2
+repeats (10 folds per participant), inner 2-fold (each run's `config.yaml`,
+`modeling.cv`). The inner column is **accuracy**, not AUC: no config sets
+`modeling.scoring`, so the search falls back to `"accuracy"`
+(`src/eeg_steptype/models/train.py:791`). The gap therefore compares two
+different metrics. The interval is participant-level; the fold-level `auc_ci95`
+in each run's `rollup.csv` is narrower (±0.025 for the 0.655). See
+[README — Confidence intervals](README.md#confidence-intervals).
+
+Smaller early-cohort screens corroborate the level: rich-feature n=11 (full
+window) → 0.654, express n=8 (late window) → 0.578, lightning n=8 (late window)
+→ 0.561.
 
 **Reading it:**
 - **Window dominates binning.** Five late-window binning recipes span only
   0.558–0.568 — the ceiling is set by the *window*, not the binning. Moving to
-  the full window lifts XGB to ~0.655 (+~0.09).
+  the full window lifts XGB from 0.568 to 0.655 on the same recipe (+0.087).
 - **Persistent overfitting.** The inner search always looks far better
-  (0.78–0.82) than the held-out fold (0.56–0.65). The gap is smaller on the full
-  window (+0.17) than the late window (+0.21–0.24) — more real signal leaves less
-  room for the search to fit noise.
+  (inner accuracy 0.78–0.82) than the held-out fold (AUC 0.56–0.65). The gap is
+  smaller on the full window (+0.17) than the late window (+0.21–0.24) — more
+  real signal leaves less room for the search to fit noise.
 
 ### 3.2 Per-participant heterogeneity (full_cnv, rich_mean_0125)
 
@@ -179,16 +190,16 @@ configuration. Scattered rankings like this are the main argument for
 
 | Diagnostic | What it measures | XGB result |
 |---|---|---|
-| D1 — mean AUC ± CI | accuracy | Best classical model; 0.56 late / 0.65 full. Others near chance on late. |
+| D1 — mean AUC ± CI (fold-level) | accuracy | Best classical model; 0.568 late / 0.655 full (same recipe, n = 20). Others near chance on late. |
 | D2 — tier-response slope | does more budget help? | **Only model with a positive slope** (+0.016) — headroom remains. |
 | D3 — across-fold variance | stability | Moderate (~0.10–0.16 SD), comparable to peers. |
-| D4 — inner-vs-outer gap | overfitting | **+0.17 to +0.24** — overfits (Riemannian alone generalizes, but at chance AUC). |
+| D4 — inner-vs-outer gap | overfitting | **+0.17 to +0.24** (inner accuracy − held-out AUC) — overfits (Riemannian alone generalizes, but at chance AUC). |
 | D5 — per-participant rank | homogeneity | Most rank-1 finishes of any model; rankings scattered. |
 
 ### 3.4 Fresh reproduction (this session)
 
-The **authoritative current-performance measure is §3.1** — recorded full
-nested-CV runs (5 splits × 20 repeats, n = 20). Those are more complete than any
+The **authoritative current-performance measure is §3.1** — recorded
+nested-CV runs (express tier: 5 splits × 2 repeats, inner 2-fold, n = 20). Those are more complete than any
 quick re-run, and they were re-aggregated from the raw per-fold `metrics.csv`
 for this report (not copied from the prior summaries).
 
@@ -244,7 +255,7 @@ itself be optimistic).
 the *relative* gap is the point, not the absolute AUC;
 `outputs/runs/pooling_compare_demo/`):
 
-| mode | folds | held-out AUC | inner-CV | **gap (inner − outer)** |
+| mode | folds | held-out AUC | inner-CV accuracy | **gap (inner acc − outer AUC)** |
 |---|---|---|---|---|
 | `per_participant` (baseline) | 32 | 0.567 | 0.744 | **+0.177** |
 | `full` (leave-subject-out) | 8 | 0.626 | 0.611 | **−0.015** |
@@ -262,7 +273,8 @@ Caveat: 8 subjects + reduced features make per-subject AUC noisy
 (`test_auc_sd ≈ 0.19`); the gap-collapse and partial-pooling lift are the robust
 takeaways — re-run on the full cohort/feature set to confirm magnitudes.
 
-**Confirmed on the full 20-subject cohort** (perf loop, `r1_pool_confirm20`):
+**Confirmed on the full 20-subject cohort** (perf loop, `r1_pool_confirm20`; same
+reduced ~2.3k-feature fast set and 4-fold × 1-repeat CV as the demo):
 
 | mode | cohort AUC | gap |
 |---|---|---|
@@ -271,7 +283,7 @@ takeaways — re-run on the full cohort/feature set to confirm magnitudes.
 | full | 0.5882 | −0.012 |
 
 The **gap collapse reproduces robustly** (+0.173 → −0.014); the AUC lift **shrinks**
-from the 8-subject +0.106 to **+0.031 paired** (t=1.27, not significant) at cohort scale —
+from the 8-subject +0.106 to **+0.031 paired** (t=1.27, n = 20, reduced feature set, not significant) at cohort scale —
 real but modest. Partial pooling is now a confirmed, one-line opt-in
 (`modeling.pooling.mode: partial`, committed overlay [`configs/pooling.yaml`](configs/pooling.yaml);
 default stays `per_participant`). A subsequent 4-round perf loop found **no further XGB win**
@@ -289,8 +301,8 @@ reproduce with `python scripts/09_pooling_comparison.py --config configs/pooling
 | per_participant (matched arm) | 0.5990 | +0.1978 |
 | **partial** | **0.6376** | **−0.0385** |
 
-Paired **+0.0386 AUC** (t=1.17, n.s.) and the **gap collapses +0.198 → −0.039**. vs the
-recorded rich per-participant **0.655 / +0.169** (heavier funnel + src + 5×20 CV) the pooled
+Paired **+0.0386 AUC** (t=1.17, n = 20, rich set, n.s.) and the **gap collapses +0.198 → −0.039**. vs the
+recorded rich per-participant **0.655 / +0.169** (heavier funnel + src + 5×2 express CV) the pooled
 0.6376 is ~flat (−0.017, within noise) but now **honest** — pooling makes the project's
 best-AUC region trustworthy. The pattern matches the fast set (modest, non-significant AUC
 lift; robust gap collapse), now at the higher rich operating point — the rich features and
@@ -365,9 +377,13 @@ number we have**; items 4–6 are about **getting more out of XGB specifically**
   `outputs/runs/*xgb*/metrics.csv`, restricted to the primary
   `repeated_stratified` outer folds (the chronological-check rows are excluded).
   Per-participant AUC = mean over that participant's outer folds; cohort AUC =
-  mean over participants.
+  mean over participants. Participant-level 95% CI = 1.96 · SD / √20 over those
+  participant means (method: [README — Confidence intervals](README.md#confidence-intervals)).
 - **Overfit gap** = `inner_best_score` (inner-CV score of the selected
-  hyperparameters) − held-out test AUC, averaged over folds.
+  hyperparameters) − held-out test AUC, averaged over folds. The inner score is
+  **accuracy**: no config sets `modeling.scoring`, so `_make_search_cv` falls back
+  to `"accuracy"` (`src/eeg_steptype/models/train.py:791`). The gap is inner
+  accuracy − held-out AUC, not AUC − AUC.
 - **Fresh reproduction (§3.4):** `scripts/_xgb_perf_snapshot.py`, express tier
   (5 × 2 outer, inner 2-fold, `HalvingRandomSearchCV` `n_iter=25`,
   stability-selection + gain-prune), reusing the saved express config so the

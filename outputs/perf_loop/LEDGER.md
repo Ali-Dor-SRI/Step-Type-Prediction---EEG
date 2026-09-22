@@ -348,7 +348,8 @@ not noise, and it matches the fast-set confirm (+0.031).
   the fast-set +0.031/t=1.27).
 - GUARDRAIL: gap +0.1978 → **−0.0385** (Δ −0.236) — collapses, far inside the +0.03 limit.
   The gap collapse is the ROBUST headline (reproduces at 8 and 20 subjects, fast and rich).
-- vs the recorded rich per-participant **0.655 / gap +0.169** (heavier funnel + src + 5×20 CV):
+- vs the recorded rich per-participant **0.655 / gap +0.169** (heavier funnel + src + 5×2 express CV;
+  corrected 2026-09-21, previously mis-stated as 5×20):
   partial 0.6376 is **~flat** (−0.017, within noise) but now with an **HONEST** gap (−0.039).
   Pooling trades a within-noise AUC difference for an honest estimate AT the project's best-AUC
   region — i.e. it **makes the best AUC honest**, the task's stated dual objective.

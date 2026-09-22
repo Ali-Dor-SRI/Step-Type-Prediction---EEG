@@ -3,7 +3,7 @@
 _EEG **step-type** classification (straight `One` vs diagonal `Two`) from CNV
 signals recorded during a stepping task. MSc thesis project._
 
-**Status:** living document · **Last updated:** 2026-09-14 · **Owner:** Ali
+**Status:** living document · **Last updated:** 2026-09-21 · **Owner:** Ali
 
 This document is the single place to (a) understand every model in the
 pipeline, (b) see what each tunable actually controls, (c) read the real
@@ -45,8 +45,10 @@ results we have so far, and (d) decide what to do next. Figures are a mix of
 
 > **Four things drive the next decision:**
 > 1. **The prediction *window* matters more than the *model*.** Switching from
->    the primary late-CNV window (1.0–2.0 s) to the full-CNV window (0.0–2.0 s)
->    moves XGBoost from ~0.57 to ~0.65 AUC and logistic from ~0.45 to ~0.65 —
+>    the late-CNV window (1.0–2.0 s) to the full-CNV window (0.0–2.0 s, now the
+>    default) moves XGBoost from 0.568 to 0.655 AUC (same `rich_mean_0125`
+>    recipe, n = 20; participant-level 95% CI ±0.060 on the 0.655 — see
+>    [README](README.md#confidence-intervals)) and logistic from ~0.45 to ~0.65 —
 >    far larger than any tuning effect seen so far.
 > 2. **XGBoost is the classical model to invest in.** Highest AUC, most
 >    per-participant rank-1 finishes, and the only model with non-flat
@@ -64,10 +66,10 @@ results we have so far, and (d) decide what to do next. Figures are a mix of
 
 | Model | Family | Input | Role | Best real AUC seen | Verdict |
 |---|---|---|---|---|---|
-| **XGBoost** | Gradient-boosted trees | Tabular features | **Primary** | **0.673** (partial pool, full CNV) | Invest here; pool for gap fix |
+| **XGBoost** | Gradient-boosted trees | Tabular features | **Primary** | **0.673** (partial pool, full CNV, 8-subject demo); 0.655 per-participant at n = 20 | Invest here; pool for gap fix |
 | SVM | Kernel margin | Tabular features | Comparator | 0.62 (full CNV) | Keep as comparator |
 | Logistic | Linear | Tabular features | Baseline / smoke | 0.65 (full CNV) | Surprisingly strong on full CNV |
-| BiLSTM | Recurrent NN | Sequence | Deep comparator | not yet screened | Needs real windowing first |
+| BiLSTM | Recurrent NN | Sequence | Deep comparator | no result (excluded from screening) | Driver feeds one timestep per feature; needs real windowing first |
 | Riemannian | Covariance + LDA | Raw epoch tensor | Comparator | 0.53 | Calibrated but flat |
 | CNN | Conv NN (hybrid) | Tensor + tabular | Comparator | 0.63 baseline (late) | Promising; window-limited |
 | EEGNet | Conv NN (hybrid) | Tensor + tabular | Comparator | **0.94** baseline (full, P13) | Strongest single-subject signal |
@@ -108,14 +110,17 @@ most important architectural fact:
   Used by **Riemannian, CNN, EEGNet, EEGNet-torch, EEGNeXt** (the neural
   models also *fuse* in the tabular branch).
 
-**Prediction windows.** Primary = **late CNV (1.0–2.0 s)**, where foot-motor
-preparation is expected to peak. Secondary = **full CNV (0.0–2.0 s)**. Feature
-caches are window-aware, so the two never reuse each other's parquets. _As the
-results show, this choice turned out to dominate everything else._
+**Prediction windows.** Primary (the default for every model,
+`prediction_windows.primary` in `configs/default.yaml`) = **full CNV
+(0.0–2.0 s)**. Secondary = **late CNV (1.0–2.0 s)**, where foot-motor
+preparation is expected to peak; it was the primary window until the full window
+proved stronger. Feature caches are window-aware, so the two never reuse each
+other's parquets. _As the results show, this choice turned out to dominate
+everything else._
 
 **The in-fold feature-selection funnel** (tabular models). Each stage is fit on
 the training fold only and applied to the test fold — this is what keeps the
-inner-vs-outer AUC gap honest. Counts below are nominal/illustrative.
+inner-vs-outer gap honest. Counts below are nominal/illustrative.
 
 ![SYNTH · feature funnel](docs/models_figs/synth_feature_funnel.png)
 
@@ -755,7 +760,13 @@ Beyond per-model knobs, four cross-cutting controls shape every run.
 **Nested cross-validation** (`modeling.cv`): outer `RepeatedStratifiedKFold`
 (5 splits × 20 repeats by default) with an inner `StratifiedKFold` (3 splits)
 for the hyperparameter search. A no-shuffle chronological check runs alongside
-to catch temporal leakage.
+to catch temporal leakage. The recorded screening and binning runs in §7 used
+the **express** tier instead: 5 splits × 2 repeats, 2 inner folds.
+
+The inner search scores **accuracy** unless `modeling.scoring` is set, and no
+committed config sets it (`_make_search_cv`, `src/eeg_steptype/models/train.py:791`).
+Every binary inner-vs-outer gap in this document is therefore inner accuracy
+minus held-out AUC (or minus held-out accuracy for the screening D4 column).
 
 **Search method** (`modeling.search.method`): one knob controls the search for
 every model.
@@ -826,20 +837,22 @@ and `outputs/diagnostics/` (CNN/EEGNet occlusion starters).
 Pooling: `outputs/runs/pooling_compare_demo/` (2026-06-10, `scripts/09_pooling_comparison.py`).
 AUC 0.50 = chance._
 
-### Diagnostic 1 — mean test AUC ± 95% CI (early cohort, n=8, late window)
+### Diagnostic 1 — mean test AUC ± fold-level 95% CI (early cohort, n=8, late window)
 
 ![REAL · AUC CI](docs/models_figs/real_auc_ci.png)
 
 XGBoost (0.578) is the only model clearly above chance on the late window; the
-classical linear/kernel models hover near 0.49.
+classical linear/kernel models hover near 0.49. The error bars are fold-level
+(1.96 · SD / √n over CV folds), which is narrower than a participant-level
+interval — see [README — Confidence intervals](README.md#confidence-intervals).
 
 ### The window effect — the headline result
 
 ![REAL · window effect](docs/models_figs/real_window_effect.png)
 
 Same binning recipe, same 20-participant cohort, late vs full window. **Full CNV
-lifts logistic by +0.20 and XGB by +0.09 AUC** — bigger than any tuning effect
-observed. Riemannian is the exception (it's tuned for the full-window covariance
+lifts logistic by +0.20 and XGB by +0.09 AUC** (XGB 0.568 → 0.655, `rich_mean_0125`)
+— bigger than any tuning effect observed. Riemannian is the exception (it's tuned for the full-window covariance
 already and does *worse* on this recipe).
 
 ### Per-participant heterogeneity (n=8)
@@ -874,7 +887,7 @@ hint that the discriminative signal starts before the late window even opens.
 for tractability. Source: `outputs/runs/pooling_compare_demo/pooling_summary.csv`.
 Reproduce: `python scripts/09_pooling_comparison.py --config configs/pooling_compare.yaml`.
 
-| mode | folds | held-out AUC | inner-CV | **gap (inner − outer)** |
+| mode | folds | held-out AUC | inner-CV accuracy | **gap (inner acc − outer AUC)** |
 |---|---|---|---|---|
 | `per_participant` (baseline) | 32 | 0.567 | 0.744 | **+0.177** |
 | `full` (leave-subject-out) | 8 | 0.626 | 0.611 | **−0.015** |
@@ -892,10 +905,11 @@ Caveat: 8 subjects + reduced features make per-subject AUC noisy
 (`test_auc_sd ≈ 0.19`); the gap-collapse and partial-pooling lift are the robust
 takeaways.
 
-**Confirmed on the full 20-subject cohort** (`r1_pool_confirm20`): `per_participant`
+**Confirmed on the full 20-subject cohort** (`r1_pool_confirm20`, same reduced ~2.3k-feature
+fast set and 4-fold CV): `per_participant`
 0.5646 (gap +0.173), **`partial` 0.5957 (gap −0.014)**, `full` 0.5882 (gap −0.012).
 The **gap collapse reproduces robustly**; the AUC lift shrinks from +0.106 (8-subj) to
-**+0.031 paired** (t=1.27, n.s.) at cohort scale — real but modest. Promoted as the
+**+0.031 paired** (t=1.27, n = 20, reduced feature set, n.s.) at cohort scale — real but modest. Promoted as the
 one-line opt-in `modeling.pooling.mode: partial` (committed overlay
 [`configs/pooling.yaml`](configs/pooling.yaml); global default stays `per_participant`).
 A follow-on 4-round perf loop found no further XGB win — looser funnel, richer search, and
@@ -906,8 +920,8 @@ Legendre shape features are all null at cohort scale (see
 `amplitude0.125+slopes+psd` ≈ 9.7k cols = recorded rich recipe minus `src`+`cnv_benchmark`;
 a new `modeling.pre_kbest` ANOVA pre-filter before the correlation drop makes it tractable):
 `per_participant` 0.5990 (gap +0.198), **`partial` 0.6376 (gap −0.039)** — paired **+0.0386
-AUC** (t=1.17, n.s.) and the **gap collapses +0.198 → −0.039**. vs the recorded rich
-per-participant **0.655 / +0.169** the pooled 0.6376 is ~flat (within noise) but **honest** —
+AUC** (t=1.17, n = 20, rich set, n.s.) and the **gap collapses +0.198 → −0.039**. vs the recorded rich
+per-participant **0.655 / +0.169** (5×2 express CV) the pooled 0.6376 is ~flat (within noise) but **honest** —
 pooling makes the project's best-AUC region trustworthy. Same pattern as the fast set, now at
 the higher rich operating point; the two levers are largely complementary. Recommended config
 [`configs/pooling_rich.yaml`](configs/pooling_rich.yaml); write-up in
@@ -921,10 +935,10 @@ the higher rich operating point; the two levers are largely complementary. Recom
 
 | Diagnostic | What it measures | Finding |
 |---|---|---|
-| D1 — mean AUC ± CI | accuracy | XGB best (0.58 late / 0.65 full); others near chance late. |
+| D1 — mean AUC ± CI (fold-level) | accuracy | XGB best (0.568 late / 0.655 full, same recipe, n = 20); others near chance late. |
 | D2 — tier-response slope | does more budget help? | Only XGB has positive slope (+0.016); logistic/SVM flat (near ceiling). |
 | D3 — across-fold variance | stability | Moderate & similar (~0.10–0.16 SD); SVM most volatile. |
-| D4 — inner-vs-outer gap | overfitting | Classical models overfit (+0.20–0.29); Riemannian generalizes (~0.05). Pooling collapses the XGB gap to ≈0. |
+| D4 — inner-vs-outer gap | overfitting | Classical models overfit (+0.20–0.29, inner − outer accuracy); Riemannian generalizes (~0.05). Pooling collapses the XGB gap (inner accuracy − outer AUC) to ≈0. |
 | D5 — per-participant ranking | homogeneity | XGB most rank-1 finishes; rankings scattered → heterogeneous signal. |
 
 ---
@@ -940,8 +954,8 @@ Ordered by expected payoff (synthesized from the diagnostics above and
    it dwarfs tuning.
 2. **Close the inner-vs-outer gap.** The structural fix is now implemented and
    validated: **`partial` pooling** collapses the gap to ≈0 and raises held-out
-   AUC (+0.106 on the 8-subject demo). Re-run on the full cohort and full feature
-   set to confirm; also consider the within-design fixes documented in
+   AUC (+0.106 on the 8-subject demo; +0.031 fast set and +0.0386 rich set at
+   n = 20, neither significant — see §7); also consider the within-design fixes documented in
    [`docs/OVERFITTING_GAP_SOLUTIONS.md`](docs/OVERFITTING_GAP_SOLUTIONS.md) (metric
    alignment, grid regularization, funnel tightening) as complementary levers.
 3. **Center tuning on XGBoost.** It has the best AUC, the only non-flat tier
@@ -953,7 +967,8 @@ Ordered by expected payoff (synthesized from the diagnostics above and
 5. **Try per-participant model selection / ensembling.** The scattered D5
    rankings and the heatmap say one global model is leaving signal on the table.
 6. **Make the deep models real comparators:** give the **LSTM true per-timestep
-   windowing** (current one-timestep hack invalidates its result), and scale the
+   windowing** (there is no LSTM result yet — it was left out of screening
+   because the driver feeds one timestep per feature), and scale the
    **EEGNet starter to the full cohort** given its strong single-subject AUCs.
 7. **Run the shrinkage-LDA CNV benchmark** as a cheap floor — if a 9-channel ERP
    reading matches a tuned XGB, that reframes the whole modelling effort.
@@ -995,12 +1010,12 @@ Ordered by expected payoff (synthesized from the diagnostics above and
 | Pooling | `scripts/09_pooling_comparison.py` — three-way comparison script | ✅ |
 | Pooling | `configs/pooling_compare.yaml` — 8-subject / reduced-features config | ✅ |
 | Pooling | 8-subject demo run (pooling_compare_demo) | ✅ gap validated |
-| Pooling | Full-cohort / full-feature pooling run | ⬜ next action |
+| Pooling | Full-cohort pooling confirms (fast `r1_pool_confirm20`, rich `r_rich_conf20`) | ✅ gap collapse confirmed; AUC lift n.s. |
 | Screening | 4-model express screen (n=8, n=11) | ✅ |
 | Screening | Late-vs-full window comparison | ✅ headline result |
 | Screening | Full-CNV cohort for all classical models | 🟡 SVM-only partial run remains |
 | Analysis | Confirm window effect is not leakage | ⬜ |
-| Analysis | Inner-vs-outer gap — structural fix (pooling) | ✅ validated on 8-subject demo |
+| Analysis | Inner-vs-outer gap — structural fix (pooling) | ✅ validated on 8-subject demo and 20-subject confirms |
 | Analysis | Inner-vs-outer gap — within-design fixes (§2–§5 of OVERFITTING_GAP_SOLUTIONS.md) | ⬜ |
 | Analysis | Per-participant selection / ensembling | ⬜ |
 | Analysis | Sliding-window AUC time-course | ⚪ configured, not run |
@@ -1076,7 +1091,8 @@ eegnext:                              # configs/eegnext.yaml; sophisticated CNN
 #   modeling.feature_selection.method: stability, max_features: 40
 ```
 
-Search controls: `cv = RepeatedStratifiedKFold(5×20)`, inner `StratifiedKFold(3)`.
+Search controls: `cv = RepeatedStratifiedKFold(5×20)`, inner `StratifiedKFold(3)`
+(default tier; the recorded screening/binning runs used express, 5×2 with 2 inner folds).
 `modeling.search.method` selects the searcher for all models — `auto`
 (`HalvingRandomSearchCV` for XGB with resource `n_estimators` 100→1000 factor 3,
 `GridSearchCV` otherwise), `grid`, `random` (`RandomizedSearchCV` everywhere,
