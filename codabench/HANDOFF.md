@@ -1,3 +1,30 @@
+# HANDOFF — sprint 2026-10-16: the first real PROTEUS model (running until Mon 10-19 08:00)
+
+Plan of record: [prompts/2026-10-16_proteus_weekend_model.md](prompts/2026-10-16_proteus_weekend_model.md)
+(started 2026-10-15 18:20 EDT, deadline **2026-10-19 08:00**, launch cutoff Mon 04:00,
+wrap-up reserve 06:00-08:00; the user is away). Branch `feat/codabench-track2`,
+push to `personal` after every commit. Logs: `logs/proteus_w1016/` (per-phase
+STATUS.md; rows in `A.jsonl` = Riemann lane, `B.jsonl` = neural lane; summaries
+`RESULTS_*.md`). Record: LOG.md "2026-10-16 sprint".
+
+## State (updated 2026-10-15 18:50)
+
+| Phase | Status | Result / where |
+|---|---|---|
+| 0 harness + align="stream" | in progress | `analysis/proteus_sweep.py` (G-b PASS), `analysis/proteus_w1016_summary.py`; solver patch for `align="stream"` / `crop` / `clip` written, gates G-a/G-c pending |
+| 1 base arms B0 B1 R | running lane A (`scripts/proteus_w1016_p1.sh`, `logs/proteus_w1016/p1/`) | B0 = the setup's numbers exactly |
+| 3 second model EEGNet-Stream | running lane B (`scripts/proteus_w1016_p3.sh`, `logs/proteus_w1016/p3/`) | E1/E0 x seeds 33-35, then E1 36-37 |
+| 2, 4, 5 | pending | |
+
+## How to resume
+
+`wsl.exe bash -lc 'bash ~/codabench/scripts/proteus_w1016_p1.sh'` (and `_p3.sh`):
+finished steps skip by `.done`, finished rows by key. Watchdog:
+`bash "/mnt/c/Users/Ali D/Documents/ML/.claude/skills/project-sprint/scripts/watch_run.sh" ~/codabench/logs/proteus_w1016/p1`.
+Summary: `python ~/codabench/analysis/proteus_w1016_summary.py --base B1`.
+
+---
+
 # HANDOFF — setup session 2026-10-15: PROTEUS training/test configuration (complete)
 
 **The short version for decisions is [DIRECTIONS.md](DIRECTIONS.md)**; what exists on
