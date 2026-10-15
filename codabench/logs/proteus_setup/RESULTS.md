@@ -24,6 +24,10 @@ upstream worktree `~/neuralbench/competition-040` @ 442edcd, data home
 | G5b | no leaks | official, later, every lopo fold: 0 shared rows; official and lopo: no test person in training; official: the 379 validation rows apart from both sides; later: no (person, session) on both sides, P04 and P10 have session 1 in training; all: its 755 test rows inside training, `score_meaningless` | PASS (26/26) | same |
 | G5c | order | every protocol and fold: test streams contiguous, ordered by (run, cue); official test key sequence = organisers' test dataset order (755 items) and official val = their validation order (379 items), element by element | PASS (15/15) | same |
 | G5d | ids from the stable keys (`ids_of`) | in every protocol and fold (stream_id, context_id) <-> (person, session, interface) both ways; cells 8 / 8 / 8 and 2 2 2 6 2 2 2 2 2 6; context 0 Graz / 1 BrainHero; record_id <-> (person, session, run); subject_id <-> person | PASS (26/26) | same |
+| G5e | what route B (`datasets/proteus_protocols.py`) serves, in-process `get_data()`, every protocol and fold (`eval_gates.log`, 17:53:09–17:53:45, 3.2 s) | train and test hash sets and counts = the protocol's index sets; every served label = cache label; train / test hashes disjoint (all: test inside train); test hash sequence = the protocol's test order; `n_classes` 3, `sfreq` 120.0, `ch_names`, `chs_info`, `n_chans` 41, `n_times` 480, `device` cpu = organisers' | PASS (78/78) | `analysis/proteus_eval.py gates` |
+| G6 | routes agree, Phase 1 `MeanLogReg` export: CLI inference-only on `BCI[study=dreyer2026proteus,subset=full]` (8.1 s) and on route B `official` (6.9 s); in-process `y_pred` from the organisers' test loader, route B's test loader and route A | both CLI runs: 0.395863 / 0.395465 / 0.395672 / 0.396026, 8 cells, `[loading] … weights.joblib into MeanLogReg` in the log; the three `y_pred` (755) equal element by element; in-process `predict_streams` on the organisers' loader = G1; route A = route B = organisers' scores as exact floats | PASS (6/6) | `g6/g6_official_loader.parquet`, `g6/g6_route_b_official.parquet`, `g6/*.log`, `g6/g6_y_pred_*.npy` |
+| G7 | the evaluator behaves: four test doubles on route A and route B, every protocol and fold (3.9 s) | constant exactly 0.333333; look-up exactly 1.000000; cell-marker: cells exactly 1.0 / 0.0, half each, mean 0.500000; counter = 1..n_s per stream with n_s from the cache keys (official / all 189 189 188 189; later 189 188 186 199) and the base model's counter 0 afterwards | PASS (107/107) | same |
+| G8 | no shared windows: memoriser of the training rows scored on the test rows, routes A and B (1.5 s) | official, later, every lopo fold: 0 recognised, cell mean exactly 0.333333; all: 755 recognised, exactly 1.000000 | PASS (26/26) | same |
 
 ## Phase time log
 
@@ -33,3 +37,4 @@ upstream worktree `~/neuralbench/competition-040` @ 442edcd, data home
 | 1 | 30 min | 17:39 | 17:44 | under (the run 12 s) |
 | 2 | 45 min | 17:44 | 17:50 | under (build 11 s, checks 8 s) |
 | 3 | 45 min | 17:47 | 17:52 | under (checks 10 s) |
+| 4 | 90 min | 17:52 | 17:56 | under (gates 25 s + two CLI runs 15 s) |
