@@ -1985,3 +1985,28 @@ recipe was left alone: real data still unreleased, every lever measured.
   entries above 0.9 pretrain on all of Dreyer (includes the test subjects 61-81) or normalise on the prediction
   batch (rule question still open). A model trained on the test subjects' labelled recordings was not built.
 - Nothing uploaded; nothing running.
+
+## 2026-10-13 — PROTEUS release: the 0.4.0 environment (back-filled on 10-15 from the setup brief's Appendix A)
+
+Times are from that session's own output (not log stamps); "about" = approximate.
+Nothing was committed that day. Details: SETUP.md "2026-10-13".
+
+| Time | Step | Estimate | Actual | Result |
+|---|---|---|---|---|
+| 16:41 | `git fetch origin` in `~/codabench/2026-competition` | — | — | `origin/main` = 442edcd, 48 commits ahead of the old clone |
+| 16:42:23–16:42:31 | worktree `~/neuralbench/competition-040` @ 442edcd; `uv venv` 3.12 `.venv040`; CPU torch; `uv pip install -r requirements.txt` | 1–3 min | 8 s (wheels cached) | neuralbench 0.4.0, torch 2.14.1+cpu |
+| about 16:42:50 | first `benchopt prepare` (training.yml) | — | fails | `No module named 'benchmark_utils'`: git symlinks checked out as text files |
+| about 16:43 | symlink repair loop (worktree only) | — | seconds | 8 symlinks re-made |
+| about 16:43:10–16:45:40 | `benchopt prepare` with `BENCHOPT_DATA_HOME=~/neuralbench/benchopt_data_040` | 5–15 min | 2 min 30 s | 1.48 GB in 19 s; 112 runs extracted in 1 min 45 s |
+| 16:46:03–16:46:10 | loader check `load_task("eeg", "_motor_imagery_stream", ...)` | <1 min | 7 s | 41 × 480 at 120 Hz; 1,521 / 379 / 755 windows |
+| 16:46:24–16:46:32 | baseline smoke `benchopt run --config training.yml -s MeanLogReg` | <1 min | 8 s | MeanLogReg cell mean 0.395863, 8 cells (for information only); outputs left inside the worktree |
+
+## 2026-10-15 — setup session: PROTEUS training/test configuration (brief `prompts/2026-10-13_proteus_train_test_setup.md`)
+
+Start 17:38:51 EDT, deadline 00:38:51. Setup and verification only (no tuning,
+no uploads). Gates and values: `logs/proteus_setup/RESULTS.md`; hand-off: HANDOFF.md top.
+
+| Time | Step | Estimate | Actual | Result |
+|---|---|---|---|---|
+| 17:38–17:41 | Phase 0 orient: git state, WSL checks, deadline into the brief, HANDOFF top | 15 min | 3 min | nothing running; upstream `origin/main` moved to a66bc23 (stay on 442edcd, "needs you"); commit 10caab4 |
+| 17:39–17:54 | Phase 1: `env040.sh`, `config/venv040_freeze.txt` (191 packages), G0, G1 reference run `ref_meanlogreg` (17:40:35–17:40:47), SETUP/LOG record of 10-13 | 30 min | 15 min (the run 12 s) | G0 PASS; G1 PASS 0.395863 / 0.395465 / 0.395672 / 0.396026, 8 cells (for information only; MeanLogReg, official loader, seed 42 via training.yml) |

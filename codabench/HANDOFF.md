@@ -7,12 +7,12 @@ environment: no tuning, no new features, no uploads. Branch `feat/codabench-trac
 pushed to `personal` after every commit. Logs: `logs/proteus_setup/` (RESULTS.md).
 Record: LOG.md "2026-10-15".
 
-## State of this session (updated 2026-10-15 17:45)
+## State of this session (updated 2026-10-15 17:54)
 
 | Phase | Status | Result |
 |---|---|---|
-| 0 orient | in progress | git state as expected (last commit 91deb28); nothing running in WSL; upstream local head 442edcd; **upstream `origin/main` has moved to a66bc23** (noted, staying on 442edcd); `benchmark_utils` symlink intact |
-| 1 entry point + reference run | pending | |
+| 0 orient | done 10caab4 | git state as expected (last commit 91deb28); nothing running in WSL; upstream local head 442edcd; **upstream `origin/main` has moved to a66bc23** (noted, staying on 442edcd); `benchmark_utils` symlink intact |
+| 1 entry point + reference run | done | `env040.sh`, `config/venv040_freeze.txt`; G0 PASS; G1 PASS 0.395863 / 0.395465 / 0.395672 / 0.396026, 8 cells (`logs/proteus_setup/ref_meanlogreg/`); SETUP.md section + LOG back-fill for 10-13 |
 | 2 window cache | pending | |
 | 3 protocols | pending | |
 | 4 streamed evaluation, two routes | pending | |

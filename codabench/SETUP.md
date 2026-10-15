@@ -148,3 +148,51 @@ cd ~/codabench/2026-competition && git pull   # WSL git keeps symlinks intact
 Our solvers live outside the clone (`codabench/solvers/`), so a pull never
 touches them. Re-check `requirements.txt` after a pull: if the pinned versions
 change, match them in the venv.
+
+## 2026-10-13: the 0.4.0 environment for the PROTEUS release (side by side with the one above)
+
+The official training data (PROTEUS, NEMAR `nm000290`) was released on
+2026-10-13 with neuralbench 0.4.0 and a new, streamed contract. A second
+environment was set up next to the frozen 0.3.1 one; the setup above is kept
+as it is (the old regression gate `scripts/train_sealed.sh` still runs there).
+Entry point: `source ~/codabench/env040.sh` (prints the neuralbench version and
+the working directory as proof of the environment). What exists, how to run it
+and the gates: `PROTEUS_SETUP.md`.
+
+| | Old (frozen) | New (use this for PROTEUS) |
+|---|---|---|
+| venv | `~/neuralbench/.venv` (neuralbench 0.3.1) | `~/neuralbench/.venv040`: Python 3.12.14 (uv 0.12.18), neuralbench / neuralset / neuralfetch / neuraltrain 0.4.0, benchopt 1.10.0, torch 2.14.1+cpu, scikit-learn 1.9.1, pyriemann 0.12, numpy 2.5.2, pandas 3.0.6, mne 1.13.2, moabb 1.7.2, exca 0.5.29. Full list: `config/venv040_freeze.txt` (`uv pip freeze`, 191 packages) |
+| upstream code | `~/codabench/2026-competition` (clone, `main` at 1ff8ce3, 48 commits behind) | `~/neuralbench/competition-040`: a **detached git worktree of that clone** at `origin/main` 442edcd ("update image docker"). Its git data lives in the old clone (`git -C ~/codabench/2026-competition worktree list` shows both): deleting or re-cloning the old clone breaks the new setup. Never `git checkout / pull / reset / stash / fetch` in the worktree: a checkout turns the hand-made symlinks (below) back into text files |
+| data home | `~/neuralbench/benchopt_data` | `~/neuralbench/benchopt_data_040`: `neural_compet/Dreyer2026Proteus/` (BIDS, 500 Hz EDF, 1.5 GB) and `neural_compet/cache/` (the 120 Hz extraction cache, 730 MB). Do not change loader settings: a new filter or rate re-extracts everything and no longer matches the server |
+| entry | `source ~/codabench/env.sh` | `source ~/codabench/env040.sh` |
+| task / dataset | `eeg/motor_imagery`, batches of 64 | `eeg/_motor_imagery_stream`, `-d "BCI[study=dreyer2026proteus]"`, test streamed one window at a time |
+| scoring image | `lionelyneuro/neural-compet:v2` | `v3` (`codabench/competition_bci.yaml` upstream) |
+
+What was run on 2026-10-13 (16:41 to 16:47 EDT; the brief's Appendix A, LOG.md "2026-10-13"):
+
+1. `git fetch origin` in the old clone: `origin/main` = 442edcd.
+2. `git worktree add --detach ~/neuralbench/competition-040 origin/main`;
+   `uv venv --python 3.12 ~/neuralbench/.venv040`; CPU torch from the PyTorch
+   CPU index; then `uv pip install -r requirements.txt` (the worktree's file).
+   8 s, wheels cached.
+3. `benchopt prepare tracks/bci_decoding --config tracks/bci_decoding/training.yml`
+   failed with `No module named 'benchmark_utils'`: the worktree was created by
+   a git with `core.symlinks=false`, so its 8 git symlinks (`tracks/*/benchmark_utils`,
+   `codabench/phases/warmup/*/benchmark`) were text files. Repaired with the
+   loop below (same gotcha as item 1 above), in the worktree only.
+4. The same prepare with `BENCHOPT_DATA_HOME=~/neuralbench/benchopt_data_040`:
+   1.48 GB downloaded in 19 s, 112 runs extracted in 1 min 45 s
+   (`~/neuralbench/logs040/prepare_proteus.log`).
+5. Loader check: 41 x 480 windows at 120 Hz; train / val / test = 1,521 / 379 / 755.
+6. Baseline smoke `benchopt run ... --config training.yml -s MeanLogReg --no-plot`:
+   cell mean 0.395863 on 8 cells. It wrote `tracks/bci_decoding/outputs/benchopt_run_2026-10-13_16h46m29.parquet`
+   and `tracks/bci_decoding/outputs/MeanLogReg/` inside the worktree (still there).
+
+Symlink repair, worktree only (never in the old clone):
+
+```bash
+cd ~/neuralbench/competition-040 && git ls-files -s | awk '$1=="120000"{print $4}' | while read f; do [ -L "$f" ] || { t=$(cat "$f"); rm "$f"; ln -s "$t" "$f"; }; done
+```
+
+Checked on 2026-10-15: all 8 symlinks are real symlinks; `origin/main` has
+since moved to a66bc23 (the worktree stays at 442edcd on purpose).
