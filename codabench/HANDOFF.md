@@ -1,3 +1,31 @@
+# HANDOFF — setup session 2026-10-15: PROTEUS training/test configuration (in progress)
+
+Plan of record: [prompts/2026-10-13_proteus_train_test_setup.md](prompts/2026-10-13_proteus_train_test_setup.md)
+(started 2026-10-15 17:38:51 EDT, deadline 2026-10-16 00:38:51 EDT, 7 h, unattended).
+A setup and verification session on the released PROTEUS data in the 0.4.0
+environment: no tuning, no new features, no uploads. Branch `feat/codabench-track2`,
+pushed to `personal` after every commit. Logs: `logs/proteus_setup/` (RESULTS.md).
+Record: LOG.md "2026-10-15".
+
+## State of this session (updated 2026-10-15 17:45)
+
+| Phase | Status | Result |
+|---|---|---|
+| 0 orient | in progress | git state as expected (last commit 91deb28); nothing running in WSL; upstream local head 442edcd; **upstream `origin/main` has moved to a66bc23** (noted, staying on 442edcd); `benchmark_utils` symlink intact |
+| 1 entry point + reference run | pending | |
+| 2 window cache | pending | |
+| 3 protocols | pending | |
+| 4 streamed evaluation, two routes | pending | |
+| 5 one solver through the whole path | pending | |
+| 6 reference table + review + self-test | pending | |
+| 7 docs and hand-off | pending | |
+
+## What is running
+
+Nothing yet.
+
+---
+
 # Addendum 2026-10-02 (evening): open sprint, nothing running
 
 - **Thesis** (branch `feat/window-effect-check`, git worktree `C:\Users\Ali D\wt-window`, pushed to `personal`, not merged):

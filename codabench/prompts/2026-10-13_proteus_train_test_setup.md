@@ -718,7 +718,7 @@ ranked.
 
 ## 7. Time budget and order
 
-Deadline: _write it here in Phase 0_ (T = start).
+Deadline: **2026-10-16 00:38:51 EDT** (T = start = 2026-10-15 17:38:51 EDT, WSL `date`). Checkpoints: Phase 2 by 19:09, Phase 4 by 21:24, Phase 5 by 22:54, Phase 6 by 23:54; `later` + `lopo` launch only before 22:24; wrap-up reserve from 23:54.
 
 Estimates sum to 6 h 45 min against 7 h. Order and checkpoints: Phase 0 → 1 →
 2 (done by T + 1 h 30) → 3 → 4 (done by T + 3 h 45) → 5 (done by T + 5 h 15) →
