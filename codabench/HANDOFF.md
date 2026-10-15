@@ -1,28 +1,77 @@
-# HANDOFF — setup session 2026-10-15: PROTEUS training/test configuration (in progress)
+# HANDOFF — setup session 2026-10-15: PROTEUS training/test configuration (complete)
+
+**The short version for decisions is [DIRECTIONS.md](DIRECTIONS.md)**; what exists on
+PROTEUS and how to run it is [PROTEUS_SETUP.md](PROTEUS_SETUP.md). This section is
+the detailed hand-off of the setup session and is resumable from here alone.
 
 Plan of record: [prompts/2026-10-13_proteus_train_test_setup.md](prompts/2026-10-13_proteus_train_test_setup.md)
-(started 2026-10-15 17:38:51 EDT, deadline 2026-10-16 00:38:51 EDT, 7 h, unattended).
-A setup and verification session on the released PROTEUS data in the 0.4.0
-environment: no tuning, no new features, no uploads. Branch `feat/codabench-track2`,
-pushed to `personal` after every commit. Logs: `logs/proteus_setup/` (RESULTS.md).
-Record: LOG.md "2026-10-15".
+(started 2026-10-15 17:38:51 EDT, deadline 00:38:51, 7 h; finished in about
+1 h 25 min). A setup and verification session on the released PROTEUS data in the
+0.4.0 environment: no tuning, no new features, no uploads. Branch
+`feat/codabench-track2`, pushed to `personal` after every commit. Logs:
+`logs/proteus_setup/` (`RESULTS.md` committed: every gate with its measured value,
+the reference table). Record: LOG.md "2026-10-15".
 
-## State of this session (updated 2026-10-15 18:14)
+## State of this session (updated 2026-10-15 REVIEW_TIME): complete
 
 | Phase | Status | Result |
 |---|---|---|
-| 0 orient | done 10caab4 | git state as expected (last commit 91deb28); nothing running in WSL; upstream local head 442edcd; **upstream `origin/main` has moved to a66bc23** (noted, staying on 442edcd); `benchmark_utils` symlink intact |
-| 1 entry point + reference run | done | `env040.sh`, `config/venv040_freeze.txt`; G0 PASS; G1 PASS 0.395863 / 0.395465 / 0.395672 / 0.396026, 8 cells (`logs/proteus_setup/ref_meanlogreg/`); SETUP.md section + LOG back-fill for 10-13 |
-| 2 window cache | done | `analysis/proteus_cache.py` (build 11 s; `Cache`, `sha1_of`, `official_loaders`, G2/G3 checks), `analysis/proteus_g4_events.py` (isolated `-I`). G2 22/22, G3 12/12, G4 4/4 PASS. Cache: `~/neuralbench/proteus_cache` (X.npy 209 MB, rows.parquet, keys.csv, meta.json) |
-| 3 protocols | done | `analysis/proteus_splits.py`: `split(protocol, fold)`, `ids_of` (stream / record / context / subject ids from the keys), `every_split`, `lopo_summary`. G5a–d 80/80 PASS |
-| 4 streamed evaluation, two routes | done | route A `analysis/proteus_eval.py` (`test_loader`, `evaluate`, `load_submission`, `route_b_data`, doubles, `gates` / `score` CLI); route B `datasets/proteus_protocols.py` (`ProteusProtocols[protocol=…,fold=…]`). G5e 78, G6 6, G7 107, G8 26 PASS |
-| 5 one solver through the whole path | done | `reset_state()` in `riemann_sealed.py` (only edit); baked copy `solvers/bci_decoding/riemann_sealed_proteus_pooled.py` (pooled / align none / adapt none); `scripts/proteus_candidate.sh` ran official, all, later, lopo 0..9. G9 / G9b / G10 / G11 / G12 PASS. official vehicle 0.406751 (8 cells; info only); two zips ready, NOT uploaded (SUBMISSIONS.md) |
-| 6 reference table + review + self-test | pending | |
-| 7 docs and hand-off | pending | |
+| 0 orient | done 10caab4 | git state as expected; nothing running in WSL; upstream local head 442edcd; **upstream `origin/main` has moved to a66bc23** (staying on 442edcd: the user's call); `benchmark_utils` symlink intact |
+| 1 entry point + reference run | done d75fa12 | `env040.sh`, `config/venv040_freeze.txt`; G0 PASS; G1 PASS 0.395863 / 0.395465 / 0.395672 / 0.396026, 8 cells (`logs/proteus_setup/ref_meanlogreg/`); SETUP.md section + LOG back-fill for the 10-13 setup |
+| 2 window cache | done 04a9970 | `analysis/proteus_cache.py` (build 11 s), `analysis/proteus_g4_events.py` (isolated `-I`). G2 22/22, G3 12/12 (max diff 0.0), G4 4/4 PASS. Cache `~/neuralbench/proteus_cache` (209 MB) |
+| 3 protocols | done 6a4596d | `analysis/proteus_splits.py`: `split`, `ids_of`, `every_split`, `lopo_summary`. G5a–d 80/80 PASS |
+| 4 streamed evaluation, two routes | done 83317ed | route A `analysis/proteus_eval.py`, route B `datasets/proteus_protocols.py`. G5e 78, G6 6, G7 107, G8 26 PASS; both routes = benchopt to 6 decimals, identical `y_pred` |
+| 5 one solver through the whole path | done ef945a5 | `reset_state()` in `riemann_sealed.py` (only edit); vehicle `solvers/bci_decoding/riemann_sealed_proteus_pooled.py`; `scripts/proteus_candidate.sh` ran official, all, later, lopo 0..9. G9 / G9b / G10 / G11 / G12 PASS; official vehicle 0.406751 (8 cells, info only); two zips ready, NOT uploaded |
+| 6 reference table, self-test, independent review | done | table in RESULTS.md (12 route B `MeanLogReg` runs + the vehicle + constant); `analysis/proteus_selftest.py` **349 / 349 PASS from a clean shell, 55 s**; review: REVIEW_RESULT |
+| 7 docs and hand-off | done | `PROTEUS_SETUP.md`; DIRECTIONS § 1/2/5/6 + change log (148 lines); LOG, HANDOFF, SUBMISSIONS; RELEASE_DAY § 5 step 1 and § 6 updated in place; banners on SEALED_RECIPE, TRACK2_BCI, SUBMISSION_GUIDE, COMPETITION; project map; memory |
 
 ## What is running
 
-Nothing yet.
+Nothing. No uploads were made. The zips under `logs/proteus_setup/` are local only.
+
+## Facts a resumer needs
+
+- **Environment:** every WSL call starts with `source ~/codabench/env040.sh` (prints
+  `neuralbench 0.4.0 cwd /home/ali_d/neuralbench/competition-040`; cwd = `$COMPET_ROOT`).
+  The old `env.sh` world is frozen; `train_sealed.sh … zhou2016_xsess` still runs there
+  as the regression gate after any edit to `riemann_sealed.py` (G11, 2 min; expected
+  `gate: train 0.770000 replay 0.770000 EQUAL …`).
+- **Self-test:** `python ~/codabench/analysis/proteus_selftest.py` (G0, G2–G8, G10;
+  about 1 min; trains nothing; reads the cache, the official loader, the Phase 1
+  `MeanLogReg` export and the `official` Riemann export). Run it first in any new session.
+- **Protocols** (`analysis/proteus_splits.py`): `official` 1521 / val 379 / 755 (4 streams,
+  8 cells); `lopo` fold k = 0..9 holds out P(k+1) (28 cells in all; score = mean over the
+  28 cells, fold means beside it); `later` 1893 / 762 (P04 + P10 sessions 2–3); `all`
+  2655 / 755 (`score_meaningless`). Never combine `lopo` and `later` into one number.
+- **Running a solver on a protocol:** route B by path,
+  `-d "$HOME/codabench/datasets/proteus_protocols.py[protocol=lopo,fold=3]"`, with
+  `--seed 42 --no-cache --no-plot --no-html --no-display --output <abs>.parquet`, a fresh
+  `COMPET_SUBMISSION_DIR` for training, one solver and one fold per call; or the whole
+  chain with `bash ~/codabench/scripts/proteus_candidate.sh <protocol> [fold]`
+  (resumable; `logs/proteus_setup/cand_<run>/`). Per-window predictions:
+  `python ~/codabench/analysis/proteus_eval.py score <export> <protocol> [fold] --out <dir>`.
+- **Settings must be baked** into a candidate copy of the solver (Codabench runs a file's
+  defaults); the vehicle copy was made by `proteus_candidate.sh` with sed on two lines.
+- **Keys:** the official loaders' `info` integers are not stable; everything of ours keys
+  on (person, session, run, cue) and on the SHA-1 of the float32 tensor.
+- **Plumbing numbers are for information only** (untuned vehicle; sd of a label-blind
+  cell mean ≈ 0.025 on 8 cells): reference table in `logs/proteus_setup/RESULTS.md`.
+- **Two defects of my own test code** were found by the first run and fixed after the jobs
+  ended (see LOG): `equal` compared `objective_name`; the deepcopy check mixed call shapes.
+  Both fixed in `proteus_eval.py`; everything re-run.
+
+## What the user needs to do
+
+1. **Decision 7 (model half):** choose the comparison to run on `lopo` + `later`
+   (DIRECTIONS § 2 names the four arms). Nothing in this session is evidence for or
+   against a model.
+2. **Decision 8:** adopt the 0.4.0 setup as the main one (largely done; yes / no).
+3. **Upstream moved:** `origin/main` is at a66bc23, our worktree at 442edcd. Say whether to
+   move it (then re-run the self-test and G1).
+4. **Uploads (optional, before Oct 25):** `logs/proteus_setup/cand_official/riemann_sealed_proteus_pooled_official_2026-10-15.zip`
+   (expected 0.406751 / 0.405717 / 0.405298) and/or
+   `logs/proteus_setup/ref_meanlogreg/meanlogreg_official_2026-10-15.zip`
+   (0.395863 / 0.395672 / 0.396026): proves the streamed format on the `v3` image.
 
 ---
 

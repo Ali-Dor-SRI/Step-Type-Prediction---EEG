@@ -34,6 +34,7 @@ upstream worktree `~/neuralbench/competition-040` @ 442edcd, data home
 | G10 | streaming contract of the fitted `official` model (`g9_g10.log` 18:01:29–18:03:14 with the in-process fit; re-run `g9_g10_rerun.log` after the test-code fix below) | B = 1 vs one batch: same class on all 755 windows, largest probability difference 7.9e-12 (not flagged); `copy.deepcopy` works and the copy predicts the same; predictions unchanged after `reset_state()`; `reset_state()` leaves `_buf == {}` and `_pred` zeroed; every prediction shape (1,), integer in {0, 1, 2}; the 20 highest-amplitude windows (4,417.8 .. 480.3 uV) give finite outputs; after a reload `_pred['calls'] == 0` and `_buf == {}`; the same right after one in-process fit on the route B `official` training rows (fit 28.9 s) | PASS (9 checks + the fit check) | `cand_official/g9_g10*.log` |
 | G12 | the zips | `official` Riemann zip `cand_official/riemann_sealed_proteus_pooled_official_2026-10-15.zip`: 562,449 B, sha256 `cd9f6a193a3286e73368c811284d00bdfe1f6987e6b09b5616e24f650458c742`, entries `submission.py`, `riemann_sealed.joblib` at the root; unzipped replay = training scores. `MeanLogReg` zip `ref_meanlogreg/meanlogreg_official_2026-10-15.zip`: 3,022 B, sha256 `5b31484b87541c826589a6803ec3615b0930c5ebf6996db805181b50086d6583`, `submission.py` + `weights.joblib` at the root; unzipped replay 0.395863 / 0.395465 / 0.395672 / 0.396026 = training. Both rows added to `SUBMISSIONS.md` ("ready, not uploaded"; image `v2` → `v3` noted). `all` zip (no SUBMISSIONS row): `cand_all/riemann_sealed_proteus_pooled_all_2026-10-15.zip`, 676,458 B, sha256 `640a14fbc93e04de8c18e9f6db43046adeb730ad6444d26a2735773e0a232ef5`, files at the root, unzipped replay = training (1.000000, meaningless) | PASS | `*/RESULTS.md`, `zip.log` |
 | timing | report only: ms per window at B = 1 for the fitted 41-channel model | 8.2 ms (in-process loop, quiet machine), 8.6–9.7 ms (route A `predict_streams`, all 13 exports), 8.9 ms (benchopt replay log); projected 106 sessions × 199 windows = 21,094 windows: **173–205 s**, far below 1,200 s (no "needs you"). Values of 20–35 ms seen in some benchopt logs were measured while two jobs shared the CPU | — | `reftable.md` |
+| self-test | `analysis/proteus_selftest.py` from a clean shell with only `source ~/codabench/env040.sh` before it (18:12:47–18:13:43) | G0 4, G2 22, G3 12, G4 5, G5a–d 80, G5e–G8 217, G10 9 = **349 / 349 PASS**, 55.3 s (G6's two CLI runs under `selftest/`) | PASS | `selftest/selftest.log` |
 
 ## Phase time log
 
@@ -45,3 +46,53 @@ upstream worktree `~/neuralbench/competition-040` @ 442edcd, data home
 | 3 | 45 min | 17:47 | 17:52 | under (checks 10 s) |
 | 4 | 90 min | 17:52 | 17:56 | under (gates 25 s + two CLI runs 15 s) |
 | 5 | 90 min | 17:56 | 18:12 | under: official chain 4 min, all chain 2.5 min, later + 10 lopo 11 min (two jobs at once), G11 1 min 48 s |
+
+## Reference table: for information only: untuned plumbing models
+
+Protocol × {constant, `MeanLogReg`, the Riemann vehicle}: cell mean, `n_cells`, fit time and ms per window, each row naming the loader and seed that trained it (`reftable.py` of the session scratchpad, 18:11:19–18:12:17; `reftable.json`). The constant rows come from G7. The ms/window column gives the route A measurement on a quiet machine and, after `;`, the last `[Riemann-Sealed] predict:` line of the benchopt log (20–35 ms where two jobs shared the CPU).
+
+| protocol | model | cell mean | n_cells | fit (s) | ms / window at B = 1 (route A; benchopt log) | trained through |
+|---|---|---|---|---|---|---|
+| official | constant (class 0) | 0.333333 | 8 | 0 | 0.0 | no training |
+| official | MeanLogReg | 0.395863 | 8 | — | 0.3 | official loader (`BCI[study=dreyer2026proteus]`), seed 42 via training.yml (= G1) |
+| official | Riemann-Sealed-Proteus-Pooled (pooled / align none / adapt none) | 0.406751 | 8 | 26.8 | 8.6; 8.9 | official loader (`BCI[study=dreyer2026proteus,subset=full]`), seed 42 |
+| later | constant (class 0) | 0.333333 | 8 | 0 | 0.1 | no training |
+| later | MeanLogReg | 0.428786 | 8 | — | 0.3 | route B `ProteusProtocols[protocol=later]`, seed 42 |
+| later | Riemann-Sealed-Proteus-Pooled (pooled / align none / adapt none) | 0.492382 | 8 | 33.5 | 8.6; 24.2 | route B `ProteusProtocols[protocol=later]`, seed 42 |
+| all | constant (class 0) | 0.333333 **tested on its own training windows: score meaningless** | 8 | 0 | 0.1 | no training |
+| all | MeanLogReg | 0.466050 **tested on its own training windows: score meaningless** | 8 | — | 0.3 | route B `ProteusProtocols[protocol=all]`, seed 42 |
+| all | Riemann-Sealed-Proteus-Pooled (pooled / align none / adapt none) | 1.000000 **tested on its own training windows: score meaningless** | 8 | 49.3 | 8.6; 20.5 | route B `ProteusProtocols[protocol=all]`, seed 42 |
+| lopo[fold=0] | constant (class 0) | 0.333333 | 2 | 0 | 0.1 | no training |
+| lopo[fold=0] | MeanLogReg | 0.400202 | 2 | — | 0.3 | route B `ProteusProtocols[protocol=lopo,fold=0]`, seed 42 |
+| lopo[fold=0] | Riemann-Sealed-Proteus-Pooled (pooled / align none / adapt none) | 0.469926 | 2 | 43.2 | 9.0; 23.9 | route B `ProteusProtocols[protocol=lopo,fold=0]`, seed 42 |
+| lopo[fold=1] | constant (class 0) | 0.333333 | 2 | 0 | 0.1 | no training |
+| lopo[fold=1] | MeanLogReg | 0.530858 | 2 | — | 0.3 | route B `ProteusProtocols[protocol=lopo,fold=1]`, seed 42 |
+| lopo[fold=1] | Riemann-Sealed-Proteus-Pooled (pooled / align none / adapt none) | 0.370139 | 2 | 46.0 | 8.6; 9.0 | route B `ProteusProtocols[protocol=lopo,fold=1]`, seed 42 |
+| lopo[fold=2] | constant (class 0) | 0.333333 | 2 | 0 | 0.1 | no training |
+| lopo[fold=2] | MeanLogReg | 0.672155 | 2 | — | 0.3 | route B `ProteusProtocols[protocol=lopo,fold=2]`, seed 42 |
+| lopo[fold=2] | Riemann-Sealed-Proteus-Pooled (pooled / align none / adapt none) | 0.477005 | 2 | 39.4 | 8.6; 8.7 | route B `ProteusProtocols[protocol=lopo,fold=2]`, seed 42 |
+| lopo[fold=3] | constant (class 0) | 0.333333 | 6 | 0 | 0.1 | no training |
+| lopo[fold=3] | MeanLogReg | 0.371304 | 6 | — | 0.3 | route B `ProteusProtocols[protocol=lopo,fold=3]`, seed 42 |
+| lopo[fold=3] | Riemann-Sealed-Proteus-Pooled (pooled / align none / adapt none) | 0.369825 | 6 | 40.9 | 8.4; 35.2 | route B `ProteusProtocols[protocol=lopo,fold=3]`, seed 42 |
+| lopo[fold=4] | constant (class 0) | 0.333333 | 2 | 0 | 0.1 | no training |
+| lopo[fold=4] | MeanLogReg | 0.416499 | 2 | — | 0.3 | route B `ProteusProtocols[protocol=lopo,fold=4]`, seed 42 |
+| lopo[fold=4] | Riemann-Sealed-Proteus-Pooled (pooled / align none / adapt none) | 0.389449 | 2 | 48.8 | 9.1; 9.5 | route B `ProteusProtocols[protocol=lopo,fold=4]`, seed 42 |
+| lopo[fold=5] | constant (class 0) | 0.333333 | 2 | 0 | 0.1 | no training |
+| lopo[fold=5] | MeanLogReg | 0.455287 | 2 | — | 0.3 | route B `ProteusProtocols[protocol=lopo,fold=5]`, seed 42 |
+| lopo[fold=5] | Riemann-Sealed-Proteus-Pooled (pooled / align none / adapt none) | 0.558445 | 2 | 36.1 | 9.3; 8.5 | route B `ProteusProtocols[protocol=lopo,fold=5]`, seed 42 |
+| lopo[fold=6] | constant (class 0) | 0.333333 | 2 | 0 | 0.1 | no training |
+| lopo[fold=6] | MeanLogReg | 0.422334 | 2 | — | 0.3 | route B `ProteusProtocols[protocol=lopo,fold=6]`, seed 42 |
+| lopo[fold=6] | Riemann-Sealed-Proteus-Pooled (pooled / align none / adapt none) | 0.456720 | 2 | 37.0 | 9.1; 8.0 | route B `ProteusProtocols[protocol=lopo,fold=6]`, seed 42 |
+| lopo[fold=7] | constant (class 0) | 0.333333 | 2 | 0 | 0.1 | no training |
+| lopo[fold=7] | MeanLogReg | 0.438441 | 2 | — | 0.3 | route B `ProteusProtocols[protocol=lopo,fold=7]`, seed 42 |
+| lopo[fold=7] | Riemann-Sealed-Proteus-Pooled (pooled / align none / adapt none) | 0.477957 | 2 | 36.1 | 9.7; 8.2 | route B `ProteusProtocols[protocol=lopo,fold=7]`, seed 42 |
+| lopo[fold=8] | constant (class 0) | 0.333333 | 2 | 0 | 0.1 | no training |
+| lopo[fold=8] | MeanLogReg | 0.481501 | 2 | — | 0.3 | route B `ProteusProtocols[protocol=lopo,fold=8]`, seed 42 |
+| lopo[fold=8] | Riemann-Sealed-Proteus-Pooled (pooled / align none / adapt none) | 0.409483 | 2 | 43.5 | 9.6; 9.8 | route B `ProteusProtocols[protocol=lopo,fold=8]`, seed 42 |
+| lopo[fold=9] | constant (class 0) | 0.333333 | 6 | 0 | 0.1 | no training |
+| lopo[fold=9] | MeanLogReg | 0.422459 | 6 | — | 0.3 | route B `ProteusProtocols[protocol=lopo,fold=9]`, seed 42 |
+| lopo[fold=9] | Riemann-Sealed-Proteus-Pooled (pooled / align none / adapt none) | 0.380160 | 6 | 32.7 | 9.6; 8.1 | route B `ProteusProtocols[protocol=lopo,fold=9]`, seed 42 |
+| lopo (all 10 folds) | MeanLogReg | **0.442755** over the 28 cells (mean of the 10 fold means 0.461104) | 28 | — | — | route B, seed 42, one fold per call |
+| lopo (all 10 folds) | Riemann | **0.418506** over the 28 cells (mean of the 10 fold means 0.435911) | 28 | — | — | route B, seed 42, one fold per call |
+
+On the 8-cell protocols the cell mean of a label-blind model has a standard deviation of about 0.025, so differences below about 0.05 mean nothing, and `later` tests 2 people. A `MeanLogReg` retrained through route B does not read 0.395863 (its lbfgs fit depends on the training-row order, brief § 1). The MeanLogReg fit time is not logged by the solver: each route B training run took 7–11 s wall time. Draw no conclusion about models from this table.

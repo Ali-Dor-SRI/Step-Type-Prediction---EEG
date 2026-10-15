@@ -1,5 +1,7 @@
 # EEG/EMG Foundation Challenge 2026 — competition reference
 
+**Describes the pre-2026-10-13 contract; for PROTEUS see [PROTEUS_SETUP.md](PROTEUS_SETUP.md).**
+
 Everything about the competition itself: dates, tracks, rules, limits and
 baselines. For our setup see [SETUP.md](SETUP.md); for the track we're entering
 see [TRACK2_BCI.md](TRACK2_BCI.md).

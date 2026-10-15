@@ -1,5 +1,7 @@
 # Submission guide — how a Codabench submission works
 
+**Describes the pre-2026-10-13 contract; for PROTEUS see [PROTEUS_SETUP.md](PROTEUS_SETUP.md).**
+
 A condensed, standalone version of the official guide
 (`2026-competition/codabench/pages/participate.md`, the authoritative source),
 plus the gotchas found while setting this up.

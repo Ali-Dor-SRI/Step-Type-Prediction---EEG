@@ -21,8 +21,9 @@ What this document holds:
 
 The executable first step is the setup brief
 [prompts/2026-10-13_proteus_train_test_setup.md](prompts/2026-10-13_proteus_train_test_setup.md)
-(**not run as of 2026-10-15**: no `env040.sh`, no `PROTEUS_SETUP.md`, no
-`logs/proteus_setup/` exist yet). Every number below comes from that brief's
+(**run on 2026-10-15, 17:38–19:00: every gate passed**; what exists and how to
+run it is [PROTEUS_SETUP.md](PROTEUS_SETUP.md), the measured values are
+`logs/proteus_setup/RESULTS.md`). Every number below comes from that brief's
 verified § 1, from the organisers' FAQ and code at upstream `442edcd`, or from
 the BIDS files read on 2026-10-15; where a number is a projection it says so.
 The scientific background on the three tasks is in
@@ -359,7 +360,7 @@ sealed upload.
 
 | # | Step | Est. | Output |
 |---|---|---|---|
-| 1 | **Run the setup brief** (environment, window cache, four protocols, streamed evaluation, Riemann vehicle end to end, self-test) | ~7 h unattended | `PROTEUS_SETUP.md`, `logs/proteus_setup/RESULTS.md`, two "ready, not uploaded" zips |
+| 1 | ~~**Run the setup brief**~~ **done 2026-10-15, 17:38–19:00 (1 h 20 min of the 7 h; every gate PASS, self-test 349/349)** | ~7 h unattended | `PROTEUS_SETUP.md`, `logs/proteus_setup/RESULTS.md`, two "ready, not uploaded" zips: all exist |
 | 2 | **Warm-up upload** of the `official` Riemann zip and the `MeanLogReg` zip (user's action) | 2 uploads | server numbers = local replay; `v3` image proven |
 | 3 | **EDA on the real data**: per-person ERD maps per task from the raw BIDS (1–5 s vs the pre-cue second), laterality sign per person, GFP peak ratio per run type, calibration-vs-online split, drift of P04/P10 across sessions, amplitude distribution | ~half a day | `reports/proteus_eda/` |
 | 4 | **Candidate ablations on `lopo` and `later`** through the streamed evaluator, each as an opt-in solver setting, one change at a time against the base (pooled LDA, global whitening, fb + bpt4, no xDAWN decision yet): online re-centring N; open-set router + personal blend; xDAWN; reference; amplitude handling; `subject_context`; `icoh` | ~1 day of CPU, fits are minutes | a RESULTS table with paired bootstrap CIs over people (10) and cells (28) |
@@ -411,9 +412,10 @@ online-run cell scores are reported alongside every row.
 | Organisers' FAQ and code | `$COMPET_ROOT/codabench/pages/scientific_faq_bci.md`, `tracks/bci_decoding/{README.md,objective.py,datasets/bci_studies.py}`, `benchmark_utils/{streaming,data,nb_task,metrics}.py` |
 | Our solver | `codabench/solvers/bci_decoding/riemann_sealed.py` (defaults: `personal="blend"`, `align="subject"`, `adapt="none"`, `buffer=64`, `xblocks=""`, `wcv_ref="all"`) |
 | Setup brief (step 1) | `codabench/prompts/2026-10-13_proteus_train_test_setup.md` |
-| Window cache, runs, logs (to be created by step 1) | `~/neuralbench/proteus_cache/`, `~/neuralbench/proteus_runs/<run>/`, `~/codabench/logs/proteus_setup/` |
+| Window cache, runs, logs (created by step 1 on 10-15) | `~/neuralbench/proteus_cache/` (X.npy, rows.parquet, keys.csv, meta.json), `~/neuralbench/proteus_runs/<run>/` (read-only replay copies, unzipped folders), `~/codabench/logs/proteus_setup/` (`RESULTS.md` committed; `ref_meanlogreg/`, `cand_official/`, `cand_all/`, `cand_later/`, `cand_lopo_f<k>/`, `ref_table/`, `selftest/`) |
+| Step 1's code (created 10-15) | `codabench/env040.sh`, `analysis/proteus_cache.py`, `proteus_splits.py`, `proteus_eval.py`, `proteus_g4_events.py`, `proteus_selftest.py`, `datasets/proteus_protocols.py`, `scripts/proteus_candidate.sh`, `solvers/bci_decoding/riemann_sealed_proteus_pooled.py` (baked vehicle); `PROTEUS_SETUP.md` |
 | Old environment (frozen, do not use) | `~/neuralbench/.venv`, `~/neuralbench/benchopt_data`, `~/neuralbench/xsess_cache`, `codabench/env.sh` |
-| Entry point for every WSL call | the activation block in the setup brief § 1 (`source ~/neuralbench/.venv040/bin/activate`, `BENCHOPT_DATA_HOME=~/neuralbench/benchopt_data_040`, `COMPET_ROOT=~/neuralbench/competition-040`), to become `codabench/env040.sh` |
+| Entry point for every WSL call | `source ~/codabench/env040.sh` (exists since 10-15; prints the neuralbench version and the working directory) |
 | Scientific background on the tasks | `codabench/reports/PROTEUS_task_neuroscience_2026-10-15.docx` |
 | Archived pre-release runbook | `codabench/archive/RELEASE_DAY_2026-10-01_pre-release.md` |
 
@@ -423,6 +425,10 @@ except for `RESULTS*.md` / `STATUS.md` added with `git add -f`.
 
 ## 7. Change log
 
+- 2026-10-15 (evening): step 1 of § 5 done (setup brief run; every gate PASS);
+  § 6 paths exist. No other section changed: the data and contract facts of
+  § 1–2 were confirmed by the session's gates (counts, cells, channel order,
+  units, window start = cue + 1 s, labels = BIDS events).
 - 2026-10-15: rewritten for PROTEUS. Old runbook archived. Data structure
   (§ 1), contract (§ 2), carry-over / tuning / rebuild tables (§ 3), new
   topics (§ 4), revised plan and rules v2 (§ 5). Neuroscience document added.

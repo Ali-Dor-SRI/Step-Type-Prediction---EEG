@@ -1,5 +1,7 @@
 # Track 2 — BCI decoding (cross-session)
 
+**Describes the pre-2026-10-13 contract; for PROTEUS see [PROTEUS_SETUP.md](PROTEUS_SETUP.md).**
+
 The track we're entering. Task spec, the data we have, how to train, and
 where things stand.
 

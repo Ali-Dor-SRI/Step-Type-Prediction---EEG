@@ -1,199 +1,148 @@
 # Directions: Track 2 at a glance
 
-**Updated 2026-10-15**: the official data (PROTEUS) is out and the contract
-changed. [RELEASE_DAY.md](RELEASE_DAY.md) was rewritten for it on 10-15 (data
-structure, what carries over, what needs tuning, rules v2); the old runbook is
-archived. § 1, 2, 5, 6 are current; **§ 3–4 are pre-release proxy evidence and
-must be re-validated on PROTEUS**. This is the short version
-for making decisions. Every number links to where it comes from. Read the long
-documents only if you want the detail (§ 7). Kept current by every session that
-changes a decision, a number or the plan (§ 8).
+**Updated 2026-10-15 (evening)**: the official data (PROTEUS) is out, the contract
+changed, and the setup brief has now been **run**: the 0.4.0 environment, a window
+cache, four training/test protocols, a streamed local evaluation and one solver
+end to end are verified ([PROTEUS_SETUP.md](PROTEUS_SETUP.md)). § 1, 2, 5, 6 are
+current; **§ 3–4 are pre-release proxy evidence and must be re-validated on
+PROTEUS**. This is the short version for making decisions. Every number links to
+where it comes from. Read the long documents only if you want the detail (§ 7).
+Kept current by every session that changes a decision, a number or the plan (§ 8).
 
 ## 1. Where we stand
 
-- **Calendar:**
-  - registration closes **Oct 24**;
-  - the warm-up (5 uploads/day, does not rank) ends **Oct 25**;
-  - the **sealed phase, Oct 28 – Nov 21**, is the only phase that ranks:
-    1 upload/day, top 3 audited.
-- **Data: released and set up (2026-10-13).** PROTEUS, NEMAR nm000290, 1.5 GB,
-  CC-BY. It is much smaller than planned for: **10 people, 14 sessions, 2,655
-  windows** (~190 per session; 8 people have 1 session, P04 and P10 have 3),
-  41 EEG channels, 3 balanced classes, Graz and BrainHero runs in every session.
-  - Lives in WSL at `~/neuralbench/benchopt_data_040`, with a separate
-    0.4.0 environment (`~/neuralbench/.venv040`) and upstream checkout
-    (`~/neuralbench/competition-040`). The frozen 0.3.1 setup is untouched.
-  - Checked: official prepare (2.5 min), loader, and the organisers' tiny
-    baseline end to end (MeanLogReg 0.396 on 8 cells; chance 0.333). No NaNs,
-    no flat channels. **No model of ours has run on it yet.**
-- **The contract changed with the release** (upstream FAQ, neuralbench 0.4.0):
-  - **Sealed test = later sessions of these 10 people + 10 unseen people.**
-    No calibration data for anyone: the old "sessions 1–3 labelled" plan is gone.
-  - **Streamed:** `predict` gets one window at a time, in recording order,
-    per person-session; the model is copied fresh for each session.
-  - **Adapting inside a session without labels is allowed** (old decision 1).
-  - **Input:** 41 EEG channels, 120 Hz, 4 s starting 1 s after the cue, in
-    microvolts, 0.1–75 Hz, **no scaling or clamping**. No EMG/EOG, ever.
-  - **Warm-up now scores on PROTEUS** (test = P04's 3 sessions + P09). Its
-    labels are public, so it is only a format check. Old uploads no longer fit.
-  - **Sealed phase: 1 upload/day and 10 in total.**
-- Every number in § 3–4 comes from stand-in datasets, before the release.
-- **Warm-up (clean Dreyer split):** a 5-seed EEGNet ensemble scored **0.8095** vs the single model's 0.820: no gain, so no more tries. The 0.9+ leaderboard entries pretrain on all of Dreyer (test subjects included) or use per-batch statistics: not built.
-- **Uploaded so far** (warm-up, which doesn't rank;
-  [SUBMISSIONS.md](SUBMISSIONS.md)):
-  - EEGNet, 0.82;
-  - the **sealed model's deployment test** on 2026-10-02: Finished, 0.62 in
-    59 s. The Riemann-Sealed model runs on the scoring server.
-- **Sealed-phase candidate:** **Riemann-Sealed + bpt4**. It retrains end to
-  end on release day with the runbook: **~4–4.5 h** now, down from 6–7 h,
-  rehearsed at full size on 10-01 ([archived runbook § 8](archive/RELEASE_DAY_2026-10-01_pre-release.md)).
-  **Superseded on 10-15:** the retrain path is now [RELEASE_DAY.md § 5](RELEASE_DAY.md)
-  (fits take minutes at 2,655 windows; the work is in the evaluation and the
-  path for unseen people, not in compute).
-- **Headline on the stand-in closest to the sealed tasks** (Scherer: word
-  association / subtraction / hand imagery, 3 classes, chance 0.333):
-  - **0.529** balanced accuracy, up from 0.486 before this week;
-  - **0.592** if test-time re-centring is allowed (see decision 1).
-  - Source: [SEALED_RECIPE § 2](SEALED_RECIPE.md).
+- **Calendar:** registration closes **Oct 24**; the warm-up (5 uploads/day, does
+  not rank) ends **Oct 25**; the **sealed phase, Oct 28 – Nov 21**, is the only
+  phase that ranks: 1 upload/day, 10 in total, top 3 audited.
+- **Data: PROTEUS (released 2026-10-13).** 10 people, 14 sessions, 2,655 windows
+  (~190 per session; 8 people have 1 session, P04 and P10 have 3), 41 EEG
+  channels, 120 Hz, microvolts, 3 balanced classes, Graz and BrainHero runs in
+  every session. In WSL: `~/neuralbench/benchopt_data_040`, environment
+  `source ~/codabench/env040.sh` (neuralbench 0.4.0). The frozen 0.3.1 setup is
+  untouched and still passes its regression.
+- **The contract** (upstream FAQ, 0.4.0): streamed, one window at a time per
+  person-session on a fresh copy of the model; adapting inside a session without
+  labels is allowed; sealed test = later sessions of these 10 people **plus 10
+  unseen people**, no calibration data; the warm-up scores on PROTEUS (test =
+  P04 × 3 + P09, labels public, so only a format check).
+- **Setup session 2026-10-15 ([brief](prompts/2026-10-13_proteus_train_test_setup.md), started 17:38): every gate passed.**
+  - One self-test (`analysis/proteus_selftest.py`, 349 checks, 55 s) proves the
+    environment, the cache (= the official loader bit for bit; labels = the raw
+    BIDS events), the four protocols (no leaks, right order and cells) and the
+    streamed evaluation (two routes agree with benchopt to 6 decimals; test
+    doubles behave).
+  - The Riemann-Sealed solver went through fit → export → read-only replay → zip
+    → unzipped replay on PROTEUS with identical scores everywhere, in its simplest
+    valid form for unseen people (pooled LDA, no router, no personal LDA).
+  - **Plumbing numbers, for information only (untuned; differences below 0.05
+    mean nothing on 8 cells):** `official` (8 cells): Riemann 0.407, MeanLogReg
+    0.396, chance 0.333; `lopo` (28 cells): Riemann 0.419, MeanLogReg 0.443;
+    `later` (2 people): Riemann 0.492, MeanLogReg 0.429
+    ([RESULTS.md](logs/proteus_setup/RESULTS.md)). Inference 8–10 ms per window:
+    the whole sealed test would take about 3 minutes of the 60 allowed.
+- **Uploaded so far** (warm-up, [SUBMISSIONS.md](SUBMISSIONS.md)): EEGNet 0.82 and
+  the Riemann deployment test 0.62 (2026-10-02), both on the old Dreyer warm-up.
+  **Two PROTEUS zips are ready and not uploaded**: the Riemann vehicle (expected
+  server numbers 0.406751 / 0.405717 / 0.405298) and MeanLogReg (0.395863 /
+  0.395672 / 0.396026). The scoring image changed (`v2` → `v3`) since our last
+  server test.
+- **Sealed-phase candidate:** none yet on PROTEUS. The old candidate
+  (Riemann-Sealed + bpt4, blend of pooled and personal LDAs) routes unseen people
+  to a training person silently; its evaluation half is replaced by the protocols
+  above, its model half is decision 7.
+- **Stand-in evidence (pre-release, Scherer 3-class, chance 0.333):** 0.529
+  balanced accuracy, 0.592 with test-time re-centring
+  ([SEALED_RECIPE § 2](SEALED_RECIPE.md)). To be re-validated on PROTEUS.
 
 ## 2. Decisions waiting on you
 
 | # | Decision | My recommendation | Why it matters | Your effort |
 |---|---|---|---|---|
-| 1 | ~~Ask the organisers about test-time statistics~~ **answered 2026-10-13 by the FAQ: allowed**, causal, label-free, within one session | — | Online re-centring can go in; it must work one window at a time | — |
-| 7 | **Architecture of the first PROTEUS run** (to discuss) | Local evaluation first: leave-one-person-out for the "unseen people" half, and train on session 1 → test on sessions 2–3 of P04/P10 for the "later sessions" half; then the Riemann recipe with streaming re-centring, without the calibration blend | The sealed test is half new people, and only 2 people show any session-to-session change | a conversation |
-| 8 | **Adopt the 0.4.0 setup as the main one** (the 20 × 6 runbook was retired on 10-15: archived, RELEASE_DAY rewritten with rules v2) | Accept: the old scripts stay for the regression gate only | Keeps one environment and one set of docs | yes / no |
-| 2 | ~~Deployment-test upload~~ **done 2026-10-02**: Finished, 0.62, 59 s | — | The sealed model's format runs on the scoring server | — |
-| 3 | **Keep bpt4 by default** unless `lopo` shows ≥ 1 point better without it | Accept | It is the one solid gain of 09-29 (+4.4), and its 1-s bins split the window at feedback onset (+3 s). Rule 3 in [RELEASE_DAY § 5](RELEASE_DAY.md) | read one rule |
-| 4 | **Review: strict CV references stay** (`wcv_ref="strict"`), but the LOSO fold rule must change: only P04/P10 have ≥ 2 sessions | Accept strict; choose w by leave-one-run-out on session 1 | Rule 4 in [RELEASE_DAY § 5](RELEASE_DAY.md) | read one rule |
-| 5 | Optional: approve REVE/LaBraM weights; merge the thesis docs branch `docs/sprint0928-consistency` (`main`'s perf-loop SUMMARY and MODELS still show old numbers) | Low priority | REVE/LaBraM are hours per epoch on this CPU | — |
-| 6 | **Thesis: what is the One/Two prompt, and what is the `96` trigger?** The window check ([results](../docs/sprints/2026-10-02_window_effect_check_RESULTS.md), branch `feat/window-effect-check`, not merged) found no CV leakage, but the full-vs-late gap lives entirely in the first 0.5 s after t = 0 (cross-person AUC 0.675 there, chance after 0.5 s). t = 0 is the `96` event ~0.55 s after the prompt | Tell me the prompt's form (spoken word, symbol, image). If it differs by condition, reword the README Results (the 0.714 mostly reads the instruction response) | Protects a public number | a short answer |
+| 7 | **The first real model on PROTEUS.** The evaluation half is done: protocols `official`, `lopo` (10 folds, 28 cells), `later`, `all`; self-test; candidate script | Run one comparison next, on `lopo` (the unseen-people half) and `later` (the later-sessions half), scored by the cell mean: (a) the pooled vehicle as is; (b) + bpt4; (c) + streamed within-session re-centring (`adapt="online"`, allowed); (d) a calibration-free per-cell variant. Decide from the two protocols together, never from one. The plumbing numbers in § 1 are not evidence for or against any arm | The sealed test is half unseen people; only P04/P10 measure session change | a conversation, then ~half a day of runs |
+| 8 | **Adopt the 0.4.0 setup as the main one** (largely done: `env040.sh`, `PROTEUS_SETUP.md`, the protocols and the self-test exist side by side with the old setup; the stale docs carry a banner) | Accept: keep the old scripts only for the regression gate (`train_sealed.sh` on zhou2016, still passing); retire the old sections of the long docs at their next rewrite | One environment, one set of docs | yes / no |
+| 3 | **Keep bpt4 by default** unless `lopo` shows ≥ 1 point better without it | Accept; it is one arm of the decision-7 comparison | the one solid gain of 09-29 (+4.4) on stand-ins; its 1-s bins split the window at feedback onset (+3 s). Rule 3 in [RELEASE_DAY § 5](RELEASE_DAY.md) | read one rule |
+| 4 | **Strict CV references stay** (`wcv_ref="strict"`), but the LOSO fold rule must change: only P04/P10 have ≥ 2 sessions | Accept strict; choose any blend weight by leave-one-run-out on session 1 | Rule 4 in [RELEASE_DAY § 5](RELEASE_DAY.md) | read one rule |
+| 5 | Optional: approve REVE/LaBraM weights; merge the thesis docs branch `docs/sprint0928-consistency` | Low priority | REVE/LaBraM are hours per epoch on this CPU | — |
+| 6 | **Thesis: what is the One/Two prompt, and what is the `96` trigger?** The window check found no CV leakage, but the full-vs-late gap lives in the first 0.5 s after t = 0 ([results](../docs/sprints/2026-10-02_window_effect_check_RESULTS.md), branch `feat/window-effect-check`, not merged) | Tell me the prompt's form (spoken word, symbol, image). If it differs by condition, reword the README Results | Protects a public number | a short answer |
+| 1 | ~~Ask the organisers about test-time statistics~~ answered 2026-10-13 by the FAQ: allowed, causal, label-free, within one session | — | online re-centring can go in | — |
+| 2 | ~~Deployment-test upload~~ done 2026-10-02 (0.62, 59 s) | — | the joblib format ran on the server (image `v2`; it is `v3` now) | — |
 
-## 3. The model in one picture (Riemann-Sealed + bpt4)
+Two things for you that are not decisions: **upstream `origin/main` moved past
+442edcd (to a66bc23)**: we stay on 442edcd until you say to move the worktree
+(the loader and the scoring could change under us). **Upload** the Riemann zip
+(and, if you like, the MeanLogReg zip) to the warm-up before Oct 25 to prove the
+streamed format on the `v3` image; the server's three numbers must match § 1.
 
-```
-4-s EEG window, 43 channels (EMG/EOG dropped unless the release-day rule admits them)
- │
- ├─ 1 Router       log power 1–45 Hz → "which participant is this?"
- │                 (87–100 % correct on stand-ins; when unsure → shared path)
- ├─ 2 Re-centre    whiten with that participant's mean covariance
- │                 (removes person- and session-specific offsets)
- ├─ 3 Features     ~5,800 numbers per window (at 43 ch):
- │                   filter-bank covariances 4–8/8–13/13–30/30–45 Hz → tangent space  3,784   most of the signal
- │                   broadband covariance → tangent space                              946
- │                   xDAWN covariances (class templates) → tangent space               300
- │                   log-variance per channel                                           43
- │                   bpt4: band power per channel in 4 one-second bins                 688   new, +4.4
- └─ 4 Classifier   shrinkage LDA on everyone (pooled), blended with the participant's own LDA;
-                   blend weight chosen on their calibration sessions
-                   (since 10-01: per-person LDAs solved in a 50× faster, equivalent form)
-```
+## 3. The model in one picture (Riemann-Sealed + bpt4, pre-release)
 
-- **What is not in the sealed model:** the neural network (EEGNet), which
-  scored 6–12 points below this pipeline on every stand-in.
-- **Full explanation:** [MODEL_ARCHITECTURE.md](MODEL_ARCHITECTURE.md). This
-  draft from another session (2026-09-29, not yet committed) predates bpt4.
+Filter-bank Riemannian tangent-space features (+ xDAWN, log-variance, bpt4 band-power
+time course) → shrinkage LDA on everyone, blended with a per-person LDA chosen by a
+log-power router. Pre-release design: the router and per-person parts have no path for
+unseen people. Full explanation and diagram: [MODEL_ARCHITECTURE.md](MODEL_ARCHITECTURE.md).
 
-## 4. What we know
+## 4. What we know (stand-ins, pre-release; re-validate on PROTEUS)
 
 | Lever | Effect on the stand-ins | Status |
 |---|---|---|
-| Personal + pooled LDA blend | +1 to +12 points vs pooled only | in the model |
-| Router + per-person re-centring (no test data) | up to +5 pooled, ~0 per-person | in the model |
-| **Online re-centring** (uses unlabelled test windows) | +3.5 to +7.5; +3.0 to +4.4 if test windows arrive shuffled | **built, waiting on decision 1** |
-| Filter bank (4 bands) | carries most of the 3-class signal | in the model |
-| **bpt4**: when in the trial each band's power changes | +4.35 (CI +2.05, +6.67), positive on 4 of 4 stand-ins | **in the model since 09-29** |
-| **icoh**: lagged connectivity between channels | +2.2 alone; +6.5 with bpt4 (post-hoc) | release-day test; **fits at 500 Hz since 10-01** (19.3 min, 1.23×) |
-| xDAWN (class templates) | +4–5 on motor imagery, ~0 on the sealed-like tasks | kept; first to drop if the real data disagrees |
-| Strict CV references for the blend weight | correctness, not accuracy: on Zhou w moved 0.5 → 0.75; the others unchanged | **release-day setting since 10-01** |
-| No gain | EEGNet; pre-training on other datasets; more participants; re-referencing / Laplacian; CSP; regional covariances; band-power maps; time-segment covariances (under the deployed model); 8–30 Hz band-pass; **personal LDA with a shared (pooled) covariance** (10-01: −2.7 / −0.9 on Scherer 3-class) | dropped |
+| **Online re-centring** (unlabelled test windows, within session) | +3.5 to +7.5; +3.0 to +4.4 if windows arrive shuffled | **allowed by the rules (10-13); built; untested on PROTEUS** |
+| **bpt4**: when in the trial each band's power changes | +4.35 (CI +2.05, +6.67), positive on 4 of 4 stand-ins | in the model; decision 3 |
+| **icoh**: lagged connectivity between channels | +2.2 alone; +6.5 with bpt4 (post-hoc) | release-day test; fits in time |
+| Personal + pooled LDA blend; router + per-person re-centring | +1 to +12; up to +5 pooled | in the model; **no path for unseen people** |
+| No gain (dropped) | EEGNet, pre-training, re-referencing, CSP, regional covariances, time-segment covariances, 8–30 Hz band-pass, shared-covariance personal LDA | — |
 
-- **Where the brain-activation differences are** (training sessions only,
-  [activation EDA](reports/features_0929/activation_eda.md)):
-  - alpha, posterior-right, after ~1.5 s;
-  - a word-association beta decrease at F3;
-  - early frontal slow activity that looks like eye movement (kept out of
-    the model: its bands start at 4 Hz).
-- Differences are strong *within* each person but differ between people, which
-  is why personalisation matters.
+Full lever table, evidence and the activation EDA: [SEALED_RECIPE § 2](SEALED_RECIPE.md).
 
 ## 5. Bottlenecks and risks
 
-0. **(2026-10-13) The sealed model does not fit the new contract as built.**
-   It needs: batch-of-1 streaming with per-session state (`reset_state`,
-   deep-copyable), microvolt input, 41 channels, and a path for people it has
-   never seen (the router and the personal LDAs cover at most half the test).
-   Items 3–6 below describe the old plan.
-1. **Very little data.** 2,655 windows from 10 people, and only P04 and P10
-   show session-to-session change. Local scores will be noisy (the warm-up
-   test is 8 cells); the organisers' deep baselines sit at chance
-   (EEGNet 0.326, REVE 0.360 across people).
-2. **Rules: settled.** Within-session adaptation is allowed; nothing may
-   cross a session boundary.
-3. **Deployment: tested 2026-10-02**: the sealed model runs on the scoring
-   server. Untested there: per-context references and the 47-ch input (Dreyer
-   has neither). Upload the release-day candidate to the warm-up once it
-   switches to Graz + BrainHero, if that is before Oct 25.
-4. **Compute (CPU only): largely solved on 10-01.** The per-person LDAs now
-   cost ~0.15 s instead of ~9 s each. At 500 Hz the recipe fits in 15.7 min,
-   bpt4 in 17.7 and bpt4 + icoh in 19.3 ([archived runbook § 8](archive/RELEASE_DAY_2026-10-01_pre-release.md)).
-   What remains is the feature computation itself.
-5. **Few windows per person.** About 360–720 calibration windows (mock
-   structure; real counts unknown) against ~6,000 features. Heavy shrinkage
-   keeps it stable, but new blocks must be cheap and strong.
-6. **Release-day time.** The runbook now takes ~4–4.5 h at 120 Hz (rehearsed
-   at full size: ablations 69 min, replica check 28 min). The release date is
-   still unknown, with the sealed phase on Oct 28.
+0. **The old sealed model does not fit the new contract as built**: it needs a
+   path for unseen people. Its streaming side is now proven (`reset_state()`,
+   deep-copyable, B = 1 identical to a batch).
+1. **Very little data.** 2,655 windows from 10 people; only P04 and P10 show
+   session-to-session change; local scores are noisy (8 cells; the cell mean of
+   a label-blind model has sd ≈ 0.025). The organisers' deep baselines sit at chance.
+2. **Rules: settled.** Within-session adaptation allowed; nothing crosses a session.
+3. **Deployment: the streamed format is untested on the server** (`v3` image, a
+   pyriemann joblib under the new contract). The ready zips exist for that.
+4. **Compute: not a concern.** Fits take 27–49 s; inference 8–10 ms per window.
 
 ## 6. Next steps worth exploring (ranked)
 
 | # | Step | Expected gain | Effort | Needs |
 |---|---|---|---|---|
-| 1 | Run the setup brief [prompts/2026-10-13_proteus_train_test_setup.md](prompts/2026-10-13_proteus_train_test_setup.md) in a fresh session: four training/test protocols, streamed evaluation, one solver end to end, no tuning | a verified local yardstick and two warm-up zips | ~7 h, unattended | paste the brief |
-| 2 | Choose and score the first real model on those protocols (the solver's inference already runs one window at a time; what is missing is the path for unseen people) | first real number; fits take minutes at this size | ~half a day | step 1, decision 7 |
-| 2b | Upload it to the PROTEUS warm-up before **Oct 25** | proves the streamed format on the server | one upload | step 2 |
-| 3 | Riemann + EEGNet probability ensemble | +1 to +2 (EEGNet is now 6–12 points behind, so likely less) | half a day | nothing |
-| 4 | Thesis: **done 2026-10-02**, see decision 6. Next: the nested XGB pipeline on the 0.5-2 s window for a headline-comparable number | Wait for decision 6 | ~3-4 h | decision 6 |
+| 1 | **Decision 7's comparison** on `lopo` + `later` through `scripts/proteus_candidate.sh` and `datasets/proteus_protocols.py` (vehicle, + bpt4, + online re-centring, calibration-free per-cell variant) | the first real number and the model choice | ~half a day | decision 7 |
+| 2 | Upload the Riemann zip to the PROTEUS warm-up before **Oct 25** | proves the streamed format and the `v3` image | one upload | you |
+| 3 | EDA on the real data (per-person ERD maps, laterality, calibration vs online runs, P04/P10 drift) feeding the model design | guides step 1 | ~half a day | nothing |
+| 4 | A summariser for the pre-registered rules v2 of [RELEASE_DAY § 5](RELEASE_DAY.md) on the protocol outputs | release-day discipline | ~2 h | step 1 |
+| 5 | Thesis: the nested XGB pipeline on the 0.5–2 s window for a headline-comparable number | — | ~3–4 h | decision 6 |
 
-Done on 10-01 (no longer open): faster per-person LDA; icoh's 500 Hz cost;
-strict per-fold blend-weight search. Not worth it now: REVE/LaBraM on this CPU,
-more training participants, more spatial-filter variants, a restricted icoh,
-a shared-covariance personal LDA.
+Not worth it now: REVE/LaBraM on this CPU, more training participants, more
+spatial-filter variants, a restricted icoh, a shared-covariance personal LDA.
 
 ## 7. Where to read more
 
 | Question | Document |
 |---|---|
-| What exactly is the model, and what is the evidence? | [SEALED_RECIPE.md](SEALED_RECIPE.md) § 1–2 (Phase 7 = this week's features) |
-| What is the released data, what carries over, what needs tuning, what are the rules now? | [RELEASE_DAY.md](RELEASE_DAY.md) (rewritten 10-15) |
-| Why these three tasks, and what does the brain do in each (feeds the model design)? | [reports/PROTEUS_task_neuroscience_2026-10-15.docx](reports/PROTEUS_task_neuroscience_2026-10-15.docx) |
+| What exists on PROTEUS, how to run it, which gates passed? | [PROTEUS_SETUP.md](PROTEUS_SETUP.md); values in [logs/proteus_setup/RESULTS.md](logs/proteus_setup/RESULTS.md) |
+| What exactly was the pre-release model, and what is the evidence? | [SEALED_RECIPE.md](SEALED_RECIPE.md) § 1–2 |
+| What is the released data, what carries over, what are the rules now? | [RELEASE_DAY.md](RELEASE_DAY.md) (rewritten 10-15) |
+| Why these three tasks, and what does the brain do in each? | [reports/PROTEUS_task_neuroscience_2026-10-15.docx](reports/PROTEUS_task_neuroscience_2026-10-15.docx) |
 | What happened in the last session, and what is running? | [HANDOFF.md](HANDOFF.md), top section |
 | How do the models work, for EEG readers? | [MODEL_ARCHITECTURE.md](MODEL_ARCHITECTURE.md) |
 | Every run, timing and decision | [LOG.md](LOG.md) |
-| What was uploaded? | [SUBMISSIONS.md](SUBMISSIONS.md) |
-| Dates and rules | [COMPETITION.md](COMPETITION.md) |
+| What was uploaded, what is ready? | [SUBMISSIONS.md](SUBMISSIONS.md) |
+| Dates and rules | [COMPETITION.md](COMPETITION.md) (pre-release text; banner) |
 
 ## 8. Keeping this file current
 
-- **When:** update it at the end of every sprint or session that changes a
-  decision, a number, the plan or the competition calendar.
-- **Size:** keep it under ~150 lines. Detail goes to the documents in § 7, not
-  here.
+- **When:** at the end of every sprint or session that changes a decision, a
+  number, the plan or the competition calendar.
+- **Size:** under ~150 lines. Detail goes to the documents in § 7, not here.
 - **Numbers:** each one must match its source document.
 - **Change log** (newest first, one line each):
-  - 2026-10-15: RELEASE_DAY.md rewritten for PROTEUS (old runbook archived; rules v2;
-    window straddles feedback onset at +3 s; calibration vs online runs; unseen-people path);
-    neuroscience framework for the three tasks written (.docx). Setup brief still not run.
-  - 2026-10-13 (evening): setup brief for the PROTEUS training/test
-    configuration written and reviewed (§ 6 step 1); not run yet.
-  - 2026-10-13: PROTEUS released and set up (0.4.0 env, loader and baseline
-    smoke pass). New contract: streamed, adaptation allowed, no calibration,
-    10 unseen people in the sealed test. Decision 1 answered; decisions 7–8 new.
+  - 2026-10-15 (evening): setup brief run: 0.4.0 entry point, window cache, four protocols, streamed evaluation (two routes = benchopt), Riemann vehicle end to end, self-test 349/349; two PROTEUS zips ready (not uploaded); decision 7's evaluation half done, decision 8 largely done; § 3–4 trimmed.
+  - 2026-10-15: RELEASE_DAY.md rewritten for PROTEUS (old runbook archived; rules v2; window straddles feedback onset at +3 s); neuroscience framework for the three tasks (.docx). Setup brief not yet run.
+  - 2026-10-13 (evening): setup brief for the PROTEUS training/test configuration written and reviewed; not run yet.
+  - 2026-10-13: PROTEUS released and set up (0.4.0 env, loader and baseline smoke pass). New contract: streamed, adaptation allowed, no calibration, 10 unseen people. Decision 1 answered; decisions 7–8 new.
   - 2026-10-02: sprint 10-02 (evening). Thesis window check done (decision 6); warm-up EEGNet ensemble 0.8095, no gain, stopped.
-  - 2026-10-02: deployment test passed (0.62, 59 s); decision 2 done. Organiser
-    email bounced: decision 1 is now one Discord question (order/persistence from code).
-  - 2026-10-02: sprint 10-01. Dual LDA (icoh fits at 500 Hz: old decision 4
-    resolved); strict CV references adopted (new decision 4: review);
-    deployment zip ready; release day ~4–4.5 h; shared-covariance LDA no gain.
-  - 2026-10-01: created. bpt4 is in the model; icoh is a release-day test; 4
-    decisions pending.
+  - 2026-10-02: deployment test passed (0.62, 59 s); decision 2 done. Organiser email bounced: decision 1 became one Discord question.
+  - 2026-10-02: sprint 10-01. Dual LDA; strict CV references (decision 4); deployment zip ready; shared-covariance LDA no gain.

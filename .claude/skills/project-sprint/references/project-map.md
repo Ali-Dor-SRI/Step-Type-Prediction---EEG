@@ -3,7 +3,7 @@
 Durable facts about this repository: where each workstream's state lives, how to run
 things, what not to touch, what has bitten us. Current numbers and "next steps" are
 deliberately **not** copied here: read them live from the state files, because they
-change every sprint. Verify anything here that looks off. It was written 2026-09-28.
+change every sprint. Verify anything here that looks off. It was written 2026-09-28; PROTEUS / 0.4.0 facts added 2026-10-15.
 
 ## Workstreams
 
@@ -30,13 +30,25 @@ thesis modules). Sprint briefs go to `codabench/prompts/` or `docs/sprints/`.
   Oct 28 – Nov 21 2026** (the only phase that ranks). 5 submissions/day in warm-up,
   **1/day sealed**; the top 3 go through a reproducibility audit (± 2σ replay). Source:
   `codabench/COMPETITION.md`.
-- Sealed data: Graz + BrainHero, 20 people × 6 sessions, 43 EEG + 2 EMG + 2 EOG at
-  500 Hz; 10 training participants fully labelled, 10 evaluation participants with
-  sessions 1–3 labelled. Release page (check at most once per day):
-  https://neural-interfaces26.github.io/tracks.html
-- Rules: `codabench/2026-competition/codabench/pages/terms.md` and
-  `competition_bci.md`. Test-time use of unlabelled test windows is **not settled**
-  (see SEALED_RECIPE § 5; the question is the user's to post).
+- **Official training data (released 2026-10-13): PROTEUS**, NEMAR `nm000290`, CC-BY:
+  10 people P01–P10, 14 sessions (P04 and P10 have 3), 6 cued runs per session (runs
+  1–2 calibration, 3–6 online; each run Graz or BrainHero), 2,655 windows of
+  (41 EEG channels, 480 samples) at 120 Hz in **microvolts, no scaling or clamping**,
+  3 balanced classes 0 mi / 1 sub / 2 word. The pre-release description (20 × 6,
+  EMG/EOG, 500 Hz, calibration sessions) is obsolete.
+- **Contract (neuralbench 0.4.0):** streamed evaluation, `predict` on one window at
+  a time in recording order, one stream per (person, session), each on a fresh
+  `copy.deepcopy` whose optional `reset_state()` is called first; the model sees the
+  tensor only. Ranking metric: balanced accuracy per (person, session, interface)
+  cell, averaged over cells. Adapting inside a session without labels is **allowed**
+  (FAQ, 10-13); nothing may cross a session boundary. Sealed test = later sessions of
+  the 10 people + 10 unseen people, no calibration data; 1 upload/day, 10 in total,
+  best of the last five, 3,600 s per run. Warm-up now scores on PROTEUS (test =
+  P04 × 3 + P09, labels public).
+- Sources, at upstream 442edcd: `$COMPET_ROOT/codabench/pages/scientific_faq_bci.md`,
+  `tracks/bci_decoding/{README.md,objective.py,datasets/bci_studies.py}`,
+  `benchmark_utils/{streaming,data,nb_task,metrics}.py`. Upstream `origin/main` moved
+  past 442edcd (a66bc23 on 10-15); moving the worktree is the user's call.
 - Leaderboard: public Codabench API; how it was read and the raw snapshot are in
   `codabench/logs/explore_2026-09-25/desk/`.
 
@@ -47,11 +59,26 @@ thesis modules). Sprint briefs go to `codabench/prompts/` or `docs/sprints/`.
 
 ```bash
 wsl.exe bash -s <<'EOF'
-source ~/codabench/env.sh >/dev/null      # venv ~/neuralbench/.venv (py3.12, torch cpu, neuralbench, benchopt)
-cd ~/codabench/2026-competition
-...
+exec 2>&1
+source ~/codabench/env040.sh      # PROTEUS / 0.4.0: prints "neuralbench 0.4.0 cwd .../competition-040" (never >/dev/null)
+...                               # cwd is $COMPET_ROOT (~/neuralbench/competition-040)
 EOF
 ```
+
+**Two environments exist side by side (since 2026-10-13).** The 0.4.0 one above is
+the one to use for anything on PROTEUS: venv `~/neuralbench/.venv040`, upstream
+detached worktree `~/neuralbench/competition-040` (= `$COMPET_ROOT`; never `git
+checkout / pull / reset / stash / fetch` there), data home
+`~/neuralbench/benchopt_data_040`, window cache `~/neuralbench/proteus_cache`, replay
+copies `~/neuralbench/proteus_runs/<run>/`. The old 0.3.1 one (`source
+~/codabench/env.sh`, `~/neuralbench/.venv`, `~/codabench/2026-competition`,
+`~/neuralbench/benchopt_data`, `xsess_cache`) is frozen; every old script
+(`sealed_lib.sh`, `train_sealed.sh`, `test_track2_solvers.sh`, `prepare_track2_data.sh`,
+`install_xsess_overlays.sh`, `xsess_cache.py`, `xsess_lib.py`) sources it or puts the
+old clone on `sys.path`, and the old harness mis-scores PROTEUS without failing. Only
+`train_sealed.sh … zhou2016_xsess` still runs there, as the regression gate after any
+edit to `riemann_sealed.py` (expected `gate: train 0.770000 replay 0.770000 EQUAL …`).
+What exists on PROTEUS and the commands: `codabench/PROTEUS_SETUP.md`.
 
 - `~/codabench` is a symlink to the repo's `codabench/`, so in WSL the repo root is
   `/mnt/c/Users/Ali D/Documents/ML` (quote the space).
@@ -111,6 +138,20 @@ console logging. Pipeline entry points: `scripts/00_preflight.py` …
   - `analysis/pc_screen.py` (template for a harness-only variant screen with
     a built-in baseline check);
   - lanes `scripts/sprint1001_*.sh`.
+- **PROTEUS (setup session 2026-10-15; `codabench/PROTEUS_SETUP.md`):**
+  - `analysis/proteus_cache.py` (the window cache from the official loader; `Cache`,
+    `sha1_of`, `official_loaders`, gates G2/G3), `proteus_splits.py` (protocols
+    `official` / `lopo[fold]` / `later` / `all` on the stable keys; `ids_of`;
+    `lopo_summary`; gates G5a–d), `proteus_eval.py` (route A harness on the
+    organisers' `make_loader` + `predict_streams` + metrics; `load_submission`
+    loads a folder as the platform does; test doubles; gates G5e–G10; `equal`
+    for parquets), `proteus_g4_events.py` (labels vs BIDS events, run with
+    `python -I`), `proteus_selftest.py` (349 checks, ~1 min, trains nothing);
+  - `datasets/proteus_protocols.py` (benchopt Dataset by path:
+    `-d "$HOME/codabench/datasets/proteus_protocols.py[protocol=lopo,fold=3]"`);
+  - `scripts/proteus_candidate.sh <protocol> [fold]` (bake → train → read-only
+    replay → zip → unzipped replay → equal; resumable by step through
+    `step_lib.sh`), vehicle `solvers/bci_decoding/riemann_sealed_proteus_pooled.py`.
 - Runners: `codabench/scripts/sealed_lib.sh`, `watch_run.sh`, `monitor_loop.sh`,
   `sealed_p*.sh` (examples of lane scripts), `train_sealed.sh` (release-day pipeline).
   This skill bundles generic copies in `scripts/`. Quote their path, which contains a
@@ -192,3 +233,12 @@ console logging. Pipeline entry points: `scripts/00_preflight.py` …
 | Below 4,000 features the solver kept every LDA's p × p `covariance_`: a 52-subject Dreyer candidate was a 2.6 GB joblib (2026-10-01) | Fixed (dropped at every size); check the joblib size of any new candidate |
 | A wrapper lane of an inner script that ends with a "not done" row returned rc 0 while one rule's row was missing (the summarizer filter bug, 2026-10-01) | Read the summarizer's MISSING lines after every ablation run, not only the rc |
 | Edits to a `.py` / `.sh` that a lane will import later change what later steps test | Stage edits as patch scripts (scratchpad) and apply them between lanes; dry-run each patch on copies first |
+| Repo git from inside WSL lists ~430 CRLF-only "modified" files and cannot push (2026-10-13) | Run every git command for our repo from the Bash tool (Git Bash), never inside `wsl.exe` |
+| A parquet's `objective_name` column starts with `objective_` and reads `training=True` / `False`, so "compare all `objective_*` columns" says DIFFERENT between a training run and its replay (2026-10-15) | Compare the six score scalars only (`proteus_eval.py equal` does) |
+| Batch and single-window probabilities of the Riemann solver differ by ~1e-11 (chunked BLAS), so an exact-equality test that mixes call shapes fails while the classes are identical (2026-10-15) | Compare predictions made with the same call shape; compare classes across shapes |
+| benchopt prints no score, no shape and no per-window prediction; without `--output` the parquet lands inside `$COMPET_ROOT/tracks/bci_decoding/outputs/`; an inference-only run whose `COMPET_SUBMISSION_DIR` holds no weights makes `MeanLogReg` predict class 0 silently (cell mean 0.333333) | Always `--output <abs>.parquet`; read the parquet; require the `[loading] … weights.joblib` / `[Riemann-Sealed] predict:` line in the log; per-window predictions come from `proteus_eval.load_submission` |
+| The official loaders' `info` integers (`record_id`, `context_id`, `stream_id`, `subject_id`) are numbered by first appearance in each loader (0 = Graz in train, 0 = BrainHero in test) | Key on the trigger table's subject / session / run / start (`ds.seg_ds.triggers.iloc[int(ds.index[i])]`), never on `info` |
+| `MeanLogReg`'s score depends on the training-row order (lbfgs tolerance): 0.393–0.397 over row orders | Never compare two trainings made through different loaders; exact gates compare one exported model across routes |
+| ms-per-window measured while two jobs share the CPU is 2–4× too high (2026-10-15) | Time inference on a quiet machine; label contended numbers |
+| `grep -c` with zero matches exits 1 and silently ends a `&&` chain in Git Bash; long shell heredocs with quotes fail to parse in the Bash tool (2026-10-15, twice) | Write patch scripts with the Write tool and run them; keep heredocs short |
+| WSL has no `zip` / `unzip`; `/tmp` is emptied about a minute after the last command | `python -m zipfile -c / -e` (basenames at the zip root); copies under `~/neuralbench/proteus_runs/<run>/` |

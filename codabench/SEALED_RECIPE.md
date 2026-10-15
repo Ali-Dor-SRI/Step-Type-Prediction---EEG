@@ -1,5 +1,7 @@
 # Sealed-phase recipe (Track 2, cross-session, 3-class)
 
+**Describes the pre-2026-10-13 contract; for PROTEUS see [PROTEUS_SETUP.md](PROTEUS_SETUP.md).**
+
 Evidence-ranked training recipe for the Track 2 sealed phase (Oct 28 – Nov 21),
 built over the weekend of 2026-09-25/27 on within-subject, cross-session proxies,
 because the Graz + BrainHero training data is not released yet. All numbers are
