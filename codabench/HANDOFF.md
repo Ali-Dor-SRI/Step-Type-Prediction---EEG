@@ -7,7 +7,7 @@ environment: no tuning, no new features, no uploads. Branch `feat/codabench-trac
 pushed to `personal` after every commit. Logs: `logs/proteus_setup/` (RESULTS.md).
 Record: LOG.md "2026-10-15".
 
-## State of this session (updated 2026-10-15 17:56)
+## State of this session (updated 2026-10-15 18:14)
 
 | Phase | Status | Result |
 |---|---|---|
@@ -16,7 +16,7 @@ Record: LOG.md "2026-10-15".
 | 2 window cache | done | `analysis/proteus_cache.py` (build 11 s; `Cache`, `sha1_of`, `official_loaders`, G2/G3 checks), `analysis/proteus_g4_events.py` (isolated `-I`). G2 22/22, G3 12/12, G4 4/4 PASS. Cache: `~/neuralbench/proteus_cache` (X.npy 209 MB, rows.parquet, keys.csv, meta.json) |
 | 3 protocols | done | `analysis/proteus_splits.py`: `split(protocol, fold)`, `ids_of` (stream / record / context / subject ids from the keys), `every_split`, `lopo_summary`. G5a–d 80/80 PASS |
 | 4 streamed evaluation, two routes | done | route A `analysis/proteus_eval.py` (`test_loader`, `evaluate`, `load_submission`, `route_b_data`, doubles, `gates` / `score` CLI); route B `datasets/proteus_protocols.py` (`ProteusProtocols[protocol=…,fold=…]`). G5e 78, G6 6, G7 107, G8 26 PASS |
-| 5 one solver through the whole path | pending | |
+| 5 one solver through the whole path | done | `reset_state()` in `riemann_sealed.py` (only edit); baked copy `solvers/bci_decoding/riemann_sealed_proteus_pooled.py` (pooled / align none / adapt none); `scripts/proteus_candidate.sh` ran official, all, later, lopo 0..9. G9 / G9b / G10 / G11 / G12 PASS. official vehicle 0.406751 (8 cells; info only); two zips ready, NOT uploaded (SUBMISSIONS.md) |
 | 6 reference table + review + self-test | pending | |
 | 7 docs and hand-off | pending | |
 

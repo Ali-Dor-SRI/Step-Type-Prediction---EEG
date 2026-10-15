@@ -388,6 +388,142 @@ def run_gates(out_dir, ref_dir=None, c=None, loaders=None, meta=None, which=("G5
     return checks
 
 
+# -- G9 / G10: the exported solver ---------------------------------------------------
+
+def check_export_replay(c, export, replay, unzipped, export2, loaders, meta, out_dir=None):
+    """G9 in-process: the exported folder, its read-only copy, the unzipped
+    folder and a second training run give identical ``y_pred`` on the
+    ``official`` test rows (route A); the loaded model has ``personal ==
+    "pooled"`` and ``align == "none"``."""
+    out = []
+    sp = PS.split("official", rows=c.rows)
+    loader = test_loader(c, sp.test)
+    preds, base, base_scores = {}, None, None
+    for tag, folder in (("export", export), ("replay", replay), ("unzipped", unzipped), ("export2", export2)):
+        if folder is None:
+            continue
+        model = load_submission(folder, official_meta(loaders, meta))
+        sc, _, yp, _ = evaluate(model, loader)
+        preds[tag] = yp
+        if out_dir is not None:
+            np.save(Path(out_dir) / f"g9_y_pred_{tag}.npy", yp)
+        if base is None:
+            base, base_scores = model, sc
+    for tag, yp in preds.items():
+        if tag == "export":
+            continue
+        out.append((f"G9 y_pred {tag} == export (route A, official test, {len(yp)} windows)",
+                    np.array_equal(yp, preds["export"]), f"{int((yp != preds['export']).sum())} differ"))
+    out.append(("G9 loaded model personal == 'pooled' and align == 'none'",
+                getattr(base, "personal", None) == "pooled" and getattr(base, "align", None) == "none",
+                f"personal={getattr(base, 'personal', None)!r} align={getattr(base, 'align', None)!r} "
+                f"adapt={getattr(base, 'adapt', None)!r}"))
+    out.append(("G9 (info) route A scores of the export", True,
+                " ".join(f"{k}={base_scores[k]:.6f}" for k in SCORE_KEYS) + f" n_cells={base_scores['n_cells']} "
+                f"{base_scores['ms_per_window']} ms/window"))
+    return out
+
+
+def check_streaming_contract(c, export, loaders, meta, fit=False):
+    """G10 on the fitted ``official`` model: B = 1 vs one batch, deepcopy,
+    reset_state, prediction shape and values, the 20 highest-amplitude
+    windows, counters after a reload (and after one in-process fit)."""
+    import copy
+    out = []
+    m = official_meta(loaders, meta)
+    model = load_submission(export, m)
+    out.append(("G10 after reload: _pred['calls'] == 0 and _buf == {}",
+                model._pred["calls"] == 0 and model._buf == {}, f"{model._pred} {model._buf}"))
+    sp = PS.split("official", rows=c.rows)
+    X = torch.as_tensor(np.asarray(c.X[sp.test]))
+    P_batch = np.asarray(model.predict_proba(X))
+    t0 = time.time()
+    P_one = np.concatenate([np.asarray(model.predict_proba(X[i:i + 1])) for i in range(len(X))])
+    ms = 1000.0 * (time.time() - t0) / len(X)
+    same = bool((P_batch.argmax(1) == P_one.argmax(1)).all())
+    maxdiff = float(np.abs(P_batch - P_one).max())
+    out.append((f"G10 B = 1 vs one batch: same class on every window ({len(X)})", same,
+                f"{int((P_batch.argmax(1) != P_one.argmax(1)).sum())} differ"))
+    out.append(("G10 (report) largest probability difference B = 1 vs batch, flag above 1e-9",
+                True, f"{maxdiff:.3e}" + (" FLAG > 1e-9" if maxdiff > 1e-9 else " ok")))
+    try:
+        clone = copy.deepcopy(model)
+        # same call shape on both (a batch of 20 and 20 single windows differ
+        # by ~1e-11 in probability): exact equality expected
+        P_clone = np.asarray(clone.predict_proba(X[:20]))
+        P_same = np.asarray(model.predict_proba(X[:20]))
+        out.append(("G10 copy.deepcopy works and the copy predicts the same (20 windows, exact)",
+                    np.array_equal(P_clone, P_same), "ok"))
+    except Exception as e:
+        out.append(("G10 copy.deepcopy works", False, repr(e)[:100]))
+    model.reset_state()
+    P_after = np.concatenate([np.asarray(model.predict_proba(X[i:i + 1])) for i in range(50)])
+    out.append(("G10 predictions unchanged after reset_state() (50 windows, exact)",
+                np.array_equal(P_after, P_one[:50]), "ok"))
+    model.reset_state()
+    out.append(("G10 reset_state(): _buf == {} and _pred zeroed", model._buf == {} and model._pred["calls"] == 0,
+                f"{model._pred}"))
+    shapes_ok, vals_ok = True, True
+    for i in range(len(X)):
+        p = np.asarray(to_numpy(model.predict(X[i:i + 1])))
+        shapes_ok &= p.shape == (1,)
+        vals_ok &= bool(np.issubdtype(p.dtype, np.integer)) and int(p[0]) in (0, 1, 2)
+    out.append((f"G10 every prediction has shape (1,) and is an integer in {{0, 1, 2}} ({len(X)} windows)",
+                shapes_ok and vals_ok, "ok"))
+    amax = np.abs(np.asarray(c.X)).reshape(len(c.X), -1).max(axis=1)
+    top = np.argsort(-amax)[:20]
+    P_top = np.concatenate([np.asarray(model.predict_proba(torch.as_tensor(np.asarray(c.X[j:j + 1]))))
+                            for j in top])
+    out.append(("G10 the 20 highest-amplitude windows give finite outputs", bool(np.isfinite(P_top).all()),
+                f"max |x| {amax[top].max():.1f} .. {amax[top].min():.1f} uV"))
+    out.append(("G10 (report) ms per window at B = 1, in-process route A loop", True,
+                f"{ms:.2f} ms/window; projected 106 sessions x 199 windows = {ms * 106 * 199 / 1000:.0f} s"))
+    if fit:
+        fresh = load_submission(export, m)
+        t0 = time.time()
+        fresh.fit(route_b_data("official")["train_loader"])
+        out.append(("G10 right after one in-process fit (route B official train rows): _pred['calls'] == 0 and _buf == {}",
+                    fresh._pred["calls"] == 0 and fresh._buf == {}, f"{fresh._pred} {fresh._buf} fit {time.time() - t0:.1f} s"))
+    return out
+
+
+def equal_parquets(out_md, named, zip_path=None):
+    """Exact equality of the ``objective_*`` columns across parquets; writes a
+    small RESULTS.md and returns True when all equal."""
+    import hashlib
+    import zipfile
+    import pandas as pd
+    rows, keys = {}, None
+    for name, path in named:
+        df = pd.read_parquet(path)
+        r = df.iloc[-1]
+        # the scores only: objective_name reads training=True / False
+        cols = [k for k in df.columns if k.startswith("objective_") and k != "objective_name"]
+        keys = keys or cols
+        rows[name] = {k: r[k] for k in cols}
+        rows[name]["dataset_name"] = r["dataset_name"]
+        rows[name]["solver_name"] = r["solver_name"]
+    base = next(iter(rows))
+    equal = all(all(rows[n][k] == rows[base][k] for k in keys) for n in rows)
+    lines = [f"# {Path(out_md).parent.name}: benchopt scores (for information only; exact comparison)", "",
+             "| run | dataset | solver | " + " | ".join(k.replace("objective_", "") for k in keys) + " |",
+             "|---|---|---|" + "---|" * len(keys)]
+    for n, r in rows.items():
+        lines.append(f"| {n} | `{r['dataset_name']}` | {r['solver_name']} | " + " | ".join(
+            f"{r[k]:.6f}" if isinstance(r[k], float) else str(r[k]) for k in keys) + " |")
+    lines.append("")
+    lines.append(f"**{'EQUAL' if equal else 'DIFFERENT'}** across {len(rows)} runs ({', '.join(rows)}).")
+    if zip_path and Path(zip_path).exists():
+        zp = Path(zip_path)
+        sha = hashlib.sha256(zp.read_bytes()).hexdigest()
+        names = zipfile.ZipFile(zp).namelist()
+        lines += ["", f"Zip `{zp}`: {zp.stat().st_size} bytes ({zp.stat().st_size / 2**20:.2f} MiB), sha256 `{sha}`, "
+                  f"entries {names} ({'files at the zip root' if all('/' not in n for n in names) else 'NOT at the root'})"]
+    Path(out_md).write_text("\n".join(lines) + "\n")
+    print("\n".join(lines))
+    return equal
+
+
 def main():
     ap = argparse.ArgumentParser()
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -401,7 +537,22 @@ def main():
     s.add_argument("--out", required=True)
     s.add_argument("--official-loader", action="store_true",
                    help="score on the organisers' test loader instead of route A")
+    q = sub.add_parser("g9g10")
+    q.add_argument("--export", required=True)
+    q.add_argument("--replay")
+    q.add_argument("--unzipped")
+    q.add_argument("--export2")
+    q.add_argument("--out", required=True)
+    q.add_argument("--fit", action="store_true")
+    q.add_argument("--no-g9", action="store_true")
+    e = sub.add_parser("equal")
+    e.add_argument("out_md")
+    e.add_argument("named", nargs="+", help="name=path.parquet")
+    e.add_argument("--zip")
     a = ap.parse_args()
+    if a.cmd == "equal":
+        ok = equal_parquets(a.out_md, [n.split("=", 1) for n in a.named], a.zip)
+        sys.exit(0 if ok else 1)
     if a.cmd == "gates":
         checks = run_gates(a.out, which=tuple(a.only) if a.only else ("G5e", "G6", "G7", "G8"))
         ok = PC.report(checks)
@@ -409,6 +560,14 @@ def main():
         sys.exit(0 if ok else 1)
     c = PC.load()
     loaders, meta = PC.official_loaders()
+    if a.cmd == "g9g10":
+        checks = []
+        if not a.no_g9:
+            checks += check_export_replay(c, a.export, a.replay, a.unzipped, a.export2, loaders, meta, a.out)
+        checks += check_streaming_contract(c, a.export, loaders, meta, fit=a.fit)
+        ok = PC.report(checks)
+        print(f"G9/G10 {'PASS' if ok else 'FAIL'} ({len(checks)} checks)", flush=True)
+        sys.exit(0 if ok else 1)
     model = load_submission(a.submission_dir, official_meta(loaders, meta))
     sp = PS.split(a.protocol, a.fold, rows=c.rows)
     loader = loaders["test"] if a.official_loader else test_loader(c, sp.test)

@@ -1178,6 +1178,15 @@ class RiemannSealedModel:
         self._pred = {"calls": 0, "windows": 0, "seconds": 0.0}
         self._warned_w = False
 
+    def reset_state(self):
+        """Streamed evaluation (benchmark_utils.streaming): each stream runs on a
+        fresh ``copy.deepcopy`` whose ``reset_state()`` is called first. Back to the
+        ``__init__`` values: no online buffer, zeroed timing counters, warning
+        not yet given. Added 2026-10-15 (PROTEUS setup session); no other change."""
+        self._buf = {}
+        self._pred = {"calls": 0, "windows": 0, "seconds": 0.0}
+        self._warned_w = False
+
     def _prep(self, X, chan_idx=None, dtype=np.float64):
         X = torch.as_tensor(X, dtype=torch.float32).cpu()
         if self._ch_perm is not None:        # scoring order -> training order
