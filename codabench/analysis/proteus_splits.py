@@ -316,6 +316,7 @@ def check_ids(rows=None):
 
 if __name__ == "__main__":
     import proteus_cache
+    proteus_cache.require_env040()
     c = proteus_cache.load()
     checks = check_sizes(c.rows) + check_leaks(c.rows) + check_order(cache=c) + check_ids(c.rows)
     ok = proteus_cache.report(checks)

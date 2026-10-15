@@ -34,7 +34,8 @@ upstream worktree `~/neuralbench/competition-040` @ 442edcd, data home
 | G10 | streaming contract of the fitted `official` model (`g9_g10.log` 18:01:29–18:03:14 with the in-process fit; re-run `g9_g10_rerun.log` after the test-code fix below) | B = 1 vs one batch: same class on all 755 windows, largest probability difference 7.9e-12 (not flagged); `copy.deepcopy` works and the copy predicts the same; predictions unchanged after `reset_state()`; `reset_state()` leaves `_buf == {}` and `_pred` zeroed; every prediction shape (1,), integer in {0, 1, 2}; the 20 highest-amplitude windows (4,417.8 .. 480.3 uV) give finite outputs; after a reload `_pred['calls'] == 0` and `_buf == {}`; the same right after one in-process fit on the route B `official` training rows (fit 28.9 s) | PASS (9 checks + the fit check) | `cand_official/g9_g10*.log` |
 | G12 | the zips | `official` Riemann zip `cand_official/riemann_sealed_proteus_pooled_official_2026-10-15.zip`: 562,449 B, sha256 `cd9f6a193a3286e73368c811284d00bdfe1f6987e6b09b5616e24f650458c742`, entries `submission.py`, `riemann_sealed.joblib` at the root; unzipped replay = training scores. `MeanLogReg` zip `ref_meanlogreg/meanlogreg_official_2026-10-15.zip`: 3,022 B, sha256 `5b31484b87541c826589a6803ec3615b0930c5ebf6996db805181b50086d6583`, `submission.py` + `weights.joblib` at the root; unzipped replay 0.395863 / 0.395465 / 0.395672 / 0.396026 = training. Both rows added to `SUBMISSIONS.md` ("ready, not uploaded"; image `v2` → `v3` noted). `all` zip (no SUBMISSIONS row): `cand_all/riemann_sealed_proteus_pooled_all_2026-10-15.zip`, 676,458 B, sha256 `640a14fbc93e04de8c18e9f6db43046adeb730ad6444d26a2735773e0a232ef5`, files at the root, unzipped replay = training (1.000000, meaningless) | PASS | `*/RESULTS.md`, `zip.log` |
 | timing | report only: ms per window at B = 1 for the fitted 41-channel model | 8.2 ms (in-process loop, quiet machine), 8.6–9.7 ms (route A `predict_streams`, all 13 exports), 8.9 ms (benchopt replay log); projected 106 sessions × 199 windows = 21,094 windows: **173–205 s**, far below 1,200 s (no "needs you"). Values of 20–35 ms seen in some benchopt logs were measured while two jobs shared the CPU | — | `reftable.md` |
-| self-test | `analysis/proteus_selftest.py` from a clean shell with only `source ~/codabench/env040.sh` before it (18:12:47–18:13:43) | G0 4, G2 22, G3 12, G4 5, G5a–d 80, G5e–G8 217, G10 9 = **349 / 349 PASS**, 55.3 s (G6's two CLI runs under `selftest/`) | PASS | `selftest/selftest.log` |
+| self-test | `analysis/proteus_selftest.py` from a clean shell with only `source ~/codabench/env040.sh` before it: 18:12:47–18:13:43 before the review fixes, 18:41:26–18:45:07 after them | G0 4, G2 22, G3 12, G4 5, G5a–d 80, G5e–G8 217, G10 9 = **349 / 349 PASS** both times; 55.3 s on a quiet machine, 218.9 s with another session's sweep jobs sharing the CPU (G10 163 s; still under 5 min) | PASS | `selftest/selftest.log` |
+| review | independent review by a fresh sub-agent (18:12–18:30; findings and fixes below) | 8 findings, none making a reported number wrong; 8 fixed (3 in `proteus_candidate.sh`, 5 in the harness) and everything re-run: 13 candidate runs ALL DONE, G9/G10 PASS 15/15 in `g9_g10.log` and STATUS.md, self-test 349/349 | PASS | this file, `cand_*/STATUS.md` |
 
 ## Phase time log
 
@@ -46,6 +47,9 @@ upstream worktree `~/neuralbench/competition-040` @ 442edcd, data home
 | 3 | 45 min | 17:47 | 17:52 | under (checks 10 s) |
 | 4 | 90 min | 17:52 | 17:56 | under (gates 25 s + two CLI runs 15 s) |
 | 5 | 90 min | 17:56 | 18:12 | under: official chain 4 min, all chain 2.5 min, later + 10 lopo 11 min (two jobs at once), G11 1 min 48 s |
+| 6 | 45 min | 18:04 | 18:45 | on estimate: 12 MeanLogReg runs 2 min, table 1 min, self-test 1 min, review 18 min (fresh sub-agent), fixes and re-runs 15 min |
+| 7 | 45 min | 18:14 | 18:52 | under (docs written while the review ran) |
+| total | 6 h 45 min | 17:38 | 18:52 | 1 h 14 min of the 7 h |
 
 ## Reference table: for information only: untuned plumbing models
 
@@ -96,3 +100,76 @@ Protocol × {constant, `MeanLogReg`, the Riemann vehicle}: cell mean, `n_cells`,
 | lopo (all 10 folds) | Riemann | **0.418506** over the 28 cells (mean of the 10 fold means 0.435911) | 28 | — | — | route B, seed 42, one fold per call |
 
 On the 8-cell protocols the cell mean of a label-blind model has a standard deviation of about 0.025, so differences below about 0.05 mean nothing, and `later` tests 2 people. A `MeanLogReg` retrained through route B does not read 0.395863 (its lbfgs fit depends on the training-row order, brief § 1). The MeanLogReg fit time is not logged by the solver: each route B training run took 7–11 s wall time. Draw no conclusion about models from this table.
+
+## Independent review (Phase 6): what it confirmed, what was fixed, what it could not break
+
+A fresh sub-agent that had seen none of this session's reasoning read the new
+code (the five `analysis/proteus_*.py` files, `datasets/proteus_protocols.py`,
+`scripts/proteus_candidate.sh`, the `reset_state()` edit, `env040.sh`) and ran
+its own read-only checks. **No finding makes a reported number wrong.** Findings,
+most severe first, each fixed before the final re-runs:
+
+1. `proteus_candidate.sh` printed `ALL DONE` and exited 0 after a G9/G10 failure
+   or a DIFFERENT comparison (confirmed on the first `cand_official` run). Fixed:
+   a `FAILED` flag; `ALL DONE` only when everything passed, else
+   `DONE WITH FAILURES` and exit 1.
+2. The recorded `cand_official` / `cand_all` results came from my manual re-runs
+   after the two test-code fixes, while `STATUS.md` still showed the first run's
+   failures and the lopo / later `RESULTS.md` had the old column set. Fixed by
+   re-running the resumable script on all 13 runs (18:31–18:41): only G9/G10 and
+   the comparisons re-executed; every STATUS.md now ends in `ALL DONE`, `g9_g10.log`
+   holds the PASS (15 checks), every RESULTS.md has the same columns.
+3. Resumption could validate a stale export (a re-run train with old `.done`
+   files skips the replays; a date-stamped zip name changes across days; a
+   missing `--zip` was silently omitted). Fixed: a real train run removes every
+   downstream `.done`; the zip name is persisted in `zip.name`; `equal --zip`
+   fails when the zip is missing.
+4. The G7 cell-marker double did not assert the number of cells. Fixed: it now
+   requires 8 / 8 / 8 / `LOPO_CELLS[fold]` cells (indirectly covered before by G5d
+   and the counter double).
+5. The G6 flag `weights_loaded` was misnamed for Riemann (its predict lines are
+   printed whether loaded or freshly fit). Renamed `inference_evidence`, with the
+   reasoning from the brief (without its joblib the model raises on the first window).
+6. `proteus_eval.py score --official-loader` with a non-official protocol would
+   mislabel its output. Fixed: refused.
+7. No environment guard outside the self-test. Fixed: `proteus_cache.require_env040()`
+   at every CLI entry (verified: under the old `env.sh` it exits with
+   `wrong environment … neuralbench 0.3.1 != 0.4.0`).
+8. `equal_parquets` compared only the first parquet's columns. Fixed: the union,
+   a missing column counts as different.
+
+Could not break (its own re-derivations): (a) leaks: every protocol re-derived
+from (person, session) alone equals `split`; row and SHA-1 intersections 0 except
+`all` (755, flagged); val disjoint from both sides; no window under two keys (2,655
+distinct hashes at full precision, at 1 µV rounding and by coarse fingerprint; 84
+distinct run-level hashes; no overlapping windows). (b) alignment: `X[i]` hash =
+`rows.sha1[i]`; route A and route B serve hash, label and ids by position equal to
+the cache and `ids_of`; the solver's own `_table_row_mismatch` accepts route B's
+trigger table; `scores_from` is the objective's arithmetic line by line. (c) state:
+both routes score through the organisers' `predict_streams` (deepcopy +
+`reset_state()` per stream); the solver defines no copy hooks; its only test-time
+state is `_buf`, cleared by `reset_state()`; the counter double would fail on a
+reused object. (d) no `info` integer is used as a key. (e) nothing in the new code
+reaches the old environment; `~/codabench/analysis` shadows no upstream module.
+(f) every FAIL reaches a non-zero exit; G6 compares against the Phase 1 parquet,
+not against itself; G8's hit count is independent of the model. (g) no silent
+retrain (the objective passes no train loader under `training=False`; a missing
+joblib raises); the replay copy is read-only before benchopt runs; both zips have
+their two files at the root; `equal` compares the right parquets; `fold=3` reaches
+route B as an int. (h) the benchopt route B seed differs from the in-process 0 and
+changes only the train shuffle order, which the Riemann solver ignores and G5e
+compares as sets.
+
+## Deviations and incidents
+
+- Two defects in my own test code were found by the first `official` chain and
+  fixed after the jobs ended (brief § 4: no edit while a job runs): `equal`
+  compared `objective_name`; the deepcopy check mixed call shapes. Both re-run.
+- The review's eight findings above (the script's success reporting, the audit
+  trail of the first run, resumption staleness, five smaller items): fixed, re-run.
+- Upstream `origin/main` moved past 442edcd (a66bc23): left for the user.
+- Another session started sweep jobs (`scripts/proteus_w1016_p*.sh`,
+  `analysis/proteus_sweep.py`, lanes A and B) in this folder at about 18:30, while
+  this session was still running: not this session's, left running. The second
+  self-test timing (219 s) and some benchopt log timings reflect that contention.
+- No gate failed. Nothing was dropped. Nothing was uploaded.

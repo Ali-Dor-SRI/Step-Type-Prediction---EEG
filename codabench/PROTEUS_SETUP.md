@@ -134,7 +134,8 @@ MeanLogReg`; `[Riemann-Sealed] predict: … calls` lines).
 | G10 | B = 1 = batch on every window (max prob diff 7.9e-12), deepcopy, `reset_state()`, shapes, extreme windows finite, counters 0 after reload and after a fit | PASS |
 | G11 | the old regression after the one solver edit: `gate: train 0.770000 replay 0.770000 EQUAL …` | PASS |
 | G12 | zips at the root; unzipped replay = training; two "ready, not uploaded" rows in SUBMISSIONS.md | PASS |
-| self-test | 349 / 349 from a clean shell, 55 s | PASS |
+| self-test | 349 / 349 from a clean shell, 55 s on a quiet machine (219 s with another job on the CPU) | PASS |
+| review | a fresh sub-agent tried to break the code: 8 findings, none changing a number, all fixed and re-run (RESULTS.md) | PASS |
 
 Timing (report only): 8.2–9.7 ms per window at B = 1; the largest plausible sealed
 test (106 sessions × 199 windows) projects to about 3 minutes of the 3,600 s
@@ -158,6 +159,12 @@ allowed. Fits: 27 s (1,521 windows) to 49 s (2,655).
   shuffles with seed 0.
 - The organisers' `get_instance()` builds the solver with the file's defaults: a
   setting that is not baked into the candidate file is not what the server runs.
+- A step runner that only logs a failure lets a script end in `ALL DONE` (found by
+  the review): `proteus_candidate.sh` now exits 1 with `DONE WITH FAILURES`, and a
+  fresh train run removes every downstream `.done` so stale replays are never
+  compared with a new export.
+- Every CLI entry of the PROTEUS tooling refuses to run outside `env040.sh`
+  (`proteus_cache.require_env040()`): the old `env.sh` gives neuralbench 0.3.1.
 
 ## 8. Where everything lives
 

@@ -259,7 +259,14 @@ def benchopt_inference(submission_dir, dataset, out_parquet, log_path, timeout=9
         row["solver_name"] = df["solver_name"].iloc[-1]
     row["rc"] = rc
     row["seconds"] = round(time.time() - t0, 1)
-    row["weights_loaded"] = "weights.joblib into MeanLogReg" in log or "[Riemann-Sealed] predict:" in log
+    # evidence that the exported model, not a fresh one, predicted: MeanLogReg
+    # prints "[loading] ... weights.joblib into MeanLogReg" when it loads its
+    # joblib; Riemann-Sealed prints "[Riemann-Sealed] predict: ..." lines, and
+    # without its joblib it raises on the first window (brief section 4), so for
+    # it the predict lines are the evidence. Neither is a "weights loaded" line
+    # for the other model.
+    row["inference_evidence"] = ("weights.joblib into MeanLogReg" in log
+                                 or "[Riemann-Sealed] predict:" in log)
     return row
 
 
@@ -278,10 +285,11 @@ def check_routes_agree(c, ref_dir, out_dir, loaders, meta):
         row = benchopt_inference(ref_dir / "submission", dataset, out_dir / f"g6_{tag}.parquet",
                                  out_dir / f"g6_{tag}.log")
         got = {k: _r6(row.get("objective_" + k, float("nan"))) for k in SCORE_KEYS}
-        ok = row["rc"] == 0 and row["weights_loaded"] and got == g1v and int(row.get("objective_n_cells", -1)) == 8
+        ok = (row["rc"] == 0 and row["inference_evidence"] and got == g1v
+              and int(row.get("objective_n_cells", -1)) == 8)
         out.append((f"G6 CLI inference-only on {tag} = G1 (weights loaded, 8 cells)", ok,
                     f"{got} n_cells {row.get('objective_n_cells')} rc {row['rc']} "
-                    f"loaded {row['weights_loaded']} {row['seconds']} s dataset {row.get('dataset_name')}"))
+                    f"loaded {row['inference_evidence']} {row['seconds']} s dataset {row.get('dataset_name')}"))
     model = load_submission(ref_dir / "submission", official_meta(loaders, meta))
     sp = PS.split("official", rows=c.rows)
     sc_a, _, yp_official, _ = evaluate(model, loaders["test"])
@@ -327,10 +335,12 @@ def check_doubles(c):
                         sc["balanced_accuracy_cell_mean"] == 1.0 and sc["accuracy"] == 1.0, f"{sc['balanced_accuracy_cell_mean']:.6f}"))
             sc, _, yp, _ = evaluate(CellMarkerModel(labels, interfaces), loader)
             cs = sc["cell_scores"]
-            ok = (all(v in (0.0, 1.0) for v in cs) and cs.count(1.0) == cs.count(0.0) == len(cs) // 2
+            n_exp = PS.LOPO_CELLS[sp.fold] if sp.protocol == "lopo" else 8
+            ok = (len(cs) == n_exp and all(v in (0.0, 1.0) for v in cs)
+                  and cs.count(1.0) == cs.count(0.0) == len(cs) // 2
                   and _r6(sc["balanced_accuracy_cell_mean"]) == 0.5)
-            out.append((f"G7 {name} route {route}: cell-marker: cells exactly 1.0 / 0.0, half each, mean 0.500000",
-                        ok, f"{sorted(cs)} mean {sc['balanced_accuracy_cell_mean']:.6f}"))
+            out.append((f"G7 {name} route {route}: cell-marker: {n_exp} cells exactly 1.0 / 0.0, half each, mean 0.500000",
+                        ok, f"{len(cs)} cells {sorted(cs)} mean {sc['balanced_accuracy_cell_mean']:.6f}"))
             base = CounterModel()
             _, _, yp, _ = evaluate(base, loader)
             out.append((f"G7 {name} route {route}: counter = 1..n_s per stream {lengths}; base counter still 0",
@@ -493,18 +503,23 @@ def equal_parquets(out_md, named, zip_path=None):
     import hashlib
     import zipfile
     import pandas as pd
-    rows, keys = {}, None
+    rows, keys = {}, []
     for name, path in named:
         df = pd.read_parquet(path)
         r = df.iloc[-1]
         # the scores only: objective_name reads training=True / False
         cols = [k for k in df.columns if k.startswith("objective_") and k != "objective_name"]
-        keys = keys or cols
+        keys += [k for k in cols if k not in keys]          # the union over all parquets
         rows[name] = {k: r[k] for k in cols}
         rows[name]["dataset_name"] = r["dataset_name"]
         rows[name]["solver_name"] = r["solver_name"]
     base = next(iter(rows))
-    equal = all(all(rows[n][k] == rows[base][k] for k in keys) for n in rows)
+    # a column missing from one parquet counts as different
+    equal = all(all(k in rows[n] and k in rows[base] and rows[n][k] == rows[base][k] for k in keys)
+                for n in rows)
+    for n in rows:
+        for k in keys:
+            rows[n].setdefault(k, float("nan"))
     lines = [f"# {Path(out_md).parent.name}: benchopt scores (for information only; exact comparison)", "",
              "| run | dataset | solver | " + " | ".join(k.replace("objective_", "") for k in keys) + " |",
              "|---|---|---|" + "---|" * len(keys)]
@@ -513,6 +528,9 @@ def equal_parquets(out_md, named, zip_path=None):
             f"{r[k]:.6f}" if isinstance(r[k], float) else str(r[k]) for k in keys) + " |")
     lines.append("")
     lines.append(f"**{'EQUAL' if equal else 'DIFFERENT'}** across {len(rows)} runs ({', '.join(rows)}).")
+    if zip_path and not Path(zip_path).exists():
+        equal = False
+        lines += ["", f"**ZIP MISSING**: `{zip_path}` does not exist."]
     if zip_path and Path(zip_path).exists():
         zp = Path(zip_path)
         sha = hashlib.sha256(zp.read_bytes()).hexdigest()
@@ -550,6 +568,9 @@ def main():
     e.add_argument("named", nargs="+", help="name=path.parquet")
     e.add_argument("--zip")
     a = ap.parse_args()
+    PC.require_env040()
+    if a.cmd == "score" and a.official_loader and a.protocol != "official":
+        sys.exit("--official-loader scores the organisers' official test set: use protocol 'official'")
     if a.cmd == "equal":
         ok = equal_parquets(a.out_md, [n.split("=", 1) for n in a.named], a.zip)
         sys.exit(0 if ok else 1)

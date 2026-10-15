@@ -76,6 +76,28 @@ SPLIT_SIZES = {"train": 1521, "val": 379, "test": 755}
 KEY_COLUMNS = ["person", "session", "run", "cue"]
 
 
+def require_env040():
+    """Refuse to run outside the 0.4.0 environment (G0 in four lines): the old
+    `env.sh` world would otherwise run the 0.3.1 benchopt against this
+    checkout. Called by every CLI entry of the PROTEUS tooling."""
+    import importlib.metadata as m
+    problems = []
+    try:
+        v = m.version("neuralbench")
+    except Exception:            # noqa: BLE001
+        v = "missing"
+    if v != "0.4.0":
+        problems.append(f"neuralbench {v} != 0.4.0")
+    if not sys.prefix.endswith(".venv040"):
+        problems.append(f"sys.prefix {sys.prefix} is not .venv040")
+    if not os.environ.get("BENCHOPT_DATA_HOME", "").endswith("benchopt_data_040"):
+        problems.append("BENCHOPT_DATA_HOME does not end with benchopt_data_040")
+    if "/competition-040/" not in COMPET_ROOT + "/":
+        problems.append(f"COMPET_ROOT {COMPET_ROOT} is not competition-040")
+    if problems:
+        sys.exit("wrong environment (source ~/codabench/env040.sh first): " + "; ".join(problems))
+
+
 def sha1_of(x):
     """SHA-1 of one window's float32 bytes, ``x`` of shape (41, 480) (a torch
     tensor, a numpy array, or a (1, 41, 480) batch of one)."""
@@ -337,6 +359,7 @@ def report(checks, prefix=""):
 
 
 if __name__ == "__main__":
+    require_env040()
     cmd = sys.argv[1] if len(sys.argv) > 1 else "check"
     if cmd == "build":
         build()

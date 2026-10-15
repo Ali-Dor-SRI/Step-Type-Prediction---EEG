@@ -5,14 +5,13 @@ PROTEUS and how to run it is [PROTEUS_SETUP.md](PROTEUS_SETUP.md). This section 
 the detailed hand-off of the setup session and is resumable from here alone.
 
 Plan of record: [prompts/2026-10-13_proteus_train_test_setup.md](prompts/2026-10-13_proteus_train_test_setup.md)
-(started 2026-10-15 17:38:51 EDT, deadline 00:38:51, 7 h; finished in about
-1 h 25 min). A setup and verification session on the released PROTEUS data in the
+(started 2026-10-15 17:38:51 EDT, deadline 00:38:51, 7 h; finished 18:52, 1 h 14 min). A setup and verification session on the released PROTEUS data in the
 0.4.0 environment: no tuning, no new features, no uploads. Branch
 `feat/codabench-track2`, pushed to `personal` after every commit. Logs:
 `logs/proteus_setup/` (`RESULTS.md` committed: every gate with its measured value,
 the reference table). Record: LOG.md "2026-10-15".
 
-## State of this session (updated 2026-10-15 REVIEW_TIME): complete
+## State of this session (updated 2026-10-15 18:52): complete
 
 | Phase | Status | Result |
 |---|---|---|
@@ -22,12 +21,16 @@ the reference table). Record: LOG.md "2026-10-15".
 | 3 protocols | done 6a4596d | `analysis/proteus_splits.py`: `split`, `ids_of`, `every_split`, `lopo_summary`. G5a–d 80/80 PASS |
 | 4 streamed evaluation, two routes | done 83317ed | route A `analysis/proteus_eval.py`, route B `datasets/proteus_protocols.py`. G5e 78, G6 6, G7 107, G8 26 PASS; both routes = benchopt to 6 decimals, identical `y_pred` |
 | 5 one solver through the whole path | done ef945a5 | `reset_state()` in `riemann_sealed.py` (only edit); vehicle `solvers/bci_decoding/riemann_sealed_proteus_pooled.py`; `scripts/proteus_candidate.sh` ran official, all, later, lopo 0..9. G9 / G9b / G10 / G11 / G12 PASS; official vehicle 0.406751 (8 cells, info only); two zips ready, NOT uploaded |
-| 6 reference table, self-test, independent review | done | table in RESULTS.md (12 route B `MeanLogReg` runs + the vehicle + constant); `analysis/proteus_selftest.py` **349 / 349 PASS from a clean shell, 55 s**; review: REVIEW_RESULT |
+| 6 reference table, self-test, independent review | done | table in RESULTS.md (12 route B `MeanLogReg` runs + the vehicle + constant); `analysis/proteus_selftest.py` **349 / 349 PASS from a clean shell, 55 s**; review by a fresh sub-agent: 8 findings, none making a number wrong, all fixed (script failure reporting and resumption, audit trail, cell-count assert, flag name, `score` guard, environment guard, column union); all 13 runs re-run resumably, self-test 349/349 again (RESULTS.md "Independent review") |
 | 7 docs and hand-off | done | `PROTEUS_SETUP.md`; DIRECTIONS § 1/2/5/6 + change log (148 lines); LOG, HANDOFF, SUBMISSIONS; RELEASE_DAY § 5 step 1 and § 6 updated in place; banners on SEALED_RECIPE, TRACK2_BCI, SUBMISSION_GUIDE, COMPETITION; project map; memory |
 
 ## What is running
 
-Nothing. No uploads were made. The zips under `logs/proteus_setup/` are local only.
+Nothing of this session's. No uploads were made. The zips under `logs/proteus_setup/`
+are local only. **Another session** started sweep jobs in this folder at about 18:30
+(`scripts/proteus_w1016_p*.sh`, `analysis/proteus_sweep.py`, lanes A and B, logs
+`logs/proteus_w1016/`): not this session's, not touched; they share the CPU, so any
+timing taken after 18:30 is contended.
 
 ## Facts a resumer needs
 

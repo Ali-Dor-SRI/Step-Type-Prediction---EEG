@@ -21,7 +21,7 @@ What this document holds:
 
 The executable first step is the setup brief
 [prompts/2026-10-13_proteus_train_test_setup.md](prompts/2026-10-13_proteus_train_test_setup.md)
-(**run on 2026-10-15, 17:38–19:00: every gate passed**; what exists and how to
+(**run on 2026-10-15, 17:38–18:52: every gate passed**; what exists and how to
 run it is [PROTEUS_SETUP.md](PROTEUS_SETUP.md), the measured values are
 `logs/proteus_setup/RESULTS.md`). Every number below comes from that brief's
 verified § 1, from the organisers' FAQ and code at upstream `442edcd`, or from
@@ -360,7 +360,7 @@ sealed upload.
 
 | # | Step | Est. | Output |
 |---|---|---|---|
-| 1 | ~~**Run the setup brief**~~ **done 2026-10-15, 17:38–19:00 (1 h 20 min of the 7 h; every gate PASS, self-test 349/349)** | ~7 h unattended | `PROTEUS_SETUP.md`, `logs/proteus_setup/RESULTS.md`, two "ready, not uploaded" zips: all exist |
+| 1 | ~~**Run the setup brief**~~ **done 2026-10-15, 17:38–18:52 (1 h 14 min of the 7 h; every gate PASS, self-test 349/349, independent review)** | ~7 h unattended | `PROTEUS_SETUP.md`, `logs/proteus_setup/RESULTS.md`, two "ready, not uploaded" zips: all exist |
 | 2 | **Warm-up upload** of the `official` Riemann zip and the `MeanLogReg` zip (user's action) | 2 uploads | server numbers = local replay; `v3` image proven |
 | 3 | **EDA on the real data**: per-person ERD maps per task from the raw BIDS (1–5 s vs the pre-cue second), laterality sign per person, GFP peak ratio per run type, calibration-vs-online split, drift of P04/P10 across sessions, amplitude distribution | ~half a day | `reports/proteus_eda/` |
 | 4 | **Candidate ablations on `lopo` and `later`** through the streamed evaluator, each as an opt-in solver setting, one change at a time against the base (pooled LDA, global whitening, fb + bpt4, no xDAWN decision yet): online re-centring N; open-set router + personal blend; xDAWN; reference; amplitude handling; `subject_context`; `icoh` | ~1 day of CPU, fits are minutes | a RESULTS table with paired bootstrap CIs over people (10) and cells (28) |
