@@ -2016,3 +2016,59 @@ no uploads). Gates and values: `logs/proteus_setup/RESULTS.md`; hand-off: HANDOF
 | 17:56–18:12 | Phase 5: `reset_state()` added to `RiemannSealedModel` (the one solver edit); G11 old regression (17:56:37–17:58:25); `scripts/proteus_candidate.sh` official chain (17:59:11–18:03:16: fit 26.8 s on 1,521 windows; replays 15–17 s each; train2; G9/G10) ; `all` chain (18:03:42–18:06:00); `later` + lopo 0..9 (17:59:47–18:10:01, 33–49 s per fit); 12 route B MeanLogReg runs for the table (18:04:15–18:06:03, 7–11 s each) | 90 min | 16 min | G9 PASS (5 runs EQUAL 0.406751; y_pred identical; pooled / none), G9b PASS, G10 PASS (9 + fit; B = 1 vs batch 7.9e-12), G11 PASS (0.770000 / 0.770000 EQUAL), G12 PASS (two zips, rows in SUBMISSIONS; `all` zip in RESULTS only); 8.2–9.7 ms/window, projection 173–205 s. Two defects in my own test code found and fixed after the jobs ended: `equal` compared `objective_name` (training=True/False), and the deepcopy check compared a batch of 20 with 20 single windows (differ by ~1e-11); re-run: all EQUAL, G9/G10 14/14 |
 | 18:04–18:45 | Phase 6: 12 route B `MeanLogReg` runs (18:04:15–18:06:03); reference table (`reftable.py`, 18:11–18:12); self-test 349/349 (18:12:47–18:13:43, 55 s); independent review by a fresh sub-agent (18:12–18:30): 8 findings, none changing a number, all fixed; resumable re-runs of all 13 candidate runs (18:31:57–18:41:17); self-test again 349/349 (18:41:26–18:45:07, 219 s under another session's CPU load) | 45 min | 41 min | self-test passes from a clean shell; `proteus_candidate.sh` now fails loudly (`DONE WITH FAILURES`, exit 1), invalidates downstream steps on a fresh train, persists its zip name; every CLI entry refuses the old environment |
 | 18:14–18:52 | Phase 7: `PROTEUS_SETUP.md`; DIRECTIONS (148 lines; § 1/2/5/6, change log); LOG, HANDOFF, SUBMISSIONS (two "ready, not uploaded" rows); RELEASE_DAY § 5 step 1 done + § 6 paths in place; banners on SEALED_RECIPE, TRACK2_BCI, SUBMISSION_GUIDE, COMPETITION; project map; memory | 45 min | 38 min (while the review ran) | session complete at 18:52: 1 h 14 min of the 7 h used; nothing running of ours; nothing uploaded |
+
+## 2026-10-16 sprint (started 10-15 18:20) — the first real PROTEUS model (brief `prompts/2026-10-16_proteus_weekend_model.md`)
+
+Deadline Mon 10-19 08:00. Rows: `logs/proteus_w1016/A.jsonl` (Riemann lane), `B.jsonl` (neural lane);
+summaries by `analysis/proteus_w1016_summary.py` (cells rebuilt from the saved predictions; paired
+bootstrap over people, 10,000).
+
+### Phase 0 — harness and stream alignment
+
+| Time | Step | Estimate | Actual | Result |
+|---|---|---|---|---|
+| 18:22:47–18:24:06 | G-b: `proteus_sweep.py` vehicle = benchopt route B | 2 min | 1 min 19 s, under | `later` 0.492382, `lopo` f0 0.469926: PASS (exact) |
+| 18:28:06–18:28:55 | EEGNet-Stream smoke (lopo f0, 5+5 epochs) | 2–4 min | 49 s | ~3 s/epoch alone; 94 ms/window streamed |
+| 18:49–19:00:52 | G-a: patched solver defaults; zhou regression (fresh `RUN_NAME=regress_w1016_patch`) | 5 min | 12 min (3 jobs) | B0 `later` 0.492382, 762/762 `y_pred` identical; zhou `train 0.770000 replay 0.770000 EQUAL`: PASS |
+| 19:12:02–19:15:47 | G-c: `align="stream"` streaming gates (`analysis/proteus_w1016_gates.py`) | 6 min | 3 min 45 s | B=1 = batched (0/762 differ), streams isolated, reset restores, 46 ms/window (sealed test ≈ 16 min of 60): ALL PASS |
+
+- **Found in the code (19:00):** `adapt="online"` keeps one running reference per *routed training
+  person*; with no router (unseen people) nothing was re-centred. Built `align="stream"`
+  (opt-in): training whitened per (person, session); each test stream on a running reference of its
+  own windows (last `buffer`, 0 = all), pulled to the global training mean with weight n/(n+8).
+  Also opt-in `crop` and `clip` (Phase 2). Defaults bit-identical (G-a).
+- **Changed during Phase 0:** the first stream reference (an iterative Riemannian mean of the
+  whole buffer at every window) grows quadratically with the stream; replaced by a running
+  log-Euclidean mean (O(1) per window) before any row was scored.
+- **Rule 6 deviation:** its warm-up wording ("n/(n+N) until n ≥ N") never adapts for N = all;
+  the implemented prior pseudo-count is K = 8, fixed, not tuned.
+
+### Phase 1 — base arms (lopo 28 cells + later 8 cells)
+
+| Time | Step | Estimate | Actual | Result |
+|---|---|---|---|---|
+| 18:24:34–19:40:15 | B0, B1, R (lane A) | 27 min | 76 min, over (2–3 jobs shared 20 threads; ETAs were single-lane) | below |
+
+| arm | lopo | Δ vs B1 [95 % CI] (people up) | later | Δ vs B1 [95 % CI] |
+|---|---|---|---|---|
+| B0 vehicle (no bpt4) | 0.4185 | −0.82 [−1.97, +0.79] (3/10) | 0.4924 | −3.56 [−4.48, −2.63] |
+| **B1** + bpt4 | **0.4268** | — | **0.5279** | — |
+| R + router + personal blend (w = 0.5) | 0.3775 | −4.93 [−8.66, −1.17] (4/10) | 0.4420 | −8.60 [−13.70, −3.49] |
+
+**Decisions.** Rule 3: bpt4 kept (B0 is not ≥ 1 point better; B1 +3.6 on `later`). Rule 4:
+the router + personal blend is **not adopted** (it loses on both protocols, also for the known
+people of `later`); far from the threshold, so the leave-one-run-out weight was not built.
+B0 reproduces the setup session's numbers exactly (lopo 0.418506).
+
+**Incidents.**
+- 18:38: the setup session's review ran an uncapped job beside both lanes (load 37/20; one fit
+  40 s → 383 s). Lane B paused 18:39:48; the job had already ended, resumed at once.
+- 19:40: the chained launcher of the stream arms (a background `wsl.exe` waiting on STATUS)
+  died silently; lane A idle 19:40–19:57. Relaunched directly; the Monitor tool's 30-min
+  expiry replaced by a one-shot watcher `scripts/w1016_watch.sh` (exits on END / crash /
+  STALLED / DEAD / FAILED).
+- 19:53: **EEGNet early stopping broken by design**: the validation set (every 5th training
+  person = 2 people) had rising loss from epoch 1 on lopo folds 5–9, so the refit trained 1–2
+  epochs (fold 6 0.32). Fixed: 80 epochs, no early stopping, all windows (80 = median best
+  epoch of folds 0–4, chosen on training people only). The early-stopping run E1_s33 is kept in
+  `B.jsonl` and not used; arms renamed E1f / E0f.
