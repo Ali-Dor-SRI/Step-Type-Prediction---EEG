@@ -7,13 +7,13 @@ environment: no tuning, no new features, no uploads. Branch `feat/codabench-trac
 pushed to `personal` after every commit. Logs: `logs/proteus_setup/` (RESULTS.md).
 Record: LOG.md "2026-10-15".
 
-## State of this session (updated 2026-10-15 17:54)
+## State of this session (updated 2026-10-15 17:50)
 
 | Phase | Status | Result |
 |---|---|---|
 | 0 orient | done 10caab4 | git state as expected (last commit 91deb28); nothing running in WSL; upstream local head 442edcd; **upstream `origin/main` has moved to a66bc23** (noted, staying on 442edcd); `benchmark_utils` symlink intact |
 | 1 entry point + reference run | done | `env040.sh`, `config/venv040_freeze.txt`; G0 PASS; G1 PASS 0.395863 / 0.395465 / 0.395672 / 0.396026, 8 cells (`logs/proteus_setup/ref_meanlogreg/`); SETUP.md section + LOG back-fill for 10-13 |
-| 2 window cache | pending | |
+| 2 window cache | done | `analysis/proteus_cache.py` (build 11 s; `Cache`, `sha1_of`, `official_loaders`, G2/G3 checks), `analysis/proteus_g4_events.py` (isolated `-I`). G2 22/22, G3 12/12, G4 4/4 PASS. Cache: `~/neuralbench/proteus_cache` (X.npy 209 MB, rows.parquet, keys.csv, meta.json) |
 | 3 protocols | pending | |
 | 4 streamed evaluation, two routes | pending | |
 | 5 one solver through the whole path | pending | |
