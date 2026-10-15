@@ -496,6 +496,11 @@ def _lap(tm, stage, t0):
               f"{tm[stage]:.0f} s; maxrss {_maxrss_gb():.2f} GB", flush=True)
 
 
+def _logm_spd(C):
+    w, V = np.linalg.eigh((C + C.T) / 2)
+    return (V * np.log(np.maximum(w, 1e-12))) @ V.T
+
+
 def _whiten_rows(X, idx, Ws, Wg, f32=False):
     """Row i <- W[idx[i]] @ X[i] (idx -1 -> Wg). float64 (the solver's own
     whitening), or f32=True: the harness's float32 ``xsess_lib.apply_W``,
@@ -1138,7 +1143,8 @@ class RiemannSealedModel:
                  align="subject", kind="riemann", personal="pooled",
                  blend_w=0.5, max_batches=None, adapt="none", buffer=64,
                  chans="eeg", ch_names=None, chs_info=None, ch_types=None,
-                 ctx_min=CTX_MIN_WINDOWS, ch_perm=None, xblocks="", wcv_ref="all"):
+                 ctx_min=CTX_MIN_WINDOWS, ch_perm=None, xblocks="", wcv_ref="all",
+                 stream_k=8, crop="", clip=0.0):
         self.parts, self.preproc = parts, preproc
         # blend_w="auto": whitening references of the weight search's folds,
         # "all" (the whole training set's) | "strict" (each fold's fit rows)
@@ -1166,6 +1172,13 @@ class RiemannSealedModel:
         # State persists across predict() calls, i.e. across test batches.
         self.adapt, self.buffer = adapt, int(buffer)
         self._buf = {}
+        # align="stream" (sprint 2026-10-16): buffer = the running reference's
+        # length in windows (0 = every window of the stream so far), stream_k =
+        # the global reference's pseudo-count. Pooled LDA only, adapt="online".
+        self.stream_k = float(stream_k)
+        self.crop, self.clip = str(crop or ""), float(clip)
+        if align == "stream" and (adapt != "online" or personal != "pooled"):
+            raise ValueError("align='stream' needs adapt='online' and personal='pooled'")
         if chans != "all" and chans not in _CHANS:
             raise ValueError(f"chans must be eeg|eeg+eog|eeg+emg|all, got {chans!r}")
         self.chans = chans
@@ -1200,6 +1213,10 @@ class RiemannSealedModel:
                 X = self.preproc(X)
         if chan_idx is not None:
             X = X[:, chan_idx]
+        if self.crop:
+            a, b = (float(v) for v in self.crop.split("-"))
+            sf = self.preproc.sfreq
+            X = X[..., int(round(a * sf)):int(round(b * sf))]
         return X.numpy().astype(dtype)
 
     def _pick_channels(self):
@@ -1307,6 +1324,11 @@ class RiemannSealedModel:
         tm, t0 = {}, time.time()
         self._chan_idx = self._pick_channels()
         X, y, subj, sess, ctx = self._collect(train_loader)
+        clip_uv = None
+        if self.clip > 0:
+            clip_uv = float(np.quantile(np.abs(X), self.clip))
+            np.clip(X, -clip_uv, clip_uv, out=X)
+            print(f"[Riemann-Sealed] clip: |x| <= {clip_uv:.1f} (q={self.clip})", flush=True)
         _lap(tm, "collect", t0)
         subjects = np.unique(subj)
         sidx = np.searchsorted(subjects, subj)
@@ -1314,7 +1336,7 @@ class RiemannSealedModel:
         sfreq = self.preproc.sfreq
         parts = {"estimator": self.estimator, "xdawn": None, "sfreq": sfreq,
                  "subjects": subjects, "n_classes": n_classes,
-                 "chan_idx": self._chan_idx,
+                 "chan_idx": self._chan_idx, "clip_uv": clip_uv,
                  # every training channel's name (before the pick): load_model
                  # matches the scoring meta["ch_names"] to them (_match_channels)
                  "ch_names": (None if self.ch_names is None
@@ -1357,7 +1379,7 @@ class RiemannSealedModel:
         # per-subject whitening (identity everywhere when align="none"): row i
         # of the training set is whitened with Wset[gidx[i]]
         t0 = time.time()
-        if align in ("subject", "subject_context"):
+        if align in ("subject", "subject_context", "stream"):
             covs = _window_covs(X)
             parts["W_global"] = _inv_sqrtm(_mean_cov(covs, self.kind))
             parts["W"] = np.stack([_inv_sqrtm(_mean_cov(covs[sidx == k], self.kind))
@@ -1395,6 +1417,20 @@ class RiemannSealedModel:
             groups, gidx = np.unique(g, return_inverse=True)
             Wset = np.stack([_inv_sqrtm(_mean_cov(covs[g == gg], self.kind))
                              for gg in groups])
+        if align == "stream":
+            # each training (subject, session) on its own reference, as each test
+            # stream will be; per subject when the loader has no session ids
+            g = sidx * 1000 + (0 if sess is None else
+                               np.unique(sess, return_inverse=True)[1].reshape(-1))
+            groups, gidx = np.unique(g, return_inverse=True)
+            Wset = np.stack([_inv_sqrtm(_mean_cov(covs[g == gg], self.kind))
+                             for gg in groups])
+            parts.update(align="stream", C_global=_mean_cov(covs, self.kind),
+                         stream_groups=int(len(groups)))
+            print(f"[Riemann-Sealed] align=stream: {len(groups)} training groups "
+                  f"({'subject x session' if sess is not None else 'subject only'}), "
+                  f"buffer={self.buffer or 'all'}, stream_k={self.stream_k:g}",
+                  flush=True)
         _lap(tm, "align", t0)
 
         # Riemann-StepType feature union on the whitened windows: one chunked
@@ -1602,6 +1638,32 @@ class RiemannSealedModel:
                 out[m] = np.einsum("ij,njt->nit", W, X[m])
         return out
 
+    def _stream_whiten(self, X):
+        """align="stream": window i is whitened with the reference of the stream's
+        windows up to and including i (the last ``buffer``; 0 = all), pulled to
+        the global training reference, t = n / (n + stream_k). Log-Euclidean
+        running mean (O(1) per window: a running sum of matrix logarithms), so the
+        cost does not grow with the stream. Causal and label-free; reset_state()
+        empties the buffer per stream."""
+        covs = _window_covs(X)
+        if "L_global" not in self.parts:            # cached per model, not state
+            self.parts["L_global"] = _logm_spd(self.parts["C_global"])
+        Lg = self.parts["L_global"]
+        st = self._buf.setdefault("stream", {"L": [], "sum": np.zeros_like(Lg)})
+        out = np.empty(X.shape, dtype=np.float64)
+        for i in range(len(X)):
+            L = _logm_spd(covs[i])
+            st["L"].append(L)
+            st["sum"] = st["sum"] + L
+            if self.buffer > 0 and len(st["L"]) > self.buffer:
+                st["sum"] = st["sum"] - st["L"].pop(0)
+            n = len(st["L"])
+            t = n / (n + self.stream_k)
+            M = (1 - t) * Lg + t * st["sum"] / n
+            w, V = np.linalg.eigh((M + M.T) / 2)
+            out[i] = ((V * np.exp(-0.5 * w)) @ V.T) @ X[i]
+        return out
+
     def _blend_weight(self):
         """The pooled weight: the one chosen in fit (joblib), else blend_w."""
         w = self.parts.get("blend_w", self.blend_w)
@@ -1614,6 +1676,8 @@ class RiemannSealedModel:
         return float(w)
 
     def _predict_block(self, X):
+        if self.parts.get("clip_uv"):
+            X = np.clip(X, -self.parts["clip_uv"], self.parts["clip_uv"])
         idx = self._route(X)
         if self.parts.get("align") == "subject_context":
             # routed pair -> that pair's W (fallback: global W), then its subject
@@ -1626,6 +1690,8 @@ class RiemannSealedModel:
             ok = idx >= 0
             sub[ok] = self.parts["pair_subject"][idx[ok]]
             idx = sub
+        elif self.parts.get("align") == "stream":
+            Xw = self._stream_whiten(X)
         else:
             Xw = (self._online_whiten(X, idx) if self.adapt == "online"
                   else self._whiten(X, idx))
@@ -1687,7 +1753,18 @@ class Solver(CompetSolver):
         "xblocks": [""],
         # "subject" (router + per-subject W) | "none" | "subject_context"
         # (router + W per (subject, context) pair: the harness's router-psdctx)
+        # | "stream" (sprint 2026-10-16, opt-in: training centred per (subject,
+        # session); each test stream centred on its own running reference, no
+        # router, pooled LDA: the path for people never seen in training)
         "align": ["subject"],
+        # align="stream": pseudo-count K of the global training reference in the
+        # running (log-Euclidean) one: weight of the stream's windows t = n / (n + K)
+        "stream_k": [8],
+        # sprint 2026-10-16, opt-in: "a-b" keeps seconds [a, b) of the window
+        # ("" = all); clip = quantile q of |x| over the training windows, every
+        # window clipped at +-that value (0 = off)
+        "crop": [""],
+        "clip": [0.0],
         "ctx_min": [CTX_MIN_WINDOWS],   # subject_context: min windows for a pair's own W
         # blend_w="auto" fold references: "all" (whole training set) | "strict"
         # (each fold's fit rows; sprint 2026-10-01, RELEASE_DAY rule 4)
@@ -1729,7 +1806,9 @@ class Solver(CompetSolver):
                                   chs_info=meta.get("chs_info"),
                                   ch_types=meta.get("ch_types"),
                                   ctx_min=self.ctx_min, ch_perm=perm,
-                                  xblocks=self.xblocks, wcv_ref=self.wcv_ref)
+                                  xblocks=self.xblocks, wcv_ref=self.wcv_ref,
+                                  stream_k=self.stream_k, crop=self.crop,
+                                  clip=self.clip)
 
     def fit(self, model, train_loader):
         model.fit(train_loader)
