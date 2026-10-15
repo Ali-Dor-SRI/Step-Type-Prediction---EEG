@@ -13,9 +13,10 @@ init, preprocessing and max-norm are ``eegnet_steptype.py``'s, copied verbatim
   its windows so far (the last ``buffer``; 0 = all) mixed with the global
   training mean, weight of the stream t = n / (n + stream_k). Causal, label-free,
   within one stream: allowed by the 0.4.0 contract (FAQ 2026-10-13).
-- training on the whitened windows held in memory: Adam, early stopping on a
-  person-held-out validation set (every 5th training person), then a refit on all
-  training windows for the best epoch count.
+- training on the whitened windows held in memory: Adam for a fixed 80 epochs on
+  all training windows (default). Early stopping on a person-held-out set
+  (every 5th training person) + refit is available (patience > 0) but stopped
+  at epoch 1-2 on half the lopo folds (two validation people are too few).
 - ``standardize`` (per-window, per-channel z-scoring inside the net), on here.
 """
 
@@ -365,7 +366,11 @@ class EEGNetStreamModel:
         people = np.unique(subj)
         val = np.isin(subj, people[4::5]) if len(people) >= 5 else np.zeros(len(y), bool)
         init = copy.deepcopy(self.net.state_dict())
-        if val.any():
+        if self.patience <= 0:          # fixed epoch count, all windows, no validation
+            print(f"[EEGNet-Stream] fixed {self.n_epochs} epochs on all {len(y)} windows",
+                  flush=True)
+            self._epochs(Xt, yt, self.n_epochs)
+        elif val.any():
             v = torch.as_tensor(val)
             best_ep = self._epochs(Xt[~v], yt[~v], self.n_epochs, Xt[v], yt[v])
             if self.refit:
@@ -410,8 +415,11 @@ class Solver(CompetSolver):
 
     parameters = {
         "lr": [1e-3],
-        "n_epochs": [150],
-        "patience": [25],
+        # patience <= 0: train a fixed n_epochs on all windows (sprint 2026-10-16:
+        # early stopping on two held-out people stopped at epoch 1-2 on half the
+        # lopo folds); patience > 0: early stopping on every 5th person + refit
+        "n_epochs": [80],
+        "patience": [0],
         "kernel_s": [0.5],
         "separable_kernel_s": [0.125],
         "dropout_rate": [0.5],

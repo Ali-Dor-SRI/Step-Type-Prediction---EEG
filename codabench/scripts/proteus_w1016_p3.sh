@@ -6,6 +6,8 @@
 #   E1 = align stream (training EA per person-session, running EA per stream)
 #   E0 = align none (the control: does the alignment help the network?)
 #   seeds 33-35 for both; then E1 seeds 36-37 (a 5-seed average for deployment)
+#   "f" = fixed 80 epochs, no early stopping (the solver default since 19:55;
+#   the first E1_s33 run with early stopping is kept in B.jsonl, not used)
 #   wsl: bash ~/codabench/scripts/proteus_w1016_p3.sh
 LOGDIR=$HOME/codabench/logs/proteus_w1016/p3
 ENV_SETUP='source ~/codabench/env040.sh >/dev/null'
@@ -14,14 +16,14 @@ source "/mnt/c/Users/Ali D/Documents/ML/.claude/skills/project-sprint/scripts/st
 SW="python $HOME/codabench/analysis/proteus_sweep.py --lane B --solver eegnet_stream"
 STEPS=""
 for seed in 33 34 35; do
-  for arm in E1 E0; do
-    case $arm in E1) A=stream ;; E0) A=none ;; esac
-    step "${arm}_s$seed" 100 300m $SW --name "${arm}_s$seed" --seed $seed --set align=$A seed=$seed
+  for arm in E1f E0f; do
+    case $arm in E1f) A=stream ;; E0f) A=none ;; esac
+    step "${arm}_s$seed" 130 480m $SW --name "${arm}_s$seed" --seed $seed --set align=$A seed=$seed
     STEPS="$STEPS ${arm}_s$seed"
   done
 done
 for seed in 36 37; do
-  step "E1_s$seed" 100 300m $SW --name "E1_s$seed" --seed $seed --set align=stream seed=$seed
-  STEPS="$STEPS E1_s$seed"
+  step "E1f_s$seed" 130 480m $SW --name "E1f_s$seed" --seed $seed --set align=stream seed=$seed
+  STEPS="$STEPS E1f_s$seed"
 done
 finish_if_done $STEPS

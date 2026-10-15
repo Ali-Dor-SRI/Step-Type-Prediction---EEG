@@ -22,6 +22,6 @@ for N in 16 32 64 128 0; do
 done
 ARMS=${ARMS:-"B0 B1 R"}
 for a in $ARMS; do
-  step "arm_$a" 9 60m $SW --name "$a" --set ${ARM[$a]}
+  step "arm_$a" 30 120m $SW --name "$a" --set ${ARM[$a]}
 done
 finish_if_done $(for a in $ARMS; do echo "arm_$a"; done)
