@@ -50,16 +50,20 @@ def load_rows(lanes):
     return list(rows.values())
 
 
-def cells_of(row, cache_rows):
-    """DataFrame (person, session, interface, score) of one row's test cells."""
+def cells_of(row, cache_rows, by_run_type=False):
+    """DataFrame (person, session, interface, score) of one row's test cells;
+    by_run_type: cells split further into calibration (runs 1-2, task
+    Acquisition*) and online (runs 3-6) parts, column run_type."""
     z = np.load(OUT / "probs" / (row["key"].replace("|", "__") + ".npz"))
     idx = z["test_idx"]
     meta = cache_rows.iloc[idx].reset_index(drop=True)
     assert np.array_equal(z["y_true"], meta["label"].to_numpy()), row["key"]
-    meta = meta.assign(y=z["y_true"], p=z["y_pred"])
-    out = [(pe, se, it, bacc(g["y"].to_numpy(), g["p"].to_numpy()))
-           for (pe, se, it), g in meta.groupby(["person", "session", "interface"])]
-    return pd.DataFrame(out, columns=["person", "session", "interface", "score"])
+    meta = meta.assign(y=z["y_true"], p=z["y_pred"],
+                       run_type=np.where(meta["task"].str.startswith("Acquisition"),
+                                         "calib", "online"))
+    keys = ["person", "session", "interface"] + (["run_type"] if by_run_type else [])
+    out = [(*k, bacc(g["y"].to_numpy(), g["p"].to_numpy())) for k, g in meta.groupby(keys)]
+    return pd.DataFrame(out, columns=keys + ["score"])
 
 
 def arm_cells(rows, name, protocol, cache_rows):
@@ -104,14 +108,14 @@ def main():
     lines = [f"Base: **{a.base}**. Cell-averaged balanced accuracy; diff = arm - base "
              "(points ×100); CI = paired bootstrap over people (10,000); up = people "
              "whose mean cell score rose.", "",
-             "| arm | lopo (28) | Graz | BrainHero | Δ lopo [95 % CI] (up/10) | later (8) | "
-             "Δ later [95 % CI] (up/2) | fit s |",
-             "|---|---|---|---|---|---|---|---|"]
+             "| arm | lopo (28) | Graz | BrainHero | calib / online runs | Δ lopo [95 % CI] (up/10) | "
+             "later (8) | Δ later [95 % CI] (up/2) | fit s |",
+             "|---|---|---|---|---|---|---|---|---|"]
     base = {p: arm_cells(rows, a.base, p, cache_rows) for p in ("lopo", "later")}
     for name in names:
         c = {p: arm_cells(rows, name, p, cache_rows) for p in ("lopo", "later")}
         if c["lopo"] is None or c["later"] is None:
-            lines.append(f"| {name} | incomplete | | | | | | |")
+            lines.append(f"| {name} | incomplete | | | | | | | |")
             continue
         fit = np.mean([r["fit_s"] for r in rows if r["name"] == name])
         cell = []
@@ -123,10 +127,14 @@ def main():
             cell.append(f"{100 * d['diff']:+.2f} [{100 * d['lo']:+.2f}, {100 * d['hi']:+.2f}] "
                         f"({d['up']}/{d['n_people']})")
         li = c["lopo"]
+        rt = pd.concat([cells_of(r, cache_rows, True) for r in rows
+                        if r["name"] == name and r["protocol"] == "lopo"])
         lines.append(
             f"| {name} | {li.score.mean():.4f} | "
             f"{li[li.interface == 'Graz'].score.mean():.4f} | "
-            f"{li[li.interface == 'BrainHero'].score.mean():.4f} | {cell[0]} | "
+            f"{li[li.interface == 'BrainHero'].score.mean():.4f} | "
+            f"{rt[rt.run_type == 'calib'].score.mean():.4f} / "
+            f"{rt[rt.run_type == 'online'].score.mean():.4f} | {cell[0]} | "
             f"{c['later'].score.mean():.4f} | {cell[1]} | {fit:.0f} |")
     text = "\n".join(lines)
     print(text)
