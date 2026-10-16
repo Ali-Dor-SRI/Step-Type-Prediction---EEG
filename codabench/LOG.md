@@ -2167,3 +2167,20 @@ script file.
 timings were thread oversubscription, not the model: one quiet thread is as fast as four.
 `proteus_eval.py g9g10`'s three stateless-model checks fail by construction for an adaptive
 model (see Phase 4 first pass) and are replaced by the stateful contract.
+
+### Phase 6 — per-stream feature re-centring (pre-registered 06:45; lane A 08:36–09:03)
+
+| arm | lopo | calib / online runs | Δ lopo vs S64 [95 % CI] (up/10) | later | Δ later vs S64 [95 % CI] (up/2) |
+|---|---|---|---|---|---|
+| S64 (candidate so far) | 0.4839 | 0.4986 / 0.4761 | — | 0.5302 | — |
+| **F64 = S64 + fcenter** | **0.5672** | 0.5747 / 0.5626 | **+8.33 [+4.51, +12.06] (10/10)** | **0.6005** | **+7.03 [+1.93, +12.13] (2/2)** |
+
+**Decision (as pre-registered).** Adopted: ≥ 2 points on lopo with the CI excluding 0 and a
+gain on later; **the candidate becomes F64**. K = 8 and buffer 64 are S64's, not tuned. Why it
+is legitimate: the test-time feature mean uses only the stream's own unlabelled windows up to
+the current one (causal; gate G-c: B = 1 = per-stream batch, streams isolated, reset
+restores), within one person-session, exactly the adaptation the 0.4.0 FAQ allows; the
+training groups are centred with feature means only (no labels). Both run types rise
+(calibration +7.6, online +8.7), so it is not feedback-specific. The nested check (Phase 5)
+covers the Phase-1 choice; F64 was one pre-registered comparison, not a search. Phase 4 is
+re-run on the new bake (v3). Table: `logs/proteus_w1016/RESULTS_p6.md`.
