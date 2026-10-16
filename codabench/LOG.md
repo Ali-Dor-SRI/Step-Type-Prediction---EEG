@@ -2152,3 +2152,18 @@ The chain will be re-run on the fixed bake (v2). Incident 01:40: the first launc
 the protocol through a `for` loop inside an inline `wsl.exe bash -lc '…'`; the variable
 arrived empty and both calls stopped at the usage line. Every WSL multi-step job is now a
 script file.
+
+### Phase 4 v2 — the sealed candidate zip (lane A 07:59–08:35, `scripts/proteus_w1016_p4v2.sh`)
+
+| Time | Step | Estimate | Actual | Result |
+|---|---|---|---|---|
+| 07:59–08:14 | official chain (bake `riemann_sealed_proteus_s64v2.py` from e17d403) | 20 min | 15 min | train = replay = unzipped = route B = train2: EQUAL, cell mean 0.462192 (info only); zip 668,526 B |
+| 08:14–08:20 | all chain | 10 min | 6 min | ALL DONE, EQUAL; **sealed zip 819,017 B, sha256 69ff61f0…13550f** |
+| 08:20–08:30 | stateful contract on 4 folders (exported, unzipped × official, all) | 10 min | 10 min | B=1 = per-stream batch, isolation, reset: PASS ×4; timing check FAILED ×4 (107–184 ms/window, lane B sharing the CPU) |
+| 08:30–08:34 | zhou regression (old world) | 3 min | 4 min | `train 0.770000 replay 0.770000 EQUAL`: defaults bit-identical after every solver edit of this sprint |
+| 08:34:31–08:35:28 | clean timing (`scripts/w1016_timing.sh`: lane B paused by PID) | 2 min | 1 min | **8.2 ms/window at 1 thread, 8.3 at 4: sealed test ≈ 2.9 min of 60** |
+
+**Decision.** The candidate is ready, not uploaded (SUBMISSIONS rows 2026-10-16). The slow
+timings were thread oversubscription, not the model: one quiet thread is as fast as four.
+`proteus_eval.py g9g10`'s three stateless-model checks fail by construction for an adaptive
+model (see Phase 4 first pass) and are replaced by the stateful contract.
