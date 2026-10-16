@@ -84,12 +84,45 @@ def done_keys(path):
     return keys
 
 
+def nest_split(fold):
+    """protocol "nest", fold "k-j" (Phase 5): the inner fold of outer lopo fold k
+    holding out person P(j+1): train = the other eight people (all sessions),
+    test = P(j+1)'s sessions, stream order. Outer person P(k+1) is in neither."""
+    k, j = (int(v) for v in str(fold).split("-"))
+    if k == j:
+        raise ValueError("nest: inner person = outer person")
+    rows = PC.load().rows
+    person = rows["person"].to_numpy()
+    out, inn = PS.PEOPLE[k], PS.PEOPLE[j]
+    tr = np.where((person != out) & (person != inn))[0]
+    te = np.where(person == inn)[0]
+    return PS.stream_order(rows, tr), PS.stream_order(rows, te)
+
+
+def nest_data(fold):
+    """Route B's get_data() dict for a nest split (same loaders and meta)."""
+    spec = importlib.util.spec_from_file_location("proteus_protocols_module", PE.ROUTE_B)
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    d = mod.Dataset.get_instance(protocol="official").get_data()   # meta + device
+    c = PC.load()
+    tr, te = nest_split(fold)
+    import torch
+    from torch.utils.data import DataLoader
+    d["train_loader"] = DataLoader(mod._Windows(c, tr), batch_size=64, shuffle=True,
+                                   generator=torch.Generator().manual_seed(0),
+                                   collate_fn=mod._collate(d["device"]))
+    d["test_loader"] = DataLoader(mod._Windows(c, te), batch_size=1, shuffle=False,
+                                  collate_fn=mod._collate(d["device"]))
+    return d
+
+
 def fit_and_score(Solver, params, protocol, fold, seed=42):
     """(model, scores, y_true, y_pred, info, fit_seconds) for one split."""
     import torch
     torch.manual_seed(seed)
     np.random.seed(seed)
-    data = PE.route_b_data(protocol, fold)
+    data = nest_data(fold) if protocol == "nest" else PE.route_b_data(protocol, fold)
     tr, te = data["train_loader"], data["test_loader"]
     meta = {k: v for k, v in data.items() if not k.endswith("_loader")}
     n_tr, n_te = len(tr.dataset), len(te.dataset)
@@ -137,6 +170,7 @@ def main():
     ap.add_argument("--protocols", nargs="+", default=["lopo", "later"])
     ap.add_argument("--folds", default="0-9", help="lopo folds, e.g. 0-9 or 0,3")
     ap.add_argument("--seed", type=int, default=42)
+    ap.add_argument("--outer", default="0-9", help="nest: outer lopo folds")
     a = ap.parse_args()
     PC.require_env040()
 
@@ -149,7 +183,10 @@ def main():
         folds = list(range(int(lo), int(hi) + 1))
     else:
         folds = [int(f) for f in a.folds.split(",")]
-    jobs = [(p, f) for p in a.protocols for f in (folds if p == "lopo" else [None])]
+    lo, hi = (int(v) for v in a.outer.split("-")) if "-" in a.outer else (int(a.outer),) * 2
+    nest = [f"{k}-{j}" for k in range(lo, hi + 1) for j in range(10) if j != k]
+    jobs = [(p, f) for p in a.protocols
+            for f in (folds if p == "lopo" else nest if p == "nest" else [None])]
 
     OUT.mkdir(parents=True, exist_ok=True)
     (OUT / "probs").mkdir(exist_ok=True)
@@ -167,8 +204,8 @@ def main():
         t0 = time.time()
         model, sc, y_true, y_pred, info, fit_s = fit_and_score(
             Solver, params, protocol, fold, a.seed)
-        sp = PS.split(protocol, fold)
-        test_idx = np.asarray(sp.test)
+        test_idx = (nest_split(fold)[1] if protocol == "nest"
+                    else np.asarray(PS.split(protocol, fold).test))
         t1 = time.time()
         probas = stream_probas(model, np.asarray(cache.X[test_idx]),
                                np.asarray(info["stream_id"]), y_pred)
