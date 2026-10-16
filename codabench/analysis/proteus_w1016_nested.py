@@ -25,7 +25,8 @@ sys.path.insert(0, str(Path.home() / "codabench/analysis"))
 import proteus_cache as PC  # noqa: E402
 import proteus_w1016_summary as S  # noqa: E402
 
-ARMS = ("B1", "S16", "S64", "S0", "F64")
+ARMS = ("B1", "S16", "S64", "S0", "F16", "F64", "F0")
+F_OF = {"S16": "F16", "S64": "F64", "S0": "F0"}
 ORDER = {"S16": 0, "S64": 1, "S0": 2}
 
 
@@ -34,10 +35,11 @@ def main():
     ap.add_argument("--out", default=None)
     a = ap.parse_args()
     rows_c = PC.load().rows
-    inner = [r for r in S.load_rows(["N", "N2", "N3"]) if r["protocol"] == "nest"]
-    outer = [r for r in S.load_rows(["A", "B"]) if r["protocol"] == "lopo"]
-    lines = ["| outer fold (person) | inner B1 | inner S16 | inner S64 | inner S0 | inner F64 | "
-             "chosen | outer score of chosen | outer F64 |", "|---|---|---|---|---|---|---|---|---|"]
+    inner = [r for r in S.load_rows(["N", "N2", "N3", "N4", "N5"]) if r["protocol"] == "nest"]
+    outer = [r for r in S.load_rows(["A", "B", "C", "C16", "C0"]) if r["protocol"] == "lopo"]
+    lines = ["| outer fold (person) | " + " | ".join(f"inner {a}" for a in ARMS)
+             + " | chosen | outer score of chosen | outer F64 |",
+             "|---|" + "---|" * (len(ARMS) + 3)]
     chosen_cells, s64_cells, complete = [], [], True
     for k in range(10):
         sc = {}
@@ -49,16 +51,16 @@ def main():
             sc[arm] = pd.concat([S.cells_of(r, rows_c) for r in rs]).score.mean()
         if any(v is None for v in sc.values()):
             complete = False
-            lines.append(f"| {k} (P{k + 1:02d}) | incomplete | | | | | | | |")
+            lines.append(f"| {k} (P{k + 1:02d}) | incomplete |" + " |" * (len(ARMS) + 2))
             continue
         best = max(ORDER, key=lambda n: (round(sc[n], 3), -ORDER[n]))
         ties = [n for n in ORDER if sc[best] - sc[n] <= 0.001]
         best = min(ties, key=ORDER.get)
         pick = best if sc[best] - sc["B1"] >= 0.02 else "B1"
-        # Phase 7a: fcenter (F64 = S64's settings + fcenter) taken when the stream
-        # choice is S64 and the inner F64 beats it by >= 2 points
-        if pick == "S64" and sc["F64"] - sc["S64"] >= 0.02:
-            pick = "F64"
+        # Phase 7c: fcenter on the chosen buffer, taken when its inner F arm beats
+        # the chosen stream arm by >= 2 points
+        if pick in F_OF and sc[F_OF[pick]] - sc[pick] >= 0.02:
+            pick = F_OF[pick]
         oc = {}
         for arm in (pick, "F64"):
             r = [x for x in outer if x["name"] == arm and x["fold"] == k]

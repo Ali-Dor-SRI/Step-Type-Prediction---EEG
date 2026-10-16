@@ -220,6 +220,19 @@ nested < selected − 3 points.
 ≥ 2 points with the CI excluding 0 and no loss on later (rule 3). One comparison.
 If adopted, the candidate chain is re-run (v4). No other lever is opened this sprint.
 
+### Phase 7c (added 10-16 13:35, after the nested result, before any F16 / F0 number)
+
+The 7a nested estimate (0.5359 vs selected 0.5672, optimism 3.13: flag triggered) comes
+from an asymmetric arm set: fcenter existed only on S64's settings, and in folds 0, 2, 9
+the inner buffer choice picked S0 (by 0.1-0.6 points), so fcenter could not be taken
+there although the inner data favoured it by 6.6-9.4 points in every fold. Completing
+the set: F16 and F0 (fcenter on buffers 16 and all) on lopo + later and on `nest`. The
+nested rule becomes: Phase 1's choice among S16 / S64 / S0 (vs B1), then fcenter on the
+chosen buffer if its inner F arm beats it by >= 2 points. **Candidate rule:** the
+candidate's buffer changes from 64 only if F16 or F0 beats F64 by >= 1 point on lopo
+with no loss on later; otherwise F64 stays. The flag from 7a is reported as triggered
+either way, with this diagnosis.
+
 ## 6. Keeping jobs alive
 
 Lane scripts `scripts/proteus_w1016_<phase>.sh` on `step_lib.sh` (`.done`
