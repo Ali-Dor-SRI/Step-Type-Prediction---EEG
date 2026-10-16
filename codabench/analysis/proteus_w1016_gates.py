@@ -35,15 +35,29 @@ def main():
     ap.add_argument("--solver", default="riemann_sealed")
     ap.add_argument("--set", nargs="*", default=["personal=pooled", "align=stream",
                                                  "adapt=online", "buffer=0", "xblocks=bpt4"])
+    ap.add_argument("--submission", default=None,
+                    help="an exported submission folder: load it as the platform does "
+                         "(PE.load_submission) and test it on the official test streams "
+                         "instead of fitting on `later`")
     a = ap.parse_args()
     PC.require_env040()
-    params = {k: SW.parse_value(v) for k, _, v in (kv.partition("=") for kv in a.set)}
-    Solver = SW.load_solver_class(a.solver)
-    model, sc, y_true, y_pred, info, fit_s = SW.fit_and_score(Solver, params, "later", None)
-    print(f"fit {fit_s:.1f} s; streamed cell mean {sc['balanced_accuracy_cell_mean']:.6f}; "
-          f"{sc['ms_per_window']:.1f} ms/window", flush=True)
     c = PC.load()
-    sp = PS.split("later", None, c.rows)
+    if a.submission:
+        protocol = "official"
+        model = PE.load_submission(a.submission, PE.official_meta())
+        sp = PS.split(protocol, None, c.rows)
+        sc, y_true, y_pred, info = PE.evaluate(model, PE.test_loader(c, sp.test))
+        print(f"loaded {a.submission}: personal={model.personal!r} align={model.align!r} "
+              f"adapt={model.adapt!r} buffer={model.buffer}; streamed official cell mean "
+              f"{sc['balanced_accuracy_cell_mean']:.6f}; {sc['ms_per_window']:.1f} ms/window",
+              flush=True)
+    else:
+        params = {k: SW.parse_value(v) for k, _, v in (kv.partition("=") for kv in a.set)}
+        Solver = SW.load_solver_class(a.solver)
+        model, sc, y_true, y_pred, info, fit_s = SW.fit_and_score(Solver, params, "later", None)
+        print(f"fit {fit_s:.1f} s; streamed cell mean {sc['balanced_accuracy_cell_mean']:.6f}; "
+              f"{sc['ms_per_window']:.1f} ms/window", flush=True)
+        sp = PS.split("later", None, c.rows)
     idx = np.asarray(sp.test)
     sid = np.asarray(info["stream_id"])
     X = np.asarray(c.X[idx])

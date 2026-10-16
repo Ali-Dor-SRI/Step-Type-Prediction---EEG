@@ -1678,6 +1678,10 @@ class RiemannSealedModel:
     def _predict_block(self, X):
         if self.parts.get("clip_uv"):
             X = np.clip(X, -self.parts["clip_uv"], self.parts["clip_uv"])
+        if self.parts.get("align") == "stream":
+            # no routing: one pooled LDA, the stream's own reference (the router's
+            # PSD features would be computed for nothing)
+            return self.parts["lda"].predict_proba(_features(self.parts, self._stream_whiten(X)))
         idx = self._route(X)
         if self.parts.get("align") == "subject_context":
             # routed pair -> that pair's W (fallback: global W), then its subject
@@ -1690,8 +1694,6 @@ class RiemannSealedModel:
             ok = idx >= 0
             sub[ok] = self.parts["pair_subject"][idx[ok]]
             idx = sub
-        elif self.parts.get("align") == "stream":
-            Xw = self._stream_whiten(X)
         else:
             Xw = (self._online_whiten(X, idx) if self.adapt == "online"
                   else self._whiten(X, idx))
