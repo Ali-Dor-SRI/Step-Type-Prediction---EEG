@@ -2194,3 +2194,16 @@ fails only under load, 124–189 ms/window); clean timing 8.2 ms/window (1 threa
 the sealed test; zhou regression EQUAL. SUBMISSIONS: the S64v2 rows are superseded by the two
 proteus_f64 rows (the official-trained one is the warm-up format test). Phase 7 started on
 lane A at 09:43 (7b icoh test, then 7a nested F64 arm).
+
+### Phase 7b — icoh on the F64 base (pre-registered 09:10; lane A 09:42–10:04)
+
+| arm | lopo | calib / online runs | Δ lopo vs F64 [95 % CI] (up/10) | later | Δ later [95 % CI] (up/2) |
+|---|---|---|---|---|---|
+| F64 (candidate) | 0.5672 | 0.5747 / 0.5626 | — | 0.6005 | — |
+| FI64 = F64 + icoh | 0.5838 | 0.5946 / 0.5777 | +1.65 [+0.43, +2.85] (7/10) | 0.6240 | +2.35 [+1.64, +3.07] (2/2) |
+
+**Decision (rule 3).** Not adopted: the gain is below the ≥ 2-point bar on lopo, although its
+CI excludes 0 and it gains on later; with Phase 2's +1.1 on S64 it is the same lever leaning
+positive twice. The candidate stays F64. FI64 is built as a ready **variant** zip
+(`scripts/proteus_w1016_p4fi.sh`) for a later sealed upload, not as the candidate.
+Table: `logs/proteus_w1016/RESULTS_p7b.md`.
