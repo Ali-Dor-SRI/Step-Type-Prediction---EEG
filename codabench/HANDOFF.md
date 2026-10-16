@@ -1,16 +1,57 @@
-# HANDOFF — sprint 2026-10-16: the first real PROTEUS model (running until Mon 10-19 08:00)
+# HANDOFF — sprint 2026-10-16: the first real PROTEUS model (complete)
 
 Plan of record: [prompts/2026-10-16_proteus_weekend_model.md](prompts/2026-10-16_proteus_weekend_model.md)
-(started 2026-10-15 18:20 EDT, deadline **2026-10-19 08:00**, launch cutoff Mon 04:00,
-wrap-up reserve 06:00-08:00; the user is away). Branch `feat/codabench-track2`,
-push to `personal` after every commit. Logs: `logs/proteus_w1016/` (per-phase
-STATUS.md; rows in `A.jsonl` = Riemann lane, `B.jsonl` = neural lane; summaries
-`RESULTS_*.md`). Record: LOG.md "2026-10-16 sprint".
+(started 2026-10-15 18:20 EDT, deadline Mon 10-19 08:00; all phases finished Fri 10-16 18:47).
+Branch `feat/codabench-track2`, pushed to `personal` after every commit. Logs:
+`logs/proteus_w1016/` (rows: `A.jsonl` Riemann lane, `B.jsonl` neural + extras, `C*.jsonl`,
+`K*.jsonl`, nested `N*.jsonl`; predictions + probabilities `probs/`; tables `RESULTS_p*.md`
+committed). Record: LOG.md "2026-10-16 sprint". Decision brief: DIRECTIONS.md.
 
-## State (updated 2026-10-16 07:00)
+## State (updated 2026-10-16 18:50): complete
 
-| Phase | Status | Result / where |
-|---|---|---|
+| Phase | Result |
+|---|---|
+| 0 harness | `analysis/proteus_sweep.py` (= benchopt route B to 6 dp), solver opt-ins `align="stream"`, `fcenter`, `crop`, `clip` (defaults bit-identical: zhou regression EQUAL after every edit), stateful streaming gates `analysis/proteus_w1016_gates.py` |
+| 1 base arms | bpt4 kept; router + personal LDA −4.9 (not adopted); covariance re-centring per stream +5.7 lopo → S64 |
+| 2 ablations | nothing adopted (icoh +1.1) |
+| 3 EEGNet + ensemble | no gain (EEGNet 0.485 lopo / 0.476 later; ensemble +0.27) |
+| 6 feature re-centring | **+8.3 lopo, +7.0 later → candidate F64 (lopo 0.5672, later 0.6005)** |
+| 4 candidate zips | F64 sealed (all-trained) + official-trained warm-up zip; FI64 variant; all gates PASS; 8.2 ms/window quiet |
+| 5 / 7 nested + icoh | nested lopo 0.5668 (symmetric rule; optimism +0.04); icoh on F64 +1.65 (below the bar) |
+| 8 K robustness | K = 2 −1.0, K = 32 −2.4: K = 8 kept |
+
+## What is running
+
+Nothing. Nothing uploaded.
+
+## How to re-run / extend
+
+- One arm: `python ~/codabench/analysis/proteus_sweep.py --lane <X> --name <arm> --set k=v ...`
+  (in WSL after `source ~/codabench/env040.sh`; resumable by key; `--protocols nest` for the
+  nested inner folds). Summary: `python ~/codabench/analysis/proteus_w1016_summary.py --base F64 --arms ... --lanes ...`.
+- Candidate chain: `CANDNAME=<x> BAKE="k=v ..." bash ~/codabench/scripts/proteus_w1016_p4v2.sh`
+  (bake, official + all chains, stateful gates, zhou regression); clean timing:
+  `scripts/w1016_timing.sh <submission dir>` (pauses lane B by PID).
+- Watcher: `bash ~/codabench/scripts/w1016_watch.sh <logdir>...` (one-shot; exits on END /
+  crash / STALLED / DEAD / FAILED).
+
+## Facts a resumer needs
+
+- `proteus_eval.py g9g10` has three checks that assume a stateless model (`align == 'none'`;
+  B = 1 vs one batch over all streams; reset check after that batch): they fail by
+  construction for any adaptive model. Use `proteus_w1016_gates.py --submission` instead.
+- Timing measured under CPU contention is 10–20× slower (thread oversubscription); measure
+  with the other lane paused.
+- Never pass shell loops or variables inline through `wsl.exe bash -lc '…'` from Git Bash
+  (variables arrive empty, paths get rewritten): write a script file.
+
+## What the user needs to do
+
+Upload `logs/proteus_w1016/proteus_f64_cand_official/riemann_sealed_proteus_f64_official_2026-10-16.zip`
+to the warm-up (expected 0.507944 / 0.506931 / 0.507285) before Oct 25; then decide the first
+sealed upload (DIRECTIONS decisions 9–10).
+
+---|---|---|
 | 0 harness + align="stream" | done | `analysis/proteus_sweep.py` (G-b PASS), solver `align="stream"` (G-a, G-c PASS), `analysis/proteus_w1016_gates.py` |
 | 1 base arms | done | bpt4 kept; router + blend −4.9 not adopted; **stream re-centring +5.7 lopo (10/10 people), base = S64** (`RESULTS_p1.md`) |
 | 2 ablations vs S64 | done | nothing adopted (icoh +1.1 below the bar) (`RESULTS_p2.md`) |

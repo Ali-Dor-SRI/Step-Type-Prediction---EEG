@@ -2228,3 +2228,25 @@ candidate.** Buffer alternatives on lopo / later vs F64: F16 −1.78 / −2.50, 
 no change (7c rule: ≥ 1 point needed). Timing: nest arms took 3.5–4 h each (estimate
 2.5–3 h, two lanes sharing the CPU). Tables: `RESULTS_p5.md` (7a), `RESULTS_p7c_nested.md`,
 `RESULTS_p7c.md`.
+
+### Phase 8 — robustness of K (pre-registered 18:15; both lanes 18:11–18:47, est 40 min, actual 35)
+
+| arm | lopo | Δ lopo vs F64 [95 % CI] (up/10) | later | Δ later [95 % CI] |
+|---|---|---|---|---|
+| F64 (K = 8) | 0.5672 | — | 0.6005 | — |
+| K = 2 | 0.5576 | −0.96 [−1.64, −0.13] (3/10) | 0.5892 | −1.13 [−1.92, −0.34] |
+| K = 32 | 0.5437 | −2.36 [−4.00, −0.75] (1/10) | 0.5872 | −1.33 [−2.90, +0.24] |
+
+**Decision.** Information only, as pre-registered: the candidate stays F64. The a-priori K = 8
+is the best of the three; the recipe moves by 1–2 points over a 16-fold range of K.
+
+### Sprint summary (2026-10-15 18:20 → 10-16 18:47; deadline Mon 10-19 08:00)
+
+Candidate **F64** (pooled shrinkage LDA on filter-bank tangent space + xDAWN + log-var + bpt4;
+per-stream covariance re-centring, buffer 64; per-stream feature re-centring; K = 8):
+**lopo 0.5672, later 0.6005** (setup vehicle 0.4185 / 0.4924); nested lopo 0.5668 (no
+over-selection). Sealed zip and official-trained warm-up zip ready, not uploaded (SUBMISSIONS).
+No gain: router + personal LDA, xDAWN removal, CAR, clipping, 1–3 s crop, Euclidean means,
+EEGNet and its ensemble, icoh (+1.65 on F64, below the bar; FI64 variant zip ready), other
+buffers, other K. All planned phases ended Friday 18:47; nothing further was launched
+(Phase 8 note: more levers on ten people would buy over-selection, not evidence).

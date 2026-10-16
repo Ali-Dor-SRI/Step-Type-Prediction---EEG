@@ -1,8 +1,8 @@
 # Directions: Track 2 at a glance
 
-**Updated 2026-10-16 (morning), sprint running until Mon 10-19 08:00**: the first
-real PROTEUS model exists. A sealed-phase candidate (F64) is built, every gate
-passed, two zips are ready and **not uploaded**. This is the short version for
+**Updated 2026-10-16 (evening), sprint complete**: the first real PROTEUS model
+exists. The sealed-phase candidate (F64) is built and confirmed by a nested check;
+every gate passed; the zips are ready and **not uploaded**. Nothing is running. This is the short version for
 making decisions; every number links to where it comes from (§ 7). Kept current
 by every session that changes a decision, a number or the plan (§ 8).
 
@@ -32,13 +32,18 @@ by every session that changes a decision, a number or the plan (§ 8).
   Both re-centrings use only the session's own unlabelled windows so far (allowed).
   F64 beats S64 by +8.3 points on lopo (CI +4.5 to +12.1, 10/10 people up) and +7.0 on
   later. No gain: router + personal LDA (−4.9), dropping xDAWN, CAR, amplitude clipping,
-  cropping to 1–3 s, Euclidean means, the EEGNet ensemble. icoh +1.1 (below the bar).
+  cropping to 1–3 s, Euclidean means, the EEGNet ensemble, other buffers, other K.
+  icoh on F64: +1.65 lopo (CI +0.4 to +2.9), below the 2-point bar (variant zip ready).
+- **Is the choice over-fitted to these 10 people?** No: re-making every choice inside
+  nine people and testing on the tenth gives lopo **0.567** (vs 0.567 selected).
 - **Ready, not uploaded ([SUBMISSIONS.md](SUBMISSIONS.md)):** the F64 sealed zip
   (trained on all 14 sessions) and an official-trained F64 zip for the warm-up
   (server must show 0.507944 / 0.506931 / 0.507285). Sealed test runtime ≈ 3 min of
   the 60 allowed (8.2 ms/window on one quiet thread).
-- **Still running this sprint:** a nested check of the selection (how optimistic
-  is choosing on `lopo`?) and one pre-registered icoh test on F64. Results by Monday.
+- **What the data say ([EDA](reports/proteus_eda/EDA.md)):** every session is its own
+  domain (two sessions of one person differ as much as two people), which is why
+  re-centring per session carries the model; the class signal is strongest in frontal
+  theta (AF4), which may be partly eye movement.
 
 ## 2. Decisions waiting on you
 
@@ -46,6 +51,7 @@ by every session that changes a decision, a number or the plan (§ 8).
 |---|---|---|---|---|
 | 9 | **Upload the official-trained F64 zip to the warm-up** (before Oct 25) | Yes, now: it is the only way to prove the adaptive, streamed model runs on the `v3` scoring image before the sealed phase | The sealed upload budget is 10; a format failure there costs a day | one upload; compare the three numbers |
 | 10 | **First sealed upload (Oct 28) = the F64 all-trained zip** | Accept, if the warm-up numbers match | It is the best measured model; later uploads can test variants | yes / no |
+| 11 | **Sealed upload plan:** F64 first; FI64 (+ icoh) as the first variant | Accept; keep ≥ 5 of the 10 uploads unused until the last week | icoh leaned positive twice (+1.1, +1.65) but never cleared the bar | yes / no |
 | 8 | Adopt the 0.4.0 setup as the main one | Accept (done in practice) | One environment, one set of docs | yes / no |
 | 5 | Optional: REVE/LaBraM weights; merge `docs/sprint0928-consistency` | Low priority | REVE/LaBraM are hours per epoch here | — |
 | 6 | **Thesis: what is the One/Two prompt, and what is the `96` trigger?** ([results](../docs/sprints/2026-10-02_window_effect_check_RESULTS.md), branch `feat/window-effect-check`) | Tell me the prompt's form | Protects a public number | a short answer |
@@ -73,7 +79,8 @@ same way per session, classifies. No person ids, no router. Detail:
 | Feature re-centring per stream | +8.3 / +7.0 over S64 | **in the candidate** |
 | Covariance re-centring per stream (buffer 64) | +5.7 / +0.2 over bpt4 base | **in the candidate** |
 | bpt4 band-power time course | +0.8 / +3.6 | **in the candidate** |
-| icoh | +1.1 / +1.0 (below the bar) | retest running on F64 |
+| icoh | +1.65 / +2.35 on F64 (below the 2-point bar) | variant zip FI64 ready |
+| Buffer 16 / all; K 2 / 32 | −1.8 / −0.3; −1.0 / −2.4 on lopo | F64's 64 and 8 kept |
 | No gain | router + personal LDA, no xDAWN, CAR, clipping, 1–3 s crop, Euclidean means, EEGNet ensemble | dropped |
 
 The 1–3 s crop loses also in the calibration runs (no feedback): the window's last two
@@ -83,7 +90,7 @@ seconds carry task signal, not only feedback.
 
 1. **Server format of an adaptive model** is untested on image `v3`: decision 9.
 2. **Small data:** 10 people; `later` rests on 2 people (CIs wide). The nested check
-   (running) will say how optimistic the choice on `lopo` is.
+   found no over-selection (0.567 nested vs 0.567 selected).
 3. **Timing under load:** 8 ms/window quiet, up to ~190 ms/window when the CPU is
    oversubscribed (≈ 66 min projected). The server's CPU is unknown; the warm-up
    upload reports the real time.
@@ -94,10 +101,9 @@ seconds carry task signal, not only feedback.
 | # | Step | Expected gain | Effort | Needs |
 |---|---|---|---|---|
 | 1 | Warm-up upload of the F64 official zip; compare numbers and run time | proves the sealed format | one upload | you |
-| 2 | Finish this sprint's nested check and icoh test (running) | an honest estimate; maybe +1 | none | — |
-| 3 | EDA on the real data (per-person ERD maps, P04/P10 drift) | guides the next lever | ~half a day | — |
-| 4 | Re-centring variants with a pre-registered rule (stream_k, buffer on F64) | 0–2 points, risk of over-selection | ~half a day | the nested result |
-| 5 | Thesis: XGB on the 0.5–2 s window | — | ~3–4 h | decision 6 |
+| 2 | Update MODEL_ARCHITECTURE.md for F64 (the stream re-centrings) | readers | ~1 h | — |
+| 3 | An EOG check of the frontal-theta signal (raw BIDS, not the cache) | honesty of the story, not the score | ~2 h | — |
+| 4 | Thesis: XGB on the 0.5–2 s window | — | ~3–4 h | decision 6 |
 
 Not worth it now: EEGNet variants (no gain alone or in the ensemble), REVE/LaBraM on
 this CPU, the personal-LDA path (−4.9).
@@ -120,6 +126,7 @@ this CPU, the personal-LDA path (−4.9).
 - **Size:** under ~150 lines. Detail goes to the documents in § 7, not here.
 - **Numbers:** each one must match its source document.
 - **Change log** (newest first, one line each):
+  - 2026-10-16 (evening): sprint complete. Nested check lopo 0.567 (no over-selection); icoh on F64 +1.65 (FI64 variant zip); buffer and K alternatives no gain; EDA; decision 11 new. Nothing running.
   - 2026-10-16 (morning, sprint running): first real PROTEUS model. Candidate F64 (stream covariance + feature re-centring, pooled LDA, bpt4): lopo 0.567, later 0.600; zips ready, not uploaded; decision 7 closed, decisions 9–10 new; nested check and icoh retest running.
   - 2026-10-15 (evening): setup brief run: 0.4.0 entry point, window cache, four protocols, streamed evaluation (two routes = benchopt), Riemann vehicle end to end, self-test 349/349; two PROTEUS zips ready (not uploaded); decision 7's evaluation half done, decision 8 largely done; § 3–4 trimmed.
   - 2026-10-15: RELEASE_DAY.md rewritten for PROTEUS (old runbook archived; rules v2; window straddles feedback onset at +3 s); neuroscience framework for the three tasks (.docx). Setup brief not yet run.
