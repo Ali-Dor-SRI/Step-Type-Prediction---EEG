@@ -233,6 +233,14 @@ candidate's buffer changes from 64 only if F16 or F0 beats F64 by >= 1 point on 
 with no loss on later; otherwise F64 stays. The flag from 7a is reported as triggered
 either way, with this diagnosis.
 
+### Phase 8 (added 10-16 18:15, before any number): robustness of K
+
+F64's one untuned constant is the prior pseudo-count K = 8. Arms K2 and K32 (F64 with
+stream_k 2 / 32) on lopo + later, **information only**: the candidate changes only if
+one beats F64 by >= 2 points on lopo with the CI excluding 0 and no loss on later.
+After Phase 8 the sprint stops launching work: the planned phases are complete, and
+opening further levers on ten people would buy over-selection, not evidence.
+
 ## 6. Keeping jobs alive
 
 Lane scripts `scripts/proteus_w1016_<phase>.sh` on `step_lib.sh` (`.done`

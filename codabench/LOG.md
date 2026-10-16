@@ -2207,3 +2207,24 @@ CI excludes 0 and it gains on later; with Phase 2's +1.1 on S64 it is the same l
 positive twice. The candidate stays F64. FI64 is built as a ready **variant** zip
 (`scripts/proteus_w1016_p4fi.sh`) for a later sealed upload, not as the candidate.
 Table: `logs/proteus_w1016/RESULTS_p7b.md`.
+
+### Phase 7a / 7c — nested check of the full recipe (lanes A + B, 01:37–18:11)
+
+Inner lopo on the nine other people per outer fold (90 inner fits per arm; arms B1, S16,
+S64, S0, F16, F64, F0), the pre-registered rule re-applied inside, the inner choice
+scored on the held-out person (`analysis/proteus_w1016_nested.py`).
+
+| nested rule | nested lopo (28 cells) | selected F64 | optimism | flag (> 3) |
+|---|---|---|---|---|
+| 7a, as pre-registered (fcenter only on S64's buffer) | 0.5359 | 0.5672 | +3.13 | **triggered** |
+| 7c, symmetric (fcenter on the chosen buffer) | **0.5668** | 0.5672 | **+0.04** | no |
+
+**Reading.** The inner data take fcenter in every fold (inner F arm ≥ 6.6 points over every
+stream arm); only the buffer choice moves (64 in 7 folds, all in 3, worth ≤ 0.6 points
+inside). The 7a flag came from fcenter existing only on buffer 64: in the three folds where
+the inner buffer choice was S0, fcenter could not be taken. With the set completed (7c,
+pre-registered before F16 / F0 existed), the choice is not over-selected. **F64 stays the
+candidate.** Buffer alternatives on lopo / later vs F64: F16 −1.78 / −2.50, F0 −0.33 / −0.85:
+no change (7c rule: ≥ 1 point needed). Timing: nest arms took 3.5–4 h each (estimate
+2.5–3 h, two lanes sharing the CPU). Tables: `RESULTS_p5.md` (7a), `RESULTS_p7c_nested.md`,
+`RESULTS_p7c.md`.
