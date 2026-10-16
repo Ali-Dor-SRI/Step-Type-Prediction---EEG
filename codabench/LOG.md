@@ -2072,3 +2072,23 @@ B0 reproduces the setup session's numbers exactly (lopo 0.418506).
   epochs (fold 6 0.32). Fixed: 80 epochs, no early stopping, all windows (80 = median best
   epoch of folds 0–4, chosen on training people only). The early-stopping run E1_s33 is kept in
   `B.jsonl` and not used; arms renamed E1f / E0f.
+
+### Phase 1 (continued) — stream re-centring N (lane A 19:57–22:15; 5 arms × 21–33 min)
+
+| arm (B1 + `align="stream"`, buffer N) | lopo | Δ vs B1 [95 % CI] (up/10) | later | Δ vs B1 [95 % CI] |
+|---|---|---|---|---|
+| S16 | 0.4635 | +3.68 [+1.60, +6.85] (8/10) | 0.5050 | −2.29 [−8.26, +3.69] |
+| S32 | 0.4788 | +5.21 [+2.37, +9.91] (9/10) | 0.5144 | −1.35 [−6.12, +3.41] |
+| **S64** | **0.4839** | **+5.72 [+2.55, +11.10] (10/10)** | **0.5302** | +0.23 [−4.30, +4.75] |
+| S128 | 0.4830 | +5.63 [+2.49, +10.94] (10/10) | 0.5477 | +1.98 [−1.61, +5.56] |
+| S0 (all windows) | 0.4831 | +5.64 [+2.46, +11.03] (10/10) | 0.5503 | +2.23 [−1.59, +6.06] |
+
+**Decision (rule 6).** Stream re-centring is adopted: +5.7 points on `lopo` with the CI
+excluding 0 and all ten people up, no loss on `later`. N = 64, 128 and all tie on `lopo`
+(within 0.1 point); the rule takes the smaller N on a tie → **base = S64** (pooled LDA, fb +
+xDAWN + bpt4, `align="stream"`, buffer 64). Noted, not adopted: N = all reads +2 points
+higher on `later` (2 people, CI crosses 0). Table: `logs/proteus_w1016/RESULTS_p1.md`.
+
+EEGNet (lane B, fixed 80 epochs, seed 33 only so far): E0f (no alignment) lopo 0.4907 /
+later 0.4810; E1f (stream alignment) 0.4630 / 0.4776. Seeds 36–37 will go to the better
+variant by 3-seed lopo mean (brief amendment, written before seeds 34–35).

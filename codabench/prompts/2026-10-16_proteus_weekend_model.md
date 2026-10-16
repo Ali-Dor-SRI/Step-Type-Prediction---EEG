@@ -168,6 +168,10 @@ streamed running EA per stream at test, same N as the base), per-channel
 standardisation; 3 seeds × (10 lopo folds + later). Then, only if EEGNet's
 `lopo` cell mean ≥ the Riemann candidate − 3 points: an equal-weight
 probability ensemble with the Riemann candidate (no weight tuning).
+**Amendment 10-15 22:00 (before seeds 34-35 exist):** EEGNet trains a fixed 80
+epochs (early stopping failed, LOG); seeds 36-37 go to whichever of E1f / E0f has
+the higher 3-seed `lopo` cell mean (seed 33: E0f 0.491, E1f 0.463), and that
+variant (5 seeds, probabilities averaged) is the network used in the ensemble.
 **Decision:** ensemble adopted if ≥ 2 points on `lopo` with the CI excluding 0
 and no loss on `later`; otherwise "no gain", the Riemann candidate stands.
 Smoke first: one fold, 5 epochs; time per epoch logged → full ETA.
