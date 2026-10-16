@@ -2092,3 +2092,25 @@ higher on `later` (2 people, CI crosses 0). Table: `logs/proteus_w1016/RESULTS_p
 EEGNet (lane B, fixed 80 epochs, seed 33 only so far): E0f (no alignment) lopo 0.4907 /
 later 0.4810; E1f (stream alignment) 0.4630 / 0.4776. Seeds 36–37 will go to the better
 variant by 3-seed lopo mean (brief amendment, written before seeds 34–35).
+
+### Phase 2 — one-at-a-time ablations vs the base S64 (lane A 22:15–01:37; 6 arms × 31–36 min)
+
+| arm (S64 + one change) | lopo | calib / online runs | Δ lopo [95 % CI] (up/10) | later | Δ later [95 % CI] |
+|---|---|---|---|---|---|
+| **S64 (base)** | **0.4839** | 0.4986 / 0.4761 | — | **0.5302** | — |
+| no xDAWN (rule 3c) | 0.4689 | 0.4768 / 0.4651 | −1.50 [−3.22, +0.14] (3/10) | 0.4952 | −3.50 [−5.47, −1.54] |
+| reference = CAR (rule 8) | 0.4850 | 0.4998 / 0.4772 | +0.10 [−1.90, +1.67] (6/10) | 0.5255 | −0.47 [−0.59, −0.35] |
+| clip at the 99.9 % \|µV\| (rule 8) | 0.4810 | 0.4912 / 0.4761 | −0.29 [−1.61, +1.07] (5/10) | 0.5176 | −1.26 [−2.01, −0.50] |
+| crop 1–3 s after the cue (exploratory) | 0.4458 | 0.4474 / 0.4450 | −3.81 [−8.29, −0.71] (1/10) | 0.4881 | −4.21 [−6.06, −2.37] |
+| Euclidean means (exploratory) | 0.4703 | 0.4643 / 0.4735 | −1.37 [−5.76, +1.96] (3/10) | 0.5228 | −0.74 [−4.47, +2.99] |
+| + icoh (rule 3) | 0.4950 | 0.5069 / 0.4882 | +1.10 [−0.63, +2.54] (6/10) | 0.5406 | +1.04 [+0.89, +1.20] |
+
+**Decisions.** Nothing is adopted: the **candidate = S64 unchanged**. xDAWN stays (removing it
+loses on both protocols, and with it the calibration runs, which have no feedback, score
++2.2 higher: no sign of feedback-reading). CAR and clipping: no gain (rule 8 keeps the raw
+µV, no reference). The 1–3 s crop loses 3.8, also in the calibration runs: the window's
+last two seconds carry task signal, not only feedback. Euclidean means: no gain. **icoh**
+is the one lever that leans positive on everything (+1.1 lopo, +1.0 later, calibration and
+online runs both up) but stays below rule 3's ≥ 2 points with a CI excluding 0: not
+adopted, recorded as the first thing to re-test if more data or a sharper test appears.
+Table: `logs/proteus_w1016/RESULTS_p2.md`.
