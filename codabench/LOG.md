@@ -2184,3 +2184,13 @@ training groups are centred with feature means only (no labels). Both run types 
 (calibration +7.6, online +8.7), so it is not feedback-specific. The nested check (Phase 5)
 covers the Phase-1 choice; F64 was one pre-registered comparison, not a search. Phase 4 is
 re-run on the new bake (v3). Table: `logs/proteus_w1016/RESULTS_p6.md`.
+
+### Phase 4 v3 — the F64 candidate zip (lane A 09:04–09:42, `scripts/proteus_w1016_p4v3.sh`)
+
+Official chain: 5 runs EQUAL, cell mean 0.507944 / pooled 0.506931 / accuracy 0.507285
+(information only); all chain: EQUAL; **sealed zip `riemann_sealed_proteus_f64_all_2026-10-16.zip`
+856,757 B, sha256 59121c39…6f78e1822**. Stateful contract PASS on the 4 folders (timing check
+fails only under load, 124–189 ms/window); clean timing 8.2 ms/window (1 thread) = 2.9 min for
+the sealed test; zhou regression EQUAL. SUBMISSIONS: the S64v2 rows are superseded by the two
+proteus_f64 rows (the official-trained one is the warm-up format test). Phase 7 started on
+lane A at 09:43 (7b icoh test, then 7a nested F64 arm).
