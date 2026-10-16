@@ -207,6 +207,19 @@ Arm F64 = S64 + fcenter on lopo + later. **Decision:** adopted if ≥ 2 points o
 If adopted, the Phase 4 chain is re-run on the new bake and the nested check
 is noted as covering the Phase 1 choice only.
 
+### Phase 7 (added 10-16 09:10, before any of its numbers exist)
+
+F64 was adopted (+8.3 lopo). Two follow-ups, nothing else:
+(a) **nested check of the full recipe**: arm F64 added to the inner lopo (`nest`);
+the nested rule becomes Phase 1's (B1 vs the best stream arm, ≥ 2 points, ties →
+smaller N) followed by Phase 6's (fcenter on the chosen stream arm's settings is
+taken if the inner F64 beats the inner chosen arm by ≥ 2 points; only F64 exists, so
+fcenter is evaluated against S64 only). Report: nested lopo vs selected F64; flag if
+nested < selected − 3 points.
+(b) **icoh on the new base**: FI64 = F64 + icoh on lopo + later, adopted only on
+≥ 2 points with the CI excluding 0 and no loss on later (rule 3). One comparison.
+If adopted, the candidate chain is re-run (v4). No other lever is opened this sprint.
+
 ## 6. Keeping jobs alive
 
 Lane scripts `scripts/proteus_w1016_<phase>.sh` on `step_lib.sh` (`.done`

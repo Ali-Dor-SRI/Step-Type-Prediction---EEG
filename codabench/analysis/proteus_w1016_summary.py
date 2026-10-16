@@ -96,7 +96,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--base", required=True)
     ap.add_argument("--arms", nargs="*", default=None)
-    ap.add_argument("--lanes", nargs="+", default=["A", "B"])
+    ap.add_argument("--lanes", nargs="+", default=["A", "B", "C"])
     ap.add_argument("--out", default=None)
     a = ap.parse_args()
 
