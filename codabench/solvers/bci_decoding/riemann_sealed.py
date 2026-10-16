@@ -1144,7 +1144,7 @@ class RiemannSealedModel:
                  blend_w=0.5, max_batches=None, adapt="none", buffer=64,
                  chans="eeg", ch_names=None, chs_info=None, ch_types=None,
                  ctx_min=CTX_MIN_WINDOWS, ch_perm=None, xblocks="", wcv_ref="all",
-                 stream_k=8, crop="", clip=0.0):
+                 stream_k=8, crop="", clip=0.0, fcenter=False):
         self.parts, self.preproc = parts, preproc
         # blend_w="auto": whitening references of the weight search's folds,
         # "all" (the whole training set's) | "strict" (each fold's fit rows)
@@ -1177,6 +1177,9 @@ class RiemannSealedModel:
         # the global reference's pseudo-count. Pooled LDA only, adapt="online".
         self.stream_k = float(stream_k)
         self.crop, self.clip = str(crop or ""), float(clip)
+        self.fcenter = str(fcenter) in ("True", "true", "1")
+        if self.fcenter and align != "stream":
+            raise ValueError("fcenter needs align='stream'")
         if align == "stream" and (adapt != "online" or personal != "pooled"):
             raise ValueError("align='stream' needs adapt='online' and personal='pooled'")
         if chans != "all" and chans not in _CHANS:
@@ -1461,6 +1464,14 @@ class RiemannSealedModel:
         _fit_tangent(parts, raw, y)
         feats = _raw_features(parts, raw)
         del raw, Xw
+        if self.fcenter:
+            # each training (subject, session) group's feature mean moved onto the
+            # global one, as each test stream's running mean will be
+            mu = feats.mean(0)
+            for gg in np.unique(gidx):
+                m = gidx == gg
+                feats[m] += mu - feats[m].mean(0)
+            parts.update(fcenter=True, F_global=mu)
         _lap(tm, "features", t0)
 
         t0 = time.time()
@@ -1664,6 +1675,23 @@ class RiemannSealedModel:
             out[i] = ((V * np.exp(-0.5 * w)) @ V.T) @ X[i]
         return out
 
+    def _stream_fcenter(self, F):
+        """fcenter: window i's features minus the stream's running feature mean
+        (the last ``buffer`` windows up to and including i, with the global
+        training mean as a prior of weight stream_k), plus the global mean."""
+        mu = self.parts["F_global"]
+        st = self._buf.setdefault("fstream", {"F": [], "sum": np.zeros_like(mu)})
+        out = np.empty_like(F)
+        for i in range(len(F)):
+            st["F"].append(F[i])
+            st["sum"] = st["sum"] + F[i]
+            if self.buffer > 0 and len(st["F"]) > self.buffer:
+                st["sum"] = st["sum"] - st["F"].pop(0)
+            n = len(st["F"])
+            m = (self.stream_k * mu + st["sum"]) / (self.stream_k + n)
+            out[i] = F[i] - m + mu
+        return out
+
     def _blend_weight(self):
         """The pooled weight: the one chosen in fit (joblib), else blend_w."""
         w = self.parts.get("blend_w", self.blend_w)
@@ -1681,7 +1709,10 @@ class RiemannSealedModel:
         if self.parts.get("align") == "stream":
             # no routing: one pooled LDA, the stream's own reference (the router's
             # PSD features would be computed for nothing)
-            return self.parts["lda"].predict_proba(_features(self.parts, self._stream_whiten(X)))
+            F_ = _features(self.parts, self._stream_whiten(X))
+            if self.parts.get("fcenter"):
+                F_ = self._stream_fcenter(F_)
+            return self.parts["lda"].predict_proba(F_)
         idx = self._route(X)
         if self.parts.get("align") == "subject_context":
             # routed pair -> that pair's W (fallback: global W), then its subject
@@ -1767,6 +1798,10 @@ class Solver(CompetSolver):
         # window clipped at +-that value (0 = off)
         "crop": [""],
         "clip": [0.0],
+        # align="stream" only, opt-in (sprint 2026-10-16 Phase 6): also centre the
+        # feature vectors per training (subject, session) and per test stream
+        # (running mean of the last `buffer` windows, pseudo-count stream_k)
+        "fcenter": [False],
         "ctx_min": [CTX_MIN_WINDOWS],   # subject_context: min windows for a pair's own W
         # blend_w="auto" fold references: "all" (whole training set) | "strict"
         # (each fold's fit rows; sprint 2026-10-01, RELEASE_DAY rule 4)
@@ -1810,7 +1845,7 @@ class Solver(CompetSolver):
                                   ctx_min=self.ctx_min, ch_perm=perm,
                                   xblocks=self.xblocks, wcv_ref=self.wcv_ref,
                                   stream_k=self.stream_k, crop=self.crop,
-                                  clip=self.clip)
+                                  clip=self.clip, fcenter=self.fcenter)
 
     def fit(self, model, train_loader):
         model.fit(train_loader)
