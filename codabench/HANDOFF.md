@@ -7,14 +7,17 @@ push to `personal` after every commit. Logs: `logs/proteus_w1016/` (per-phase
 STATUS.md; rows in `A.jsonl` = Riemann lane, `B.jsonl` = neural lane; summaries
 `RESULTS_*.md`). Record: LOG.md "2026-10-16 sprint".
 
-## State (updated 2026-10-15 18:50)
+## State (updated 2026-10-16 07:00)
 
 | Phase | Status | Result / where |
 |---|---|---|
-| 0 harness + align="stream" | in progress | `analysis/proteus_sweep.py` (G-b PASS), `analysis/proteus_w1016_summary.py`; solver patch for `align="stream"` / `crop` / `clip` written, gates G-a/G-c pending |
-| 1 base arms B0 B1 R | running lane A (`scripts/proteus_w1016_p1.sh`, `logs/proteus_w1016/p1/`) | B0 = the setup's numbers exactly |
-| 3 second model EEGNet-Stream | running lane B (`scripts/proteus_w1016_p3.sh`, `logs/proteus_w1016/p3/`) | E1/E0 x seeds 33-35, then E1 36-37 |
-| 2, 4, 5 | pending | |
+| 0 harness + align="stream" | done | `analysis/proteus_sweep.py` (G-b PASS), solver `align="stream"` (G-a, G-c PASS), `analysis/proteus_w1016_gates.py` |
+| 1 base arms | done | bpt4 kept; router + blend −4.9 not adopted; **stream re-centring +5.7 lopo (10/10 people), base = S64** (`RESULTS_p1.md`) |
+| 2 ablations vs S64 | done | nothing adopted (icoh +1.1 below the bar) (`RESULTS_p2.md`) |
+| 3 EEGNet + ensemble | done | EEGNet E0f 5 seeds 0.4852 lopo / 0.4764 later; ensemble +0.27: no gain (`RESULTS_p3.md`) |
+| 4 candidate chain | v1 done (gates PASS with the stateful contract); **v2 pending** on the fixed bake (router skip) | `scripts/proteus_w1016_cand.sh`, `logs/proteus_w1016/proteus_s64_cand_*` |
+| 5 nested check | running: lane A B1 done, S64 running (`p5/`); lane B S0, S16 (`p5b/`) | `analysis/proteus_w1016_nested.py` |
+| 6 feature re-centring F64 | queued on lane B after p5b (pre-registered, brief § 5 Phase 6) | `scripts/proteus_w1016_p6.sh` |
 
 ## How to resume
 
