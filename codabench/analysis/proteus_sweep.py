@@ -108,6 +108,25 @@ def fit_and_score(Solver, params, protocol, fold, seed=42):
     return model, scores, y_true, y_pred, info, fit_s
 
 
+def stream_probas(model, X, stream_id, y_pred):
+    """(n, K) probabilities replayed exactly as streamed: each stream on a fresh
+    deep copy + reset_state(), one window per call. Checked: argmax = y_pred."""
+    from benchmark_utils.streaming import fresh_model
+    P = None
+    for s in np.unique(stream_id):
+        m = np.where(stream_id == s)[0]
+        f = fresh_model(model)
+        for i in m:
+            p = np.asarray(f.predict_proba(X[i:i + 1])).reshape(1, -1)
+            if P is None:
+                P = np.zeros((len(X), p.shape[1]))
+            P[i] = p
+    if not np.array_equal(P.argmax(1), np.asarray(y_pred).reshape(-1)):
+        raise RuntimeError("probability replay: argmax != streamed y_pred "
+                           f"({int((P.argmax(1) != y_pred).sum())} windows)")
+    return P
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -137,7 +156,7 @@ def main():
     lane_file = OUT / f"{a.lane}.jsonl"
     done = done_keys(lane_file)
     Solver = load_solver_class(a.solver)
-    rows = PC.load().rows
+    cache = PC.load()
     log(f"[config] lane={a.lane} name={a.name} solver={a.solver} params={params} "
         f"jobs={len(jobs)} seed={a.seed}")
     for protocol, fold in jobs:
@@ -150,6 +169,10 @@ def main():
             Solver, params, protocol, fold, a.seed)
         sp = PS.split(protocol, fold)
         test_idx = np.asarray(sp.test)
+        t1 = time.time()
+        probas = stream_probas(model, np.asarray(cache.X[test_idx]),
+                               np.asarray(info["stream_id"]), y_pred)
+        log(f"[probas] replayed {len(probas)} windows in {time.time() - t1:.1f}s, argmax = y_pred")
         row = dict(key=key, lane=a.lane, name=a.name, solver=a.solver, params=params,
                    seed=a.seed, protocol=protocol, fold=fold,
                    cell_mean=sc["balanced_accuracy_cell_mean"],
@@ -161,7 +184,7 @@ def main():
                    solver_sha1=hashlib.sha1((SOLVERS / f"{a.solver}.py").read_bytes()).hexdigest()[:10])
         np.savez_compressed(
             OUT / "probs" / (key.replace("|", "__") + ".npz"),
-            y_true=y_true, y_pred=y_pred, test_idx=test_idx,
+            y_true=y_true, y_pred=y_pred, test_idx=test_idx, probas=probas,
             stream_id=np.asarray(info["stream_id"]),
             context_id=np.asarray(info.get("context_id", np.zeros(len(y_pred)))))
         with open(lane_file, "a") as fh:
