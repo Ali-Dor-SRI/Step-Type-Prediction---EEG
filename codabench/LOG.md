@@ -2114,3 +2114,41 @@ is the one lever that leans positive on everything (+1.1 lopo, +1.0 later, calib
 online runs both up) but stays below rule 3's ≥ 2 points with a CI excluding 0: not
 adopted, recorded as the first thing to re-test if more data or a sharper test appears.
 Table: `logs/proteus_w1016/RESULTS_p2.md`.
+
+### Phase 3 — second model and ensemble (lane B 19:55–06:38)
+
+EEGNet-Stream, fixed 80 epochs. 3 seeds each (33–35), lopo / later cell means:
+E1f (stream alignment) 0.4630 0.4652 0.4463 (mean 0.4582) / 0.4776 0.4592 0.4856;
+E0f (no alignment, per-window z-scoring only) 0.4907 0.4651 0.4650 (mean 0.4736) /
+0.4810 0.4973 0.4618. E0f won → seeds 36–37 (0.4743, 0.4780). Training is reproducible:
+E0f_s33 re-run = identical in every cell. One seed-config ≈ 58–75 min on a shared CPU.
+
+| model (equal-weight probabilities) | lopo | Δ vs S64 [95 % CI] (up/10) | later | Δ vs S64 [95 % CI] |
+|---|---|---|---|---|
+| Riemann S64 | 0.4839 | — | 0.5302 | — |
+| EEGNet E0f, 5-seed average | 0.4852 | +0.13 [−2.93, +3.08] (7/10) | 0.4764 | −5.38 [−10.14, −0.63] |
+| ensemble 0.5 / 0.5 | 0.4866 | +0.27 [−0.30, +0.80] (6/10) | 0.5329 | +0.27 [+0.00, +0.54] |
+
+**Decision.** No gain: the ensemble is far below the ≥ 2-point bar; the Riemann S64
+candidate stands alone, no ensemble zip. EEGNet matches Riemann on unseen people but loses
+5 points on later sessions of known people; stream alignment hurts the network (−1.5
+points on lopo, 3 seeds) where per-window z-scoring already removes the scale.
+Table: `logs/proteus_w1016/RESULTS_p3.md`.
+
+### Phase 4 — the candidate chain, first pass (lane B 02:24–02:50)
+
+`scripts/proteus_w1016_cand.sh` (CANDNAME=proteus_s64): official chain train → read-only
+replay → zip → unzipped replay → route B replay → second training: all EQUAL; official
+cell mean 0.462192 (information only). `proteus_eval.py g9g10` FAILED three checks that
+assume the setup's stateless vehicle: `align == 'none'` (ours is `stream` by design) and
+two G10 checks that run all 755 windows as one batch without a reset (mixing four streams
+into one online buffer). Replaced for this model by the stateful contract of
+`proteus_w1016_gates.py --submission` on the exported and the unzipped folders: B = 1 =
+per-stream batch (0/755 differ), streams isolated, reset restores: PASS. Timing: 16–19
+ms/window quiet (sealed test ≈ 6–7 min), 70–150 ms/window with three jobs on the CPU
+(25–53 min, under the 60): a risk to measure on the server. Fix found here: in stream mode
+the unused PSD router still ran per window; skipped (later y_pred 762/762 identical).
+The chain will be re-run on the fixed bake (v2). Incident 01:40: the first launch passed
+the protocol through a `for` loop inside an inline `wsl.exe bash -lc '…'`; the variable
+arrived empty and both calls stopped at the usage line. Every WSL multi-step job is now a
+script file.

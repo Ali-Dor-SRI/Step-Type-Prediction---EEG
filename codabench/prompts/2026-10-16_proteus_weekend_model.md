@@ -193,6 +193,20 @@ nested `lopo` cell mean beside the (optimistic) selected one. **Decision:** if
 nested < selected − 3 points, flag the candidate as over-selected in
 DIRECTIONS and recommend the simpler base for the first sealed upload.
 
+### Phase 6 (added 10-16 06:45, before any number exists): per-stream feature re-centring
+
+Phases 1-3 finished early (the S64 candidate; nothing in Phase 2 or the ensemble
+was adopted). One lever with a prior rationale is pre-registered for the spare
+compute: on top of the covariance whitening, centre the **feature vectors**
+(after the tangent-space and band-power blocks) per training (person, session)
+and, at test, per stream with a running mean (last `buffer` windows, pulled to
+the global training mean with the same pseudo-count K = 8), opt-in `fcenter`.
+Arm F64 = S64 + fcenter on lopo + later. **Decision:** adopted if ≥ 2 points on
+`lopo` with the CI excluding 0 and no loss on `later` (rule 6's bar); otherwise
+"no gain" and the candidate stays S64. Not tuned: K and the buffer are S64's.
+If adopted, the Phase 4 chain is re-run on the new bake and the nested check
+is noted as covering the Phase 1 choice only.
+
 ## 6. Keeping jobs alive
 
 Lane scripts `scripts/proteus_w1016_<phase>.sh` on `step_lib.sh` (`.done`

@@ -34,7 +34,7 @@ def main():
     ap.add_argument("--out", default=None)
     a = ap.parse_args()
     rows_c = PC.load().rows
-    inner = [r for r in S.load_rows(["N"]) if r["protocol"] == "nest"]
+    inner = [r for r in S.load_rows(["N", "N2"]) if r["protocol"] == "nest"]
     outer = [r for r in S.load_rows(["A"]) if r["protocol"] == "lopo"]
     lines = ["| outer fold (person) | inner B1 | inner S16 | inner S64 | inner S0 | chosen | "
              "outer score of chosen | outer S64 |", "|---|---|---|---|---|---|---|---|"]
