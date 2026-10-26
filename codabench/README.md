@@ -16,7 +16,7 @@ pipeline but reusing its models.
 |---|---|
 | [COMPETITION.md](COMPETITION.md) | Dates, tracks, rules, limits, published baselines, links |
 | [TRACK2_BCI.md](TRACK2_BCI.md) | Our track: task spec, data on disk, commands, test results, next steps |
-| [MODEL_ARCHITECTURE.md](MODEL_ARCHITECTURE.md) | How our models work, for EEG/BCI readers (Riemann-Sealed, EEGNet-StepType), with figures from `figures/` (made by `analysis/arch_figures.py`) |
+| [MODEL_ARCHITECTURE.md](MODEL_ARCHITECTURE.md) | How our models work, for EEG/BCI readers: the PROTEUS sealed candidate F64 (per-session covariance + feature re-centring, pooled LDA) and EEGNet, with real-data figures from `figures/` (made by `analysis/arch_figures.py`) |
 | [SETUP.md](SETUP.md) | The CPU-only WSL environment: where everything lives, rebuild steps, gotchas |
 | [SUBMISSION_GUIDE.md](SUBMISSION_GUIDE.md) | The `submission.py` contract, allowed imports, build → test → zip → upload |
 | [REUSING_MY_MODELS.md](REUSING_MY_MODELS.md) | Which thesis models are compatible, what was ported, what wasn't and why |

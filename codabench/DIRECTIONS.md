@@ -1,15 +1,17 @@
 # Directions: Track 2 at a glance
 
-**Updated 2026-10-16 (evening), sprint complete**: the first real PROTEUS model
-exists. The sealed-phase candidate (F64) is built and confirmed by a nested check;
-every gate passed; the zips are ready and **not uploaded**. Nothing is running. This is the short version for
+**Updated 2026-10-26**: the Codabench host was down for some days and the warm-up
+was extended to **Nov 1**. The official-trained F64 zip was **uploaded to the
+warm-up on 10-26** (result pending); the sealed zip is ready, not uploaded.
+MODEL_ARCHITECTURE.md now describes F64. Nothing of ours is running. This is the short version for
 making decisions; every number links to where it comes from (§ 7). Kept current
 by every session that changes a decision, a number or the plan (§ 8).
 
 ## 1. Where we stand
 
-- **Calendar:** registration closes **Oct 24**; the warm-up (5 uploads/day, does
-  not rank) ends **Oct 25**; the **sealed phase, Oct 28 – Nov 21**, is the only
+- **Calendar:** registration closed **Oct 24**; the warm-up (5 uploads/day, does
+  not rank) was **extended to Nov 1** after the host outage; the **sealed phase,
+  Oct 28 – Nov 21** (start date not re-confirmed since the extension), is the only
   phase that ranks: 1 upload/day, 10 in total, top 3 audited.
 - **Data: PROTEUS.** 10 people, 14 sessions, 2,655 windows, 41 EEG channels,
   120 Hz, 3 balanced classes. Sealed test = later sessions of these 10 people
@@ -36,10 +38,11 @@ by every session that changes a decision, a number or the plan (§ 8).
   icoh on F64: +1.65 lopo (CI +0.4 to +2.9), below the 2-point bar (variant zip ready).
 - **Is the choice over-fitted to these 10 people?** No: re-making every choice inside
   nine people and testing on the tenth gives lopo **0.567** (vs 0.567 selected).
-- **Ready, not uploaded ([SUBMISSIONS.md](SUBMISSIONS.md)):** the F64 sealed zip
-  (trained on all 14 sessions) and an official-trained F64 zip for the warm-up
-  (server must show 0.507944 / 0.506931 / 0.507285). Sealed test runtime ≈ 3 min of
-  the 60 allowed (8.2 ms/window on one quiet thread).
+- **Zips ([SUBMISSIONS.md](SUBMISSIONS.md)):** the official-trained F64 zip was
+  **uploaded to the warm-up on 10-26** (server must show 0.507944 / 0.506931 /
+  0.507285; result pending). The F64 sealed zip (trained on all 14 sessions) is
+  ready, not uploaded. Sealed test runtime ≈ 3 min of the 60 allowed (8.2 ms/window
+  on one quiet thread).
 - **What the data say ([EDA](reports/proteus_eda/EDA.md)):** every session is its own
   domain (two sessions of one person differ as much as two people), which is why
   re-centring per session carries the model; the class signal is strongest in frontal
@@ -49,7 +52,7 @@ by every session that changes a decision, a number or the plan (§ 8).
 
 | # | Decision | My recommendation | Why it matters | Your effort |
 |---|---|---|---|---|
-| 9 | **Upload the official-trained F64 zip to the warm-up** (before Oct 25) | Yes, now: it is the only way to prove the adaptive, streamed model runs on the `v3` scoring image before the sealed phase | The sealed upload budget is 10; a format failure there costs a day | one upload; compare the three numbers |
+| 9 | **Warm-up upload of the official-trained F64 zip**: uploaded 10-26, result pending | Send me the three numbers and the run time when it finishes | Proves the adaptive, streamed model runs on the `v3` image before the 10 sealed uploads | read three numbers |
 | 10 | **First sealed upload (Oct 28) = the F64 all-trained zip** | Accept, if the warm-up numbers match | It is the best measured model; later uploads can test variants | yes / no |
 | 11 | **Sealed upload plan:** F64 first; FI64 (+ icoh) as the first variant | Accept; keep ≥ 5 of the 10 uploads unused until the last week | icoh leaned positive twice (+1.1, +1.65) but never cleared the bar | yes / no |
 | 8 | Adopt the 0.4.0 setup as the main one | Accept (done in practice) | One environment, one set of docs | yes / no |
@@ -70,7 +73,9 @@ mean), then the usual features (filter-bank Riemannian tangent space + xDAWN +
 log-variance + bpt4 band-power time course) are centred on the session's running
 feature mean, and one pooled shrinkage LDA, trained on all ten people centred the
 same way per session, classifies. No person ids, no router. Detail:
-[MODEL_ARCHITECTURE.md](MODEL_ARCHITECTURE.md) (pre-F64; to update).
+[MODEL_ARCHITECTURE.md](MODEL_ARCHITECTURE.md) (rewritten for F64 on 10-26, with
+real-data figures: session distances, how fast the reference settles, what each
+re-centring does to the features).
 
 ## 4. What we know (on PROTEUS, sprint 10-16)
 
@@ -88,7 +93,8 @@ seconds carry task signal, not only feedback.
 
 ## 5. Bottlenecks and risks
 
-1. **Server format of an adaptive model** is untested on image `v3`: decision 9.
+1. **Server format of an adaptive model** on image `v3`: being tested by the 10-26
+   warm-up upload (decision 9).
 2. **Small data:** 10 people; `later` rests on 2 people (CIs wide). The nested check
    found no over-selection (0.567 nested vs 0.567 selected).
 3. **Timing under load:** 8 ms/window quiet, up to ~190 ms/window when the CPU is
@@ -100,9 +106,9 @@ seconds carry task signal, not only feedback.
 
 | # | Step | Expected gain | Effort | Needs |
 |---|---|---|---|---|
-| 1 | Warm-up upload of the F64 official zip; compare numbers and run time | proves the sealed format | one upload | you |
-| 2 | Update MODEL_ARCHITECTURE.md for F64 (the stream re-centrings) | readers | ~1 h | — |
-| 3 | An EOG check of the frontal-theta signal (raw BIDS, not the cache) | honesty of the story, not the score | ~2 h | — |
+| 1 | Compare the warm-up result (uploaded 10-26) with the three local numbers and the run time | proves the sealed format | minutes | your numbers |
+| 2 | ~~Update MODEL_ARCHITECTURE.md for F64~~ done 10-26 | — | — | — |
+| 3 | Frontal signal: the raw BIDS has **no EOG** either (checked 10-26), so test indirectly: (a) delta + finer bins around feedback onset on lopo (a possible lever), (b) ICA on the resting runs to remove eye components (for the write-up) | (a) unknown; (b) honesty, not score | (a) ~1–2 h; (b) ~2–3 h | — |
 | 4 | Thesis: XGB on the 0.5–2 s window | — | ~3–4 h | decision 6 |
 
 Not worth it now: EEGNet variants (no gain alone or in the ensemble), REVE/LaBraM on
@@ -126,6 +132,8 @@ this CPU, the personal-LDA path (−4.9).
 - **Size:** under ~150 lines. Detail goes to the documents in § 7, not here.
 - **Numbers:** each one must match its source document.
 - **Change log** (newest first, one line each):
+  - 2026-10-26 (later): host outage; warm-up extended to Nov 1; official-trained F64 zip uploaded to the warm-up (result pending), so the "nothing uploaded" note below is superseded. MODEL_ARCHITECTURE.md rewritten for F64 with PROTEUS figures (step 2 done).
+  - 2026-10-26: no change to decisions. Raw BIDS has no EOG (41 EEG only), so step 3 is now indirect: the frontal task signal falls with distance from the eyes, is as strong in delta as in theta and peaks in the second after feedback onset (possibly ocular). Practice phase closed Oct 25 with nothing uploaded.
   - 2026-10-16 (evening): sprint complete. Nested check lopo 0.567 (no over-selection); icoh on F64 +1.65 (FI64 variant zip); buffer and K alternatives no gain; EDA; decision 11 new. Nothing running.
   - 2026-10-16 (morning, sprint running): first real PROTEUS model. Candidate F64 (stream covariance + feature re-centring, pooled LDA, bpt4): lopo 0.567, later 0.600; zips ready, not uploaded; decision 7 closed, decisions 9–10 new; nested check and icoh retest running.
   - 2026-10-15 (evening): setup brief run: 0.4.0 entry point, window cache, four protocols, streamed evaluation (two routes = benchopt), Riemann vehicle end to end, self-test 349/349; two PROTEUS zips ready (not uploaded); decision 7's evaluation half done, decision 8 largely done; § 3–4 trimmed.
