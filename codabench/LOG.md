@@ -2321,3 +2321,6 @@ numbers (brief, "Phase 2 re-fixed"). **Decision:** by the brief's rule X4f is pr
 logreg picked after seeing them): **nested check required** before it is a sealed
 upload. C2f is the rule-selected candidate and the recommended first sealed upload.
 Table: `logs/sprint_1027/RESULTS.md`. Zips: SUBMISSIONS.md.
+- **17:29 C2f official warm-up result** (uploaded by the user): 0.5276016 / 0.5266103 /
+  0.5271523, **exact match** with the local replay, 22.7 s on the server. Next: the C2f
+  all-trained zip as the first sealed upload (decision 10).

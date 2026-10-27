@@ -1,18 +1,59 @@
 # HANDOFF
 
-> **2026-10-27 17:15 — accuracy sprint COMPLETE** (supersedes the 13:15 pause note below):
-> C2f (F64T + fb6 + icoh) lopo 0.6083 / later 0.6424, rule-selected, recommended first sealed
-> upload; X4f (C2f + fscale + logreg0.01) lopo 0.6275 / later 0.6735, needs the nested check.
-> Zips + hashes: SUBMISSIONS.md; table: `logs/sprint_1027/RESULTS.md`. Nothing running.
->
-> **2026-10-27 13:15 — accuracy sprint PAUSED for the user (CPU needed).** Brief
-> `prompts/2026-10-27_sealed_accuracy.md`; results `logs/sprint_1027/RESULTS.md`. New best
-> X1 (F64T + icoh + fscale + logreg0.01): lopo 0.5995 (+3.22), later 0.6458, pending the
-> nested check. Resume: `wsl.exe bash -lc 'bash ~/codabench/scripts/sprint1027_resume.sh'`
-> (~2 h: X1 bake, fb6, X2, X3, C2, X4). Use 4 threads per lane + OMP_WAIT_POLICY=PASSIVE.
- — state of record for a new agent (written 2026-10-27)
+## 0. CURRENT STATE — 2026-10-27 17:35 (read first; overrides §§ 3–8 below where they differ)
 
-**Read this section first; it is complete on its own.** The user decides from
+**Candidates (accuracy sprint 10-27, brief `prompts/2026-10-27_sealed_accuracy.md`,
+table `logs/sprint_1027/RESULTS.md`, LOG "2026-10-27"):**
+
+| model | what it is (all = F64 + 1-thread pools at load) | lopo (28) | later (8) | status |
+|---|---|---|---|---|
+| F64T | F64 recipe (§ 3) | 0.5672 | 0.6005 | old baseline; warm-up exact, 19.0 s |
+| **C2f** | + filter bank `fbands=1to4_4to8_8to13_13to20_20to30_30to45` + `icoh` | **0.6083** (+4.11 [+3.11, +5.22], 10/10) | **0.6424** | **rule-selected; warm-up exact match 0.527602 / 0.526610 / 0.527152, 22.7 s** |
+| **X4f** | C2f + `fscale=True` + `clf=logreg0.01` | **0.6275** (+6.02 [+4.33, +7.78], 10/10) | **0.6735** | best; fscale / logreg picked after seeing them → **nested check required** before a sealed upload |
+
+No gain alone: fscale, logreg, dbpt8, bpt8, slow_block; fbd (delta + 4 bands) lean +1.09.
+
+**Zips** (thread-pinned, all gates PASS, 12–14 ms/window; hashes in SUBMISSIONS.md;
+copies in `submissions/`, git-ignored; originals `logs/proteus_w1016/proteus_<c>_cand_<p>/`):
+C2f official `88dbccc1` (warm-up done), **C2f all `7059b103` = next: first sealed upload**,
+X4f official `9fb7ffe3`, X4f all `60a0148c`. Rule: an *official* zip goes only to the
+warm-up, an *all* zip only to the sealed phase (on the warm-up it scores ~0.99, meaningless).
+
+**Uploads so far (warm-up):** F64 official (exact, 198 s: the thread bug), F64T official
+(exact, 19 s), F64T all (0.988 = memorisation), C2f official (exact, 22.7 s). **Nothing
+uploaded to the sealed phase yet.** Uploading is always the user's action.
+
+**Next steps (DIRECTIONS § 2 decision 13):**
+1. User: upload C2f all to the sealed phase (once it is open; start date not re-confirmed).
+2. **Nested check of X4f** (~3 h on 2 lanes): re-select among {F64, fb6, C2f, X4f} inside
+   9 people per outer fold (`proteus_sweep.py --protocols nest`, as `RESULTS_p7c_nested.md`;
+   F64's nest rows exist in `logs/proteus_w1016/N*.jsonl`). Flag over-selection if nested
+   < selected − 3 points. If X4f holds, X4f all is the next sealed upload.
+3. Optional: more levers on top of C2f (e.g. logreg C, more bands) only with pre-registered
+   rules and a nested check — 10 people, selection optimism is the main risk.
+
+**How to run (changes since § 9):**
+- Solver opt-ins added 10-27 to `solvers/bci_decoding/riemann_sealed.py` (defaults
+  bit-identical; zhou EQUAL): `fscale`, `clf` (`lda` | `logreg<C>`), `xblocks` `dbpt<K>`,
+  `fbands`, `threads` (> 0 pins pools at load_model — **every zip must bake `threads=1`**).
+- Sweep: `analysis/proteus_sweep.py` now scores at 1 thread (predictions unchanged).
+- **Run lanes at 4 threads + `OMP_WAIT_POLICY=PASSIVE`** (two 10-thread lanes spin-waited
+  3–10× slower on this i7-12700K). Bake: `scripts/sprint1027_bake_<c>.sh` →
+  `scripts/sprint1027_bake.sh` (4-thread copy of `proteus_w1016_p4v2.sh`), ~13 min.
+- g9/g10 in the bake always shows 3 FAILs for adaptive models (by construction, same as
+  F64); the real gate is `proteus_w1016_gates.py --submission` (ALL PASS).
+- Watchdog: run `monitor_loop.sh` **inside WSL** (from Git Bash it cannot see WSL pids and
+  reports false DEAD), e.g. `wsl.exe bash -lc 'bash ~/codabench/scripts/sprint1027_watch.sh <dirs>'`.
+
+**Nothing is running** (checked 17:35). Branch `feat/codabench-track2`, pushed to both
+remotes.
+
+---
+
+# HANDOFF (older sections)
+(Written earlier on 2026-10-27, before the accuracy sprint. §§ 1–2 and 9–11 still hold; § 0 above supersedes §§ 3–8.)
+
+**(Historical: read § 0 first.)** The user decides from
 [DIRECTIONS.md](DIRECTIONS.md) (short, kept current by every session: § 1 status,
 § 2 decisions, § 6 next steps, change log); update it at the end of any session
 that changes a decision, a number, the plan or the calendar (rule in `../CLAUDE.md`).

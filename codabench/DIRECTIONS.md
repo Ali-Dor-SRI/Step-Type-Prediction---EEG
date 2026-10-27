@@ -1,9 +1,9 @@
 # Directions: Track 2 at a glance
 
-**Updated 2026-10-27 17:15**: accuracy sprint **complete**. New candidates over F64T
-(lopo 0.567 / later 0.600): **C2f 0.608 / 0.642** (rule-selected, 10/10 people up) and
-**X4f 0.628 / 0.674** (best, pending the nested check). Zips ready, none uploaded.
-Warm-up open to **Nov 1**; sealed phase from Oct 28. The F64 warm-up upload
+**Updated 2026-10-27 17:35**: new candidates over F64T (lopo 0.567 / later 0.600):
+**C2f 0.608 / 0.642** (rule-selected, 10/10 people up; **warm-up exact match, 22.7 s**)
+and **X4f 0.628 / 0.674** (best, pending the nested check). Next: **C2f all = first sealed
+upload**. Warm-up open to **Nov 1**; sealed phase from Oct 28. Nothing running. The F64 warm-up upload
 **matched exactly** (0.507944 / 0.506931 / 0.507285) but ran **263 ms/window** on
 the server (32× local). **Cause found and fixed:** default thread pools; the
 thread-pinned F64T gives the same predictions at 9.4 ms/window. F64T zips ready.
@@ -56,7 +56,7 @@ by every session that changes a decision, a number or the plan (§ 8).
 
 | # | Decision | My recommendation | Why it matters | Your effort |
 |---|---|---|---|---|
-| 13 | **New model for the sealed phase.** C2f = F64T + 6-band filter bank with delta + icoh: lopo **+4.1** [+3.1, +5.2], 10/10 people, later +4.2 (rule-selected). X4f = C2f + feature scaling + logistic regression: lopo **+6.0** [+4.3, +7.8], 10/10, later +7.3 (parts picked after seeing them) | (1) warm-up upload of the **C2f official** zip (expect 0.527602 / 0.526610 / 0.527152) to confirm on the server; (2) **first sealed upload = C2f all**; (3) run the nested check on X4f (~3 h); if it holds, X4f all is the next sealed upload | ~4–6 points on the ranked board vs F64T | two uploads + a go for the nested run |
+| 13 | **New model for the sealed phase.** C2f = F64T + 6-band filter bank with delta + icoh: lopo **+4.1** [+3.1, +5.2], 10/10 people, later +4.2 (rule-selected). X4f = C2f + feature scaling + logistic regression: lopo **+6.0** [+4.3, +7.8], 10/10, later +7.3 (parts picked after seeing them) | (1) ~~C2f official warm-up~~ **done 17:29: exact match, 22.7 s**; (2) **first sealed upload = C2f all** (`submissions/riemann_sealed_proteus_c2f_all_2026-10-27.zip`, sha256 `7059b103`); (3) run the nested check on X4f (~3 h); if it holds, X4f all is the next sealed upload | ~4–6 points on the ranked board vs F64T | two uploads + a go for the nested run |
 | 9 | ~~Warm-up upload of F64~~ done: exact match; 263 ms/window on the server | — | — | — |
 | 12 | ~~Runtime~~ **fixed**: F64T warm-up 10-27 = exact match in **19.0 s** (F64 198.3 s). Was: **Runtime:** F64 at default threads = 263 ms/window (≈ 92 min worst case). F64T (1 thread) = identical predictions, 9.4 ms/window locally | Upload `logs/threads_1027/f64t_official/…_2026-10-27.zip` (sha256 `fcfd7c62`) to the warm-up; if it shows the same three numbers in ≲ 1 min, upload the F64T **all** zip (`a774135a`) as the first sealed one | A timeout wastes a sealed upload | one warm-up upload |
 | 10 | **First sealed upload = the C2f all-trained zip** (was F64T all) | Accept, after a C2f warm-up check (decision 13) | It is the best measured model; later uploads can test variants | yes / no |
@@ -71,7 +71,7 @@ Not decisions, still yours: upstream `origin/main` moved past 442edcd (to a66bc2
 stay on 442edcd until you say to move it. The older warm-up zips (Riemann vehicle,
 MeanLogReg) are superseded by the F64 one for the format test.
 
-## 3. The model in one picture (F64)
+## 3. The model in one picture (F64; C2f adds a 6-band filter bank with delta + icoh, X4f also feature scaling + logistic regression)
 
 Each test session is a stream. Every window's covariance is whitened by a running
 reference of that session's windows so far (last 64, pulled towards the training
@@ -83,7 +83,7 @@ same way per session, classifies. No person ids, no router. Detail:
 real-data figures: session distances, how fast the reference settles, what each
 re-centring does to the features).
 
-## 4. What we know (on PROTEUS, sprint 10-16)
+## 4. What we know (on PROTEUS, sprint 10-16; 10-27 results: `logs/sprint_1027/RESULTS.md`)
 
 | Lever | Effect (lopo / later, points) | Status |
 |---|---|---|
@@ -112,9 +112,9 @@ seconds carry task signal, not only feedback.
 
 | # | Step | Expected gain | Effort | Needs |
 |---|---|---|---|---|
-| 1 | Warm-up re-time of F64T (built 10-27, same predictions, 28× faster locally) | removes the timeout risk | minutes | your upload |
+| 1 | **Nested check of X4f** (re-select among F64 / fb6 / C2f / X4f inside 9 people) | decides whether X4f (+1.9 over C2f) is real | ~3 h unattended | your go |
 | 2 | ~~Update MODEL_ARCHITECTURE.md for F64~~ done 10-26 | — | — | — |
-| 3 | Frontal signal: the raw BIDS has **no EOG** either (checked 10-26), so test indirectly: (a) delta + finer bins around feedback onset on lopo (a possible lever), (b) ICA on the resting runs to remove eye components (for the write-up) | (a) unknown; (b) honesty, not score | (a) ~1–2 h; (b) ~2–3 h | — |
+| 3 | Frontal signal: no EOG in the raw BIDS; delta + finer bins tried 10-27 (dbpt8 / bpt8: no gain; delta in the filter bank: part of C2f). Left: ICA on resting runs for the write-up | honesty, not score | ~2–3 h | — |
 | 4 | Thesis: XGB on the 0.5–2 s window | — | ~3–4 h | decision 6 |
 
 Not worth it now: EEGNet variants (no gain alone or in the ensemble), REVE/LaBraM on
@@ -138,6 +138,7 @@ this CPU, the personal-LDA path (−4.9).
 - **Size:** under ~150 lines. Detail goes to the documents in § 7, not here.
 - **Numbers:** each one must match its source document.
 - **Change log** (newest first, one line each):
+  - 2026-10-27 17:35: C2f official warm-up = exact match (0.527602 / 0.526610 / 0.527152), 22.7 s. Upload zips copied to `submissions/` (git-ignored). HANDOFF top rewritten for a new session.
   - 2026-10-27 17:15: sprint complete. fb6 adopted (+2.5); C2f = fb6 + icoh +4.1 (10/10); X4f = C2f + fscale + logreg +6.0 (10/10), pending nested. X1 superseded. Zips for X1 / C2f / X4f baked, all gates pass. Decision 13 rewritten; decision 10 now C2f all.
   - 2026-10-27 13:15: accuracy sprint paused for the user. X1 (icoh + fscale + logreg) lopo 0.5995 (+3.22, CI excludes 0) / later 0.6458; single arms fscale, logreg, delta bins, finer bins, slow waveform no gain; delta in the filter bank lean (+1.09). Warm-up 0.988 of the all-trained zip is memorisation. Decision 13 new.
   - 2026-10-27 (F64T warm-up): exact match 0.507944 / 0.506931 / 0.507285 in 19.0 s on the server (F64: 198.3 s); decision 12 closed. Next: accuracy work.
@@ -148,9 +149,4 @@ this CPU, the personal-LDA path (−4.9).
   - 2026-10-26: no change to decisions. Raw BIDS has no EOG (41 EEG only), so step 3 is now indirect: the frontal task signal falls with distance from the eyes, is as strong in delta as in theta and peaks in the second after feedback onset (possibly ocular). Practice phase closed Oct 25 with nothing uploaded.
   - 2026-10-16 (evening): sprint complete. Nested check lopo 0.567 (no over-selection); icoh on F64 +1.65 (FI64 variant zip); buffer and K alternatives no gain; EDA; decision 11 new. Nothing running.
   - 2026-10-16 (morning, sprint running): first real PROTEUS model. Candidate F64 (stream covariance + feature re-centring, pooled LDA, bpt4): lopo 0.567, later 0.600; zips ready, not uploaded; decision 7 closed, decisions 9–10 new; nested check and icoh retest running.
-  - 2026-10-15 (evening): setup brief run: 0.4.0 entry point, window cache, four protocols, streamed evaluation (two routes = benchopt), Riemann vehicle end to end, self-test 349/349; two PROTEUS zips ready (not uploaded); decision 7's evaluation half done, decision 8 largely done; § 3–4 trimmed.
-  - 2026-10-15: RELEASE_DAY.md rewritten for PROTEUS (old runbook archived; rules v2; window straddles feedback onset at +3 s); neuroscience framework for the three tasks (.docx). Setup brief not yet run.
-  - 2026-10-13 (evening): setup brief for the PROTEUS training/test configuration written and reviewed; not run yet.
-  - 2026-10-13: PROTEUS released and set up (0.4.0 env, loader and baseline smoke pass). New contract: streamed, adaptation allowed, no calibration, 10 unseen people. Decision 1 answered; decisions 7–8 new.
-  - 2026-10-02: sprint 10-02 (evening). Thesis window check done (decision 6); warm-up EEGNet ensemble 0.8095, no gain, stopped.
-  - 2026-10-02: sprint 10-01. Dual LDA; strict CV references (decision 4); deployment zip ready; shared-covariance LDA no gain.
+  - older entries (10-02 … 10-15): see git history of this file.
