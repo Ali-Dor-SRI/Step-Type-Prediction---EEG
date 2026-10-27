@@ -1,3 +1,187 @@
+# HANDOFF — state of record for a new agent (written 2026-10-27)
+
+**Read this section first; it is complete on its own.** The user decides from
+[DIRECTIONS.md](DIRECTIONS.md) (short, kept current by every session: § 1 status,
+§ 2 decisions, § 6 next steps, change log); update it at the end of any session
+that changes a decision, a number, the plan or the calendar (rule in `../CLAUDE.md`).
+Everything below this section is the history of earlier sessions; its facts hold
+unless this section says otherwise.
+
+## 1. The project in five lines
+
+- **What:** NeurIPS 2026 EEG/EMG Foundation Challenge, **Track 2 (BCI decoding)**, on
+  Codabench. The user's MSc thesis (EEG step-type classification) lives in the same repo
+  but is a separate line of work; every competition file is under `codabench/`.
+- **Data: PROTEUS** (NEMAR `nm000290`): 10 people, 14 sessions (P04 and P10 have 3,
+  the rest 1), 2,655 windows, 41 EEG channels, 120 Hz, 4 s windows, 3 balanced classes
+  (0 = motor imagery, 1 = subtraction, 2 = word generation). Chance 0.333.
+- **Contract (0.4.0):** streamed, one window at a time per person-session in recording
+  order, a fresh `deepcopy` + `reset_state()` per session; causal, label-free adaptation
+  inside a session is **allowed** (FAQ 10-13). Score = balanced accuracy averaged over
+  (person, session, interface) cells. Inference only on the server, 60 min limit.
+- **Sealed test** = later sessions of the 10 public people **plus 10 unseen people**, no
+  calibration data. Locally we measure the two halves with `lopo` (28 cells) and `later`
+  (8 cells); never merge them into one number.
+- **Machine:** Windows 11 + WSL2 Ubuntu, CPU only (20 cores, no NVIDIA GPU).
+  `~/codabench` in WSL is a symlink to this folder.
+
+## 2. Calendar (as of 2026-10-27)
+
+| Date | Event |
+|---|---|
+| Oct 24 | registration closed (we are registered, Codabench user `adoroodchi`) |
+| to **Nov 1** | warm-up, extended from Oct 25 after a Codabench host outage of several days; 5 uploads/day; does not rank |
+| **Oct 28 – Nov 21** | **sealed phase**, the only ranked one: 1 upload/day, 10 in total, top 3 audited. Its start date was **not re-confirmed** after the extension: check the site / Discord before relying on Oct 28 |
+
+## 3. The model: candidate F64 (chosen 10-16 by pre-registered rules)
+
+Pooled shrinkage LDA on filter-bank Riemannian tangent space + xDAWN + log-variance +
+`bpt4` band-power time course, with two per-session running re-centrings computed from
+the session's own unlabelled windows: covariance whitening (`align="stream"`, buffer
+64, prior pseudo-count K = 8) and feature-mean centring (`fcenter=True`). No person ids,
+no router.
+
+| | lopo (28 cells) | later (8 cells) |
+|---|---|---|
+| setup vehicle (pooled LDA) | 0.419 | 0.492 |
+| S64 (covariance re-centring only) | 0.484 | 0.530 |
+| **F64 = the candidate** | **0.567** | **0.600** |
+| FI64 = F64 + icoh (variant, below the 2-point bar) | 0.584 | 0.624 |
+| nested check (all choices re-made inside 9 people) | 0.567 (optimism +0.04) | — |
+
+Code: [`solvers/bci_decoding/riemann_sealed_proteus_f64.py`](solvers/bci_decoding/riemann_sealed_proteus_f64.py)
+(= `riemann_sealed.py` at b989a06 with the settings baked as defaults, which is what
+Codabench runs). Explained for EEG readers, with real-data figures:
+[MODEL_ARCHITECTURE.md](MODEL_ARCHITECTURE.md) (rewritten for F64 on 10-26). Every arm and
+decision: [LOG.md](LOG.md) "2026-10-16 sprint", `logs/proteus_w1016/RESULTS_p*.md`.
+
+Tried on PROTEUS, no gain: router + personal LDA (−4.9), dropping xDAWN, CAR, clipping,
+1–3 s crop, Euclidean means, EEGNet (0.485 / 0.476) and the EEGNet + Riemann ensemble,
+buffers 16 / all, K = 2 / 32.
+
+## 4. Zips (all local; sha256 re-verified 2026-10-27)
+
+| Zip (under `logs/proteus_w1016/`) | Role | sha256 | State |
+|---|---|---|---|
+| `proteus_f64_cand_official/riemann_sealed_proteus_f64_official_2026-10-16.zip` | warm-up format/runtime test (trained on the official split) | `d4b42478…71cd0cd3` | **uploaded 2026-10-26; result pending.** Server must show **0.507944 / 0.506931 / 0.507285** (cell mean / pooled bal. acc. / accuracy) |
+| `proteus_f64_cand_all/riemann_sealed_proteus_f64_all_2026-10-16.zip` | **first sealed upload** (trained on all 14 sessions) | `59121c39…6f78e1822` | ready, not uploaded |
+| `proteus_fi64_cand_all/riemann_sealed_proteus_fi64_all_2026-10-16.zip` | sealed variant (F64 + icoh) | `e58d72f0…c039060e1` | ready, not uploaded |
+| `proteus_fi64_cand_official/riemann_sealed_proteus_fi64_official_2026-10-16.zip` | FI64 warm-up twin (expected 0.503897 / 0.502830 / 0.503311) | `ebef0a8f…cabba65937` | ready, not uploaded |
+
+Full hashes, sizes and the older superseded rows: [SUBMISSIONS.md](SUBMISSIONS.md).
+Uploading is **always the user's action**; never upload, and record every upload there.
+Local runtime: 8.2 ms/window on one quiet thread (sealed test ≈ 3 min of 60).
+
+## 5. What is running
+
+Nothing (checked 2026-10-27: no python / benchopt jobs in WSL). Branch
+`feat/codabench-track2`, clean, pushed to **both** remotes (`personal` and `org`,
+identical). Not merged to `main` (main = v2.7.0, thesis only).
+
+## 6. What happened since the 10-16 sprint
+
+- **Practice phase** closed Oct 25 with nothing of ours uploaded; then the Codabench host
+  was down for days and the **warm-up was extended to Nov 1**.
+- **10-26:** the user uploaded the official-trained F64 zip to the warm-up (result pending
+  when this was written).
+- **10-26:** EOG check: the raw BIDS release has **no EOG** (41 EEG channels only). An
+  indirect look found the frontal class signal weakens with distance from the eyes, is as
+  strong in delta as in theta and peaks in the second after feedback onset: possibly
+  ocular. Ad hoc; no script was committed. Written up in MODEL_ARCHITECTURE § 3.2 and
+  DIRECTIONS § 6 step 3.
+- **10-26:** MODEL_ARCHITECTURE.md rewritten for F64 (pre-PROTEUS version kept in git at
+  bfbeea6); new figures in `figures/` from `analysis/arch_figures.py`.
+- **10-27:** this handoff rewritten for a new agent; LOG entry "2026-10-26/27" back-fills
+  the items above.
+
+## 7. What the user needs to do / decide (DIRECTIONS § 2)
+
+1. **Decision 9:** read the warm-up result of the 10-26 upload (three numbers + run time +
+   Finished/Failed) and send it. If it matches 0.507944 / 0.506931 / 0.507285, the
+   adaptive streamed format works on image `v3`. If it **fails or differs**, that is the
+   top priority before any sealed upload: get the ingestion log from the user and reproduce
+   locally with `proteus_w1016_gates.py --submission` on the unzipped folder.
+2. **Decision 10:** first sealed upload = the F64 all-trained zip (recommended, if 9 matches).
+3. **Decision 11:** upload plan: F64 first, FI64 as the first variant, keep ≥ 5 of the 10
+   uploads for the last week.
+4. Decision 8 (adopt the 0.4.0 setup; done in practice), decision 6 (thesis: what are the
+   One/Two prompt and the `96` trigger), decision 5 (optional, low priority).
+5. Not a decision but theirs: upstream `origin/main` moved past 442edcd (a66bc23 on 10-15);
+   our worktree stays at 442edcd until the user says to move it (then re-run self-test + G1).
+
+## 8. Next steps worth doing (ranked; DIRECTIONS § 6)
+
+1. Compare the warm-up result with the local numbers (minutes, needs the user).
+2. Frontal / ocular question: (a) delta + finer time bins around feedback onset on lopo
+   (a possible lever, ~1–2 h); (b) ICA on resting runs to remove eye components (for the
+   write-up, ~2–3 h).
+3. Thesis: XGB on the 0.5–2 s window (~3–4 h; needs decision 6).
+
+Not worth it now: EEGNet variants, REVE/LaBraM on this CPU, the personal-LDA path, more
+levers tuned on 10 people (buys over-selection, not evidence). Any model change must pass
+the pre-registered rules (RELEASE_DAY § 6, rules v2: ≥ 2 points on lopo with the CI
+excluding 0, and a gain on later) and the nested check before it replaces F64.
+
+## 9. How to run things
+
+All PROTEUS work runs **inside WSL**. From the Windows-side tools, write a script file and
+call `wsl.exe bash -lc 'bash ~/codabench/scripts/<x>.sh'`; never inline loops or
+variables (they arrive empty and paths get rewritten). Start WSL heredocs with
+`exec 2>&1`. Long heredocs fail in the Bash tool: use the Write tool.
+
+- **Environment:** `source ~/codabench/env040.sh` (must print `neuralbench 0.4.0 cwd
+  /home/ali_d/neuralbench/competition-040`; never silence it). The old `env.sh` world is
+  frozen; only the zhou regression gate runs there.
+- **Self-test first in a new session:** `python ~/codabench/analysis/proteus_selftest.py`
+  (349 checks, ~1 min).
+- **One arm on lopo + later:** `python ~/codabench/analysis/proteus_sweep.py --lane <X>
+  --name <arm> --set k=v ...` (resumable by key; `--protocols nest` = inner folds).
+  Summary with paired people bootstrap: `python
+  ~/codabench/analysis/proteus_w1016_summary.py --base F64 --arms ... --lanes ...`.
+  An arm takes ~10–30 min; a nested arm 3.5–4 h.
+- **Build a candidate zip:** `CANDNAME=<x> BAKE="k=v ..." bash
+  ~/codabench/scripts/proteus_w1016_p4v2.sh` (bake, official + all chains, stateful
+  gates, zhou regression; ~35 min). Clean timing: `scripts/w1016_timing.sh <dir>`.
+- **Watch a run:** `bash ~/codabench/scripts/w1016_watch.sh <logdir>`. For a time-boxed
+  unattended block use the `project-sprint` skill (`../.claude/skills/project-sprint`).
+- **After any edit to `riemann_sealed.py`:** the zhou regression must read `train
+  0.770000 replay 0.770000 EQUAL`; new options are opt-in with defaults bit-identical.
+
+## 10. Traps (each one has cost time before)
+
+- `proteus_eval.py g9g10` has three checks that assume a stateless model; they fail by
+  construction for F64. Use `analysis/proteus_w1016_gates.py --submission`.
+- Timing under CPU contention reads 10–20× slow; measure with other jobs paused.
+- Settings must be **baked** into a solver copy: Codabench runs the file's defaults.
+- Key on (person, session, run, cue) or the tensor SHA-1, never the loaders' `info` ids.
+- benchopt caches on parameters, not data: `--no-cache` after any cache change. It prints
+  no scores (read the `--output` parquet).
+- Run repo `git` from Windows, not WSL (CRLF noise, no push credentials). `pkill -f` can
+  kill its own shell. WSL has no zip/unzip; its /tmp is emptied between calls.
+- Machine: OneDrive can revert `.git` on power events; battery idle-sleep kills long jobs
+  (disable sleep before long runs). Never pull Stieger 2021 (399 GB) to C:.
+- Commit + push to both remotes after major changes; don't commit big logs (`logs/` is
+  gitignored apart from `RESULTS*.md`). Author credit: "Ali Doroodchi".
+- A stale worktree of the already-merged branch `docs/readme-results` sits in another
+  session's scratchpad (`git worktree list`); harmless, can be pruned.
+
+## 11. Document map
+
+| Need | File |
+|---|---|
+| decisions, status, next steps | [DIRECTIONS.md](DIRECTIONS.md) |
+| what exists on PROTEUS, how to run it, gates | [PROTEUS_SETUP.md](PROTEUS_SETUP.md) |
+| uploads, zips, hashes, expected server numbers | [SUBMISSIONS.md](SUBMISSIONS.md) |
+| the model explained | [MODEL_ARCHITECTURE.md](MODEL_ARCHITECTURE.md) |
+| data structure, contract, pre-registered rules v2 | [RELEASE_DAY.md](RELEASE_DAY.md) |
+| every run with estimate vs actual | [LOG.md](LOG.md) |
+| last sprint's plan and rules | [prompts/2026-10-16_proteus_weekend_model.md](prompts/2026-10-16_proteus_weekend_model.md) |
+| EDA | [reports/proteus_eda/EDA.md](reports/proteus_eda/EDA.md) |
+| task neuroscience | [reports/PROTEUS_task_neuroscience_2026-10-15.docx](reports/PROTEUS_task_neuroscience_2026-10-15.docx) |
+| pre-release model and proxy evidence (historical) | [SEALED_RECIPE.md](SEALED_RECIPE.md) |
+
+---
+
 # HANDOFF — sprint 2026-10-16: the first real PROTEUS model (complete)
 
 Plan of record: [prompts/2026-10-16_proteus_weekend_model.md](prompts/2026-10-16_proteus_weekend_model.md)
@@ -50,22 +234,6 @@ Nothing. Nothing uploaded.
 Upload `logs/proteus_w1016/proteus_f64_cand_official/riemann_sealed_proteus_f64_official_2026-10-16.zip`
 to the warm-up (expected 0.507944 / 0.506931 / 0.507285) before Oct 25; then decide the first
 sealed upload (DIRECTIONS decisions 9–10).
-
----|---|---|
-| 0 harness + align="stream" | done | `analysis/proteus_sweep.py` (G-b PASS), solver `align="stream"` (G-a, G-c PASS), `analysis/proteus_w1016_gates.py` |
-| 1 base arms | done | bpt4 kept; router + blend −4.9 not adopted; **stream re-centring +5.7 lopo (10/10 people), base = S64** (`RESULTS_p1.md`) |
-| 2 ablations vs S64 | done | nothing adopted (icoh +1.1 below the bar) (`RESULTS_p2.md`) |
-| 3 EEGNet + ensemble | done | EEGNet E0f 5 seeds 0.4852 lopo / 0.4764 later; ensemble +0.27: no gain (`RESULTS_p3.md`) |
-| 4 candidate chain | v1 done (gates PASS with the stateful contract); **v2 pending** on the fixed bake (router skip) | `scripts/proteus_w1016_cand.sh`, `logs/proteus_w1016/proteus_s64_cand_*` |
-| 5 nested check | running: lane A B1 done, S64 running (`p5/`); lane B S0, S16 (`p5b/`) | `analysis/proteus_w1016_nested.py` |
-| 6 feature re-centring F64 | queued on lane B after p5b (pre-registered, brief § 5 Phase 6) | `scripts/proteus_w1016_p6.sh` |
-
-## How to resume
-
-`wsl.exe bash -lc 'bash ~/codabench/scripts/proteus_w1016_p1.sh'` (and `_p3.sh`):
-finished steps skip by `.done`, finished rows by key. Watchdog:
-`bash "/mnt/c/Users/Ali D/Documents/ML/.claude/skills/project-sprint/scripts/watch_run.sh" ~/codabench/logs/proteus_w1016/p1`.
-Summary: `python ~/codabench/analysis/proteus_w1016_summary.py --base B1`.
 
 ---
 

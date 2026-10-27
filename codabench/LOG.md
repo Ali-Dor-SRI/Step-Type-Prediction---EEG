@@ -2250,3 +2250,20 @@ No gain: router + personal LDA, xDAWN removal, CAR, clipping, 1–3 s crop, Eucl
 EEGNet and its ensemble, icoh (+1.65 on F64, below the bar; FI64 variant zip ready), other
 buffers, other K. All planned phases ended Friday 18:47; nothing further was launched
 (Phase 8 note: more levers on ten people would buy over-selection, not evidence).
+
+## 2026-10-26/27 — warm-up upload, EOG check, architecture rewrite, handoff (back-filled 10-27)
+
+- Practice phase closed Oct 25 with nothing of ours uploaded. The Codabench host was then
+  down for several days; the warm-up was extended to **Nov 1**. The sealed phase start
+  (Oct 28) was not re-confirmed after the extension.
+- **10-26:** the user uploaded `logs/proteus_w1016/proteus_f64_cand_official/riemann_sealed_proteus_f64_official_2026-10-16.zip`
+  to the warm-up (expected 0.507944 / 0.506931 / 0.507285; result pending). SUBMISSIONS row updated.
+- **10-26:** the raw BIDS release has no EOG channel (41 EEG only), so the frontal-theta /
+  ocular caveat cannot be checked directly. An ad hoc indirect look (no script committed):
+  the frontal class signal weakens with distance from the eyes, is as strong in delta as
+  in theta, and peaks in the second after feedback onset. Follow-ups: DIRECTIONS § 6 step 3.
+- **10-26:** MODEL_ARCHITECTURE.md rewritten for F64 (70ea314; the pre-PROTEUS version is
+  bfbeea6), figures from `analysis/arch_figures.py`.
+- **10-27:** HANDOFF.md top section rewritten as a complete state of record for a new
+  agent; the stale mid-sprint fragment in the 10-16 section removed. Zip hashes
+  re-verified (match SUBMISSIONS); nothing running in WSL.
