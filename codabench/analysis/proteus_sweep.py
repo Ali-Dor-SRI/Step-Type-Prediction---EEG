@@ -27,6 +27,7 @@ import os
 import sys
 import tempfile
 import time
+from contextlib import contextmanager
 from pathlib import Path
 
 import numpy as np
@@ -117,6 +118,21 @@ def nest_data(fold):
     return d
 
 
+@contextmanager
+def one_thread():
+    """Every thread pool at 1 while scoring at B = 1 (2026-10-27: the default
+    pools made B = 1 prediction ~30x slower; predictions unchanged)."""
+    import torch
+    from threadpoolctl import threadpool_limits
+    n = torch.get_num_threads()
+    torch.set_num_threads(1)
+    try:
+        with threadpool_limits(limits=1):
+            yield
+    finally:
+        torch.set_num_threads(n)
+
+
 def fit_and_score(Solver, params, protocol, fold, seed=42):
     """(model, scores, y_true, y_pred, info, fit_seconds) for one split."""
     import torch
@@ -137,7 +153,8 @@ def fit_and_score(Solver, params, protocol, fold, seed=42):
         solver.run(None)
         model = solver.get_result()["model"]
         fit_s = time.time() - t0
-    scores, y_true, y_pred, info = PE.evaluate(model, te)
+    with one_thread():
+        scores, y_true, y_pred, info = PE.evaluate(model, te)
     return model, scores, y_true, y_pred, info, fit_s
 
 
@@ -207,8 +224,9 @@ def main():
         test_idx = (nest_split(fold)[1] if protocol == "nest"
                     else np.asarray(PS.split(protocol, fold).test))
         t1 = time.time()
-        probas = stream_probas(model, np.asarray(cache.X[test_idx]),
-                               np.asarray(info["stream_id"]), y_pred)
+        with one_thread():
+            probas = stream_probas(model, np.asarray(cache.X[test_idx]),
+                                   np.asarray(info["stream_id"]), y_pred)
         log(f"[probas] replayed {len(probas)} windows in {time.time() - t1:.1f}s, argmax = y_pred")
         row = dict(key=key, lane=a.lane, name=a.name, solver=a.solver, params=params,
                    seed=a.seed, protocol=protocol, fold=fold,

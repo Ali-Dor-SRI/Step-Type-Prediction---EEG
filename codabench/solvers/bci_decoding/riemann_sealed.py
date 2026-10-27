@@ -314,6 +314,8 @@ def _band_covs(parts, X, band):
 #            space per (band, segment); 4 * K * C(C+1)/2 features;
 #   bpt<K>   per FB band: band-pass, square, mean over K equal contiguous time
 #            bins per channel, log(. + 1e-12) (stateless); 4 * K * C features;
+#   dbpt<K>  bpt<K> on the delta band (DELTA_BAND, 1-4 Hz) only, not the filter
+#            bank (sprint 2026-10-27); K * C features;
 #   icoh     per FB band imaginary coherence of every channel pair (i < j,
 #            signed; Welch within the window: 1 s periodic-Hann segments, 50 %
 #            overlap, per-segment mean removed, band = the FFT bins in [lo, hi])
@@ -321,7 +323,8 @@ def _band_covs(parts, X, band):
 # Appended after the filter bank, in ``xblocks`` order. Default "" = none (the
 # model is then exactly the recipe).
 # ---------------------------------------------------------------------------
-_XBLOCK_RX = re.compile(r"(tseg|bpt)([1-9][0-9]*)")
+_XBLOCK_RX = re.compile(r"(tseg|d?bpt)([1-9][0-9]*)")
+DELTA_BAND = "1to4"
 
 
 def _parse_xblocks(xblocks):
@@ -330,7 +333,7 @@ def _parse_xblocks(xblocks):
     names = [s for s in re.split(r"[_+,]", str(xblocks or "")) if s]
     for s in names:
         if not (s == "icoh" or _XBLOCK_RX.fullmatch(s)):
-            raise ValueError(f"xblocks: unknown block {s!r} (expected tseg<K> / bpt<K> / icoh)")
+            raise ValueError(f"xblocks: unknown block {s!r} (expected tseg<K> / bpt<K> / dbpt<K> / icoh)")
     if len(set(names)) != len(names):
         raise ValueError(f"xblocks: duplicate block in {xblocks!r}")
     return names
@@ -382,7 +385,7 @@ def _icoh(X, sfreq, chunk_bytes=256 * 2 ** 20):
 def _xblock_raw(parts, X):
     """Per-window inputs of the extra blocks for (n, C, T) float64 windows:
     "<tsegK>:<band>:<i>" -> (n, C, C) covariances, "<bptK>" -> (n, 4 K C),
-    "icoh" -> (n, 4 C(C-1)/2)."""
+    "<dbptK>" -> (n, K C), "icoh" -> (n, 4 C(C-1)/2)."""
     out = {}
     names = parts.get("xblocks") or []
     if not names:
@@ -392,11 +395,11 @@ def _xblock_raw(parts, X):
     cov = Covariances(estimator=parts["estimator"])
     bpt = {s: [] for s in names if s.startswith("bpt")}
     for band in FB_BANDS:
-        if not any(_XBLOCK_RX.fullmatch(s) for s in names):
+        if not any(_XBLOCK_RX.fullmatch(s) and not s.startswith("dbpt") for s in names):
             break
         Xb = np.concatenate(list(_band_chunks(X, parts["sfreq"], band)))
         for s in names:
-            if s == "icoh":
+            if s == "icoh" or s.startswith("dbpt"):
                 continue
             k = int(_XBLOCK_RX.fullmatch(s).group(2))
             segs = _seg_slices(Xb.shape[-1], k)
@@ -408,6 +411,13 @@ def _xblock_raw(parts, X):
                 bpt[s] += [np.log(P[..., sl].mean(axis=2) + 1e-12) for sl in segs]
     for s, v in bpt.items():
         out[s] = np.concatenate(v, axis=1)
+    dbpt = [s for s in names if s.startswith("dbpt")]
+    if dbpt:
+        P = np.concatenate(list(_band_chunks(X, parts["sfreq"], DELTA_BAND))) ** 2
+        for s in dbpt:
+            segs = _seg_slices(P.shape[-1], int(_XBLOCK_RX.fullmatch(s).group(2)))
+            out[s] = np.concatenate([np.log(P[..., sl].mean(axis=2) + 1e-12)
+                                     for sl in segs], axis=1)
     return out
 
 
@@ -892,6 +902,17 @@ def _fit_lda(F, y, priors=None):
     return lda
 
 
+def _fit_logreg(F, y, C):
+    """clf="logreg<C>" (sprint 2026-10-27, opt-in): standardised features, L2
+    multinomial logistic regression with inverse strength C, balanced classes."""
+    from sklearn.linear_model import LogisticRegression
+    from sklearn.pipeline import make_pipeline
+    from sklearn.preprocessing import StandardScaler
+    return make_pipeline(StandardScaler(),
+                         LogisticRegression(C=C, max_iter=3000,
+                                            class_weight="balanced")).fit(F, y)
+
+
 # -- channel types (chans) ------------------------------------------------------
 # anywhere in the name (HEOG, VEOG, LEOG, Chin_EMG, EOG_L, EMG1, ...); also the
 # harness's rule for caches without meta ch_types (analysis/xsess_lib.ch_types)
@@ -1144,7 +1165,8 @@ class RiemannSealedModel:
                  blend_w=0.5, max_batches=None, adapt="none", buffer=64,
                  chans="eeg", ch_names=None, chs_info=None, ch_types=None,
                  ctx_min=CTX_MIN_WINDOWS, ch_perm=None, xblocks="", wcv_ref="all",
-                 stream_k=8, crop="", clip=0.0, fcenter=False):
+                 stream_k=8, crop="", clip=0.0, fcenter=False, fscale=False,
+                 clf="lda"):
         self.parts, self.preproc = parts, preproc
         # blend_w="auto": whitening references of the weight search's folds,
         # "all" (the whole training set's) | "strict" (each fold's fit rows)
@@ -1180,6 +1202,16 @@ class RiemannSealedModel:
         self.fcenter = str(fcenter) in ("True", "true", "1")
         if self.fcenter and align != "stream":
             raise ValueError("fcenter needs align='stream'")
+        # sprint 2026-10-27, opt-in: fscale also divides by the group's / stream's
+        # running feature SD (times the global one); clf "logreg<C>" replaces the
+        # pooled shrinkage LDA
+        self.fscale = str(fscale) in ("True", "true", "1")
+        if self.fscale and not self.fcenter:
+            raise ValueError("fscale needs fcenter")
+        self.clf = str(clf or "lda")
+        if self.clf != "lda" and not (self.clf.startswith("logreg")
+                                      and personal == "pooled"):
+            raise ValueError(f"clf must be lda or logreg<C> (pooled), got {clf!r}")
         if align == "stream" and (adapt != "online" or personal != "pooled"):
             raise ValueError("align='stream' needs adapt='online' and personal='pooled'")
         if chans != "all" and chans not in _CHANS:
@@ -1472,11 +1504,18 @@ class RiemannSealedModel:
                 m = gidx == gg
                 feats[m] += mu - feats[m].mean(0)
             parts.update(fcenter=True, F_global=mu)
+            if self.fscale:
+                sd = np.maximum(feats.std(0), 1e-9)
+                for gg in np.unique(gidx):
+                    m = gidx == gg
+                    feats[m] = mu + (feats[m] - mu) / np.maximum(feats[m].std(0), 1e-9) * sd
+                parts.update(fscale=True, F_sd=sd)
         _lap(tm, "features", t0)
 
         t0 = time.time()
         priors = np.full(n_classes, 1.0 / n_classes)
-        parts["lda"] = _fit_lda(feats, y, priors)
+        parts["lda"] = (_fit_lda(feats, y, priors) if self.clf == "lda"
+                        else _fit_logreg(feats, y, float(self.clf[len("logreg"):])))
         if self.personal in ("calib", "blend"):
             parts["lda_subject"] = [
                 _fit_lda(feats[sidx == k], y[sidx == k], priors)
@@ -1680,16 +1719,27 @@ class RiemannSealedModel:
         (the last ``buffer`` windows up to and including i, with the global
         training mean as a prior of weight stream_k), plus the global mean."""
         mu = self.parts["F_global"]
-        st = self._buf.setdefault("fstream", {"F": [], "sum": np.zeros_like(mu)})
+        sd = self.parts.get("F_sd") if self.parts.get("fscale") else None
+        st = self._buf.setdefault("fstream", {"F": [], "sum": np.zeros_like(mu),
+                                              "sq": np.zeros_like(mu)})
         out = np.empty_like(F)
         for i in range(len(F)):
             st["F"].append(F[i])
             st["sum"] = st["sum"] + F[i]
+            st["sq"] = st["sq"] + F[i] ** 2
             if self.buffer > 0 and len(st["F"]) > self.buffer:
-                st["sum"] = st["sum"] - st["F"].pop(0)
+                old = st["F"].pop(0)
+                st["sum"] = st["sum"] - old
+                st["sq"] = st["sq"] - old ** 2
             n = len(st["F"])
             m = (self.stream_k * mu + st["sum"]) / (self.stream_k + n)
-            out[i] = F[i] - m + mu
+            if sd is None:
+                out[i] = F[i] - m + mu
+                continue
+            # fscale: running second moment with the global (mu, sd) as the prior
+            m2 = (self.stream_k * (sd ** 2 + mu ** 2) + st["sq"]) / (self.stream_k + n)
+            s_ = np.sqrt(np.maximum(m2 - m ** 2, 1e-18))
+            out[i] = mu + (F[i] - m) / s_ * sd
         return out
 
     def _blend_weight(self):
@@ -1802,6 +1852,10 @@ class Solver(CompetSolver):
         # feature vectors per training (subject, session) and per test stream
         # (running mean of the last `buffer` windows, pseudo-count stream_k)
         "fcenter": [False],
+        # sprint 2026-10-27, opt-in: also scale per group / stream (needs fcenter);
+        # classifier "lda" (the recipe) | "logreg<C>", e.g. "logreg0.01"
+        "fscale": [False],
+        "clf": ["lda"],
         "ctx_min": [CTX_MIN_WINDOWS],   # subject_context: min windows for a pair's own W
         # blend_w="auto" fold references: "all" (whole training set) | "strict"
         # (each fold's fit rows; sprint 2026-10-01, RELEASE_DAY rule 4)
@@ -1845,7 +1899,8 @@ class Solver(CompetSolver):
                                   ctx_min=self.ctx_min, ch_perm=perm,
                                   xblocks=self.xblocks, wcv_ref=self.wcv_ref,
                                   stream_k=self.stream_k, crop=self.crop,
-                                  clip=self.clip, fcenter=self.fcenter)
+                                  clip=self.clip, fcenter=self.fcenter,
+                                  fscale=self.fscale, clf=self.clf)
 
     def fit(self, model, train_loader):
         model.fit(train_loader)
