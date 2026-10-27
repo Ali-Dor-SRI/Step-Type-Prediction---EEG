@@ -97,6 +97,14 @@ were chosen after seeing them, so it is **"selected after seeing parts"**: it is
 baked today but must pass the nested check (re-select inside 9 people) before a
 sealed upload replaces F64T. Otherwise "no gain".
 
+### Phase 2 as applied (fixed 12:28, after fbd, before any C2 / X4 / fb6 / X number)
+fbd = +1.09 [+0.10, +2.14] lopo (7/10), later +0.91: **lean**. slow +0.16: no gain.
+So by the Phase 2 rule C1 = fbd (measured) and **C2 = F64 + fbd + icoh**
+(`scripts/sprint1027_p2c.sh`, lane J, after X2). Exploratory, same status as 2x:
+**X4 = C2 + fscale + logreg0.01** (lane K, after X3). Candidate choice across C1 / C2 /
+X1–X4: the simplest that passes (Δ lopo ≥ +2.0, CI lower > 0, Δ later > 0), a larger
+one only if ≥ 1.0 lopo better; C1 / C2 are rule-selected, X* need the nested check.
+
 ### Phase 2: combination (estimate 20–40 min)
 If anything is adopted or lean: `C1` = F64 + every adopted/lean change except icoh;
 `C2` = C1 + icoh. **Decision:** the new candidate is the simpler of C1/C2 that has
