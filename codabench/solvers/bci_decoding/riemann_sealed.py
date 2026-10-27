@@ -173,6 +173,19 @@ from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from benchmark_utils.base_solver import CompetSolver
 from benchmark_utils.data import to_numpy
 
+def _pin_threads(n):
+    """threads > 0 (2026-10-27, opt-in): cap torch's intra-op pool and every
+    BLAS / OpenMP pool at ``n`` threads when the model loads. B = 1 scoring
+    with the default all-core pools ran 263 ms/window on the server vs 8 ms
+    pinned; predictions are unchanged (logs/threads_1027/RESULTS.md)."""
+    torch.set_num_threads(n)
+    try:
+        from threadpoolctl import threadpool_limits
+    except ImportError:      # pragma: no cover
+        return
+    threadpool_limits(limits=n)
+
+
 try:
     import resource          # peak RSS; not available on Windows
 except ImportError:          # pragma: no cover
@@ -1166,7 +1179,7 @@ class RiemannSealedModel:
                  chans="eeg", ch_names=None, chs_info=None, ch_types=None,
                  ctx_min=CTX_MIN_WINDOWS, ch_perm=None, xblocks="", wcv_ref="all",
                  stream_k=8, crop="", clip=0.0, fcenter=False, fscale=False,
-                 clf="lda"):
+                 clf="lda", fbands=""):
         self.parts, self.preproc = parts, preproc
         # blend_w="auto": whitening references of the weight search's folds,
         # "all" (the whole training set's) | "strict" (each fold's fit rows)
@@ -1209,6 +1222,11 @@ class RiemannSealedModel:
         if self.fscale and not self.fcenter:
             raise ValueError("fscale needs fcenter")
         self.clf = str(clf or "lda")
+        # filter-bank tangent-space bands, "_"-joined ("" = FB_BANDS; the bpt /
+        # icoh blocks keep FB_BANDS)
+        self.fbands = str(fbands or "")
+        for b in self.fbands.split("_") if self.fbands else []:
+            _parse_band(b)
         if self.clf != "lda" and not (self.clf.startswith("logreg")
                                       and personal == "pooled"):
             raise ValueError(f"clf must be lda or logreg<C> (pooled), got {clf!r}")
@@ -1489,7 +1507,8 @@ class RiemannSealedModel:
             parts["slow"] = {"band": "0.1to4", "start": start, "width": width,
                              "n_bins": min(14, (X.shape[2] - start) // width)}
         if self.filterbank:
-            parts["fb_bands"] = list(FB_BANDS)
+            parts["fb_bands"] = (self.fbands.split("_") if self.fbands
+                                 else list(FB_BANDS))
         if self.xblocks:
             parts["xblocks"] = list(self.xblocks)
         raw = _window_blocks(parts, get, n, size)
@@ -1856,6 +1875,10 @@ class Solver(CompetSolver):
         # classifier "lda" (the recipe) | "logreg<C>", e.g. "logreg0.01"
         "fscale": [False],
         "clf": ["lda"],
+        # > 0: pin every thread pool to this many threads at load_model (scoring)
+        "threads": [0],
+        # filter-bank bands "_"-joined, e.g. "1to4_4to8_8to13_13to30_30to45" ("" = FB_BANDS)
+        "fbands": [""],
         "ctx_min": [CTX_MIN_WINDOWS],   # subject_context: min windows for a pair's own W
         # blend_w="auto" fold references: "all" (whole training set) | "strict"
         # (each fold's fit rows; sprint 2026-10-01, RELEASE_DAY rule 4)
@@ -1878,6 +1901,8 @@ class Solver(CompetSolver):
     }
 
     def load_model(self, meta):
+        if int(self.threads) > 0 and self.train_loader is None:
+            _pin_threads(int(self.threads))
         weights = meta["submission_dir"] / "riemann_sealed.joblib"
         parts = (joblib.load(weights)
                  if weights.exists() and self.train_loader is None else None)
@@ -1900,7 +1925,8 @@ class Solver(CompetSolver):
                                   xblocks=self.xblocks, wcv_ref=self.wcv_ref,
                                   stream_k=self.stream_k, crop=self.crop,
                                   clip=self.clip, fcenter=self.fcenter,
-                                  fscale=self.fscale, clf=self.clf)
+                                  fscale=self.fscale, clf=self.clf,
+                                  fbands=self.fbands)
 
     def fit(self, model, train_loader):
         model.fit(train_loader)

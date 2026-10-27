@@ -79,6 +79,12 @@ bpt8), `slow` (slow_block=True), `logreg` (clf=logreg0.01). lopo 0–9 + later.
 95 % CI lower bound > 0 **and** Δ later > 0. It is **lean** if Δ lopo ≥ +1.0 with the
 CI lower bound > 0. Otherwise "no gain". icoh counts as lean (10-16 result).
 
+### Phase 1b (pre-registered 11:40, after fscale / logreg, before any 1b number): delta in the filter bank
+`scripts/sprint1027_p1b.sh`, lane G, starts when lane E frees (estimate 35 min). Arms:
+`fbd` = filter-bank bands 1to4 + the four standard ones; `fb6` = 1to4, 4to8, 8to13,
+13to20, 20to30, 30to45 (new opt-in `fbands`; bpt / icoh blocks unchanged). Same
+decision rule as Phase 1. fscale and logreg came out "no gain" (CI crosses 0).
+
 ### Phase 2: combination (estimate 20–40 min)
 If anything is adopted or lean: `C1` = F64 + every adopted/lean change except icoh;
 `C2` = C1 + icoh. **Decision:** the new candidate is the simpler of C1/C2 that has
