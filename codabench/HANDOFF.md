@@ -64,13 +64,15 @@ buffers 16 / all, K = 2 / 32.
 | Zip (under `logs/proteus_w1016/`) | Role | sha256 | State |
 |---|---|---|---|
 | `proteus_f64_cand_official/riemann_sealed_proteus_f64_official_2026-10-16.zip` | warm-up format/runtime test (trained on the official split) | `d4b42478…71cd0cd3` | **uploaded 2026-10-26: EXACT match** 0.507944 / 0.506931 / 0.507285 (cell mean / pooled bal. acc. / accuracy), 198.3 s = 263 ms/window on the server |
-| `proteus_f64_cand_all/riemann_sealed_proteus_f64_all_2026-10-16.zip` | **first sealed upload** (trained on all 14 sessions) | `59121c39…6f78e1822` | ready, not uploaded |
+| `proteus_f64_cand_all/riemann_sealed_proteus_f64_all_2026-10-16.zip` | superseded by F64T all (same predictions, slow threads) | `59121c39…6f78e1822` | not uploaded; do not upload |
+| `../threads_1027/f64t_official/riemann_sealed_proteus_f64t_official_2026-10-27.zip` | **F64T warm-up re-time** (F64 + 1-thread pools; 9.4 ms/window, predictions = F64) | `fcfd7c62…80d7430` | ready, not uploaded |
+| `../threads_1027/f64t_all/riemann_sealed_proteus_f64t_all_2026-10-27.zip` | **first sealed upload** (F64T, trained on all 14 sessions) | `a774135a…b83cb2a0db8` | ready, not uploaded |
 | `proteus_fi64_cand_all/riemann_sealed_proteus_fi64_all_2026-10-16.zip` | sealed variant (F64 + icoh) | `e58d72f0…c039060e1` | ready, not uploaded |
 | `proteus_fi64_cand_official/riemann_sealed_proteus_fi64_official_2026-10-16.zip` | FI64 warm-up twin (expected 0.503897 / 0.502830 / 0.503311) | `ebef0a8f…cabba65937` | ready, not uploaded |
 
 Full hashes, sizes and the older superseded rows: [SUBMISSIONS.md](SUBMISSIONS.md).
 Uploading is **always the user's action**; never upload, and record every upload there.
-Local runtime: 8.2 ms/window on one quiet thread; **server 263 ms/window** (warm-up 10-26), so the 21,000-window upper bound would be ≈ 92 min of 60. Suspect thread oversubscription.
+Local runtime: 8.2 ms/window on one quiet thread; **server 263 ms/window** (warm-up 10-26), so the 21,000-window upper bound would be ≈ 92 min of 60. Cause confirmed 10-27: default thread pools (local F64 at default threads = 264.7 ms/window); F64T pins them to 1: 9.4 ms/window, identical predictions (`logs/threads_1027/RESULTS.md`).
 
 ## 5. What is running
 

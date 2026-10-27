@@ -2273,3 +2273,13 @@ buffers, other K. All planned phases ended Friday 18:47; nothing further was lau
   ~92 min of the 60 allowed. Suspected cause: thread oversubscription (the solver sets no
   torch / BLAS thread limits). A separate scoring_result (0.328, 1,081.6 s) the user sent
   first was from another folder, not F64.
+
+## 2026-10-27 — thread-pinned F64T (decision 12)
+
+| Time (WSL) | Task | Estimate | Actual | Result |
+|---|---|---|---|---|
+| 10:19:34–10:27:32 | `scripts/threads_check_1027.sh`: F64 vs F64T (1-thread pools), official test, B = 1, 20 cores and 2 cores | 6–8 min | 8 min, on estimate (the unpinned runs took ~3.5 min each, as the server's timing implied) | F64 at default threads **264.7 ms/window, 199.8 s** (reproduces the server's 198.3 s); **F64T 9.4 ms/window**, 0 of 755 predictions differ (official and all). On 2 cores even F64 is 11.3 ms: many-core pool overhead, not a CPU quota |
+| 10:27:37–10:28:36 | `scripts/threads_check_1027_unzip.sh`: F64T zips unzipped + replayed, stateful gates | 1–2 min | 1 min | unzipped = F64 window for window (both); gates ALL PASS (8.5 ms/window → 3.0 min for 106 × 199) |
+
+F64T zips (`logs/threads_1027/RESULTS.md`): official `fcfd7c62…` (warm-up re-time),
+all `a774135a…` (first sealed upload). Neither uploaded.
