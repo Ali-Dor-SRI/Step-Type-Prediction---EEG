@@ -105,6 +105,14 @@ So by the Phase 2 rule C1 = fbd (measured) and **C2 = F64 + fbd + icoh**
 X1–X4: the simplest that passes (Δ lopo ≥ +2.0, CI lower > 0, Δ later > 0), a larger
 one only if ≥ 1.0 lopo better; C1 / C2 are rule-selected, X* need the nested check.
 
+### Phase 2 re-fixed (16:21, after fb6, before any C2 / X4 number)
+fb6 = +2.50 [+0.88, +4.12] lopo (8/10), later +2.57: **adopted** (rules v2). fbd and fb6
+are two settings of one knob (fbands); fb6 dominates, so by the Phase 2 rule C1 = fb6 and
+the queued combinations switch to it: **C2f = F64 + fb6 + icoh** (rule-selected) and
+**X4f = C2f + fscale + logreg0.01** (exploratory). Candidate choice across fb6 / C2f /
+X1 / X2 / X3 / X4f as before: simplest passing; a larger one only if ≥ 1.0 lopo better;
+rule-selected (fb6, C2f) before exploratory (X*) on ties.
+
 ### Phase 2: combination (estimate 20–40 min)
 If anything is adopted or lean: `C1` = F64 + every adopted/lean change except icoh;
 `C2` = C1 + icoh. **Decision:** the new candidate is the simpler of C1/C2 that has
