@@ -85,6 +85,18 @@ CI lower bound > 0. Otherwise "no gain". icoh counts as lean (10-16 result).
 13to20, 20to30, 30to45 (new opt-in `fbands`; bpt / icoh blocks unchanged). Same
 decision rule as Phase 1. fscale and logreg came out "no gain" (CI crosses 0).
 
+### Phase 2x (pre-registered 11:58, after Phase 1's fscale / logreg / dbpt8 / bpt8, before slow / fbd / fb6 / any combination number): exploratory combinations
+Phase 1 so far: fscale +0.82 [-0.18, +1.71] (9/10 up), logreg +0.64 [-0.07, +1.73]
+(later +1.07), dbpt8 -0.27, bpt8 -0.21: nothing adopted or lean. Because the
+positive-leaning parts may add up, `scripts/sprint1027_p2.sh` runs X1 = F64 + icoh +
+fscale + logreg0.01, X2 = F64 + icoh + logreg0.01, X3 = F64 + icoh + fscale
+(lane H: X1 then X2 after `slow` frees lane F; lane I: X3 after `fb6`). **Decision:** the
+simplest X with Δ lopo ≥ +2.0 vs F64, CI lower bound > 0 and Δ later > 0 becomes the
+candidate, preferring fewer parts unless the larger one is ≥ 1.0 lopo better. Its parts
+were chosen after seeing them, so it is **"selected after seeing parts"**: it is
+baked today but must pass the nested check (re-select inside 9 people) before a
+sealed upload replaces F64T. Otherwise "no gain".
+
 ### Phase 2: combination (estimate 20–40 min)
 If anything is adopted or lean: `C1` = F64 + every adopted/lean change except icoh;
 `C2` = C1 + icoh. **Decision:** the new candidate is the simpler of C1/C2 that has
