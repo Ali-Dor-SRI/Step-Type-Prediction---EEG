@@ -2283,3 +2283,5 @@ buffers, other K. All planned phases ended Friday 18:47; nothing further was lau
 
 F64T zips (`logs/threads_1027/RESULTS.md`): official `fcfd7c62…` (warm-up re-time),
 all `a774135a…` (first sealed upload). Neither uploaded.
+- **F64T warm-up (uploaded 10-27):** 0.5079440 / 0.5069307 / 0.5072848, exact match, **19.0 s**
+  on the server (F64 198.3 s). Thread-pool cause confirmed on the server; decision 12 closed.
