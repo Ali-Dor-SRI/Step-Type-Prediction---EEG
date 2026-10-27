@@ -63,14 +63,14 @@ buffers 16 / all, K = 2 / 32.
 
 | Zip (under `logs/proteus_w1016/`) | Role | sha256 | State |
 |---|---|---|---|
-| `proteus_f64_cand_official/riemann_sealed_proteus_f64_official_2026-10-16.zip` | warm-up format/runtime test (trained on the official split) | `d4b42478…71cd0cd3` | **NOT uploaded yet** (the 10-26 upload was the Dreyer deploy-test zip by mistake: 0.328, chance). Server must show **0.507944 / 0.506931 / 0.507285** (cell mean / pooled bal. acc. / accuracy) |
+| `proteus_f64_cand_official/riemann_sealed_proteus_f64_official_2026-10-16.zip` | warm-up format/runtime test (trained on the official split) | `d4b42478…71cd0cd3` | **uploaded 2026-10-26: EXACT match** 0.507944 / 0.506931 / 0.507285 (cell mean / pooled bal. acc. / accuracy), 198.3 s = 263 ms/window on the server |
 | `proteus_f64_cand_all/riemann_sealed_proteus_f64_all_2026-10-16.zip` | **first sealed upload** (trained on all 14 sessions) | `59121c39…6f78e1822` | ready, not uploaded |
 | `proteus_fi64_cand_all/riemann_sealed_proteus_fi64_all_2026-10-16.zip` | sealed variant (F64 + icoh) | `e58d72f0…c039060e1` | ready, not uploaded |
 | `proteus_fi64_cand_official/riemann_sealed_proteus_fi64_official_2026-10-16.zip` | FI64 warm-up twin (expected 0.503897 / 0.502830 / 0.503311) | `ebef0a8f…cabba65937` | ready, not uploaded |
 
 Full hashes, sizes and the older superseded rows: [SUBMISSIONS.md](SUBMISSIONS.md).
 Uploading is **always the user's action**; never upload, and record every upload there.
-Local runtime: 8.2 ms/window on one quiet thread (sealed test ≈ 3 min of 60).
+Local runtime: 8.2 ms/window on one quiet thread; **server 263 ms/window** (warm-up 10-26), so the 21,000-window upper bound would be ≈ 92 min of 60. Suspect thread oversubscription.
 
 ## 5. What is running
 
@@ -82,9 +82,8 @@ identical). Not merged to `main` (main = v2.7.0, thesis only).
 
 - **Practice phase** closed Oct 25 with nothing of ours uploaded; then the Codabench host
   was down for days and the **warm-up was extended to Nov 1**.
-- **10-26:** an upload meant to be the official-trained F64 zip was the Oct-1 Dreyer
-  deployment-test zip (hash checked 10-27): 0.328 = chance on 3 classes, 1,081.6 s. F64 is
-  still not uploaded.
+- **10-26:** the user uploaded the official-trained F64 zip to the warm-up (result pending
+  when this was written).
 - **10-26:** EOG check: the raw BIDS release has **no EOG** (41 EEG channels only). An
   indirect look found the frontal class signal weakens with distance from the eyes, is as
   strong in delta as in theta and peaks in the second after feedback onset: possibly
@@ -233,7 +232,7 @@ Nothing. Nothing uploaded.
 ## What the user needs to do
 
 Upload `logs/proteus_w1016/proteus_f64_cand_official/riemann_sealed_proteus_f64_official_2026-10-16.zip`
-(sha256 starts `d4b42478`) to the warm-up (expected 0.507944 / 0.506931 / 0.507285) before Nov 1; then decide the first
+to the warm-up (expected 0.507944 / 0.506931 / 0.507285) before Oct 25; then decide the first
 sealed upload (DIRECTIONS decisions 9–10).
 
 ---

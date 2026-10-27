@@ -1,8 +1,8 @@
 # Directions: Track 2 at a glance
 
-**Updated 2026-10-27**: the warm-up was extended to **Nov 1** after a host outage.
-The 10-26 warm-up upload turned out to be the **old Dreyer zip by mistake** (0.33 =
-chance, 18 min); the F64 zip is **still not uploaded**, and the sealed zip is ready.
+**Updated 2026-10-27**: warm-up extended to **Nov 1**. The F64 warm-up upload
+**matched exactly** (0.507944 / 0.506931 / 0.507285) but ran **263 ms/window** on
+the server (32× local): runtime is now the open risk. Sealed zip ready, not uploaded.
 MODEL_ARCHITECTURE.md now describes F64. Nothing of ours is running. This is the short version for
 making decisions; every number links to where it comes from (§ 7). Kept current
 by every session that changes a decision, a number or the plan (§ 8).
@@ -38,9 +38,9 @@ by every session that changes a decision, a number or the plan (§ 8).
   icoh on F64: +1.65 lopo (CI +0.4 to +2.9), below the 2-point bar (variant zip ready).
 - **Is the choice over-fitted to these 10 people?** No: re-making every choice inside
   nine people and testing on the tenth gives lopo **0.567** (vs 0.567 selected).
-- **Zips ([SUBMISSIONS.md](SUBMISSIONS.md)):** the official-trained F64 zip is
-  **not uploaded yet** (10-26 sent the Dreyer zip by mistake; F64 must show
-  0.507944 / 0.506931 / 0.507285). The F64 sealed zip (trained on all 14 sessions) is
+- **Zips ([SUBMISSIONS.md](SUBMISSIONS.md)):** the official-trained F64 zip was
+  **uploaded to the warm-up on 10-26: exact match** (0.507944 / 0.506931 /
+  0.507285), 198 s for 755 windows. The F64 sealed zip (trained on all 14 sessions) is
   ready, not uploaded. Sealed test runtime ≈ 3 min of the 60 allowed (8.2 ms/window
   on one quiet thread).
 - **What the data say ([EDA](reports/proteus_eda/EDA.md)):** every session is its own
@@ -52,7 +52,8 @@ by every session that changes a decision, a number or the plan (§ 8).
 
 | # | Decision | My recommendation | Why it matters | Your effort |
 |---|---|---|---|---|
-| 9 | **Warm-up upload of the official-trained F64 zip**: not done (10-26 sent the Dreyer zip) | Upload `logs/proteus_w1016/proteus_f64_cand_official/…_official_2026-10-16.zip` (sha256 starts `d4b42478`) **today**, then send me the three numbers and the run time | Proves the adaptive, streamed model runs on the `v3` image before the 10 sealed uploads | read three numbers |
+| 9 | ~~Warm-up upload of F64~~ done: exact match; 263 ms/window on the server | — | — | — |
+| 12 | **Runtime before the first sealed upload:** 263 ms/window × up to ~21,000 sealed windows ≈ 92 min > 60 | Pin threads to 1 (torch + BLAS) in a variant, check identical scores locally, re-time it on the warm-up, then upload sealed | A timeout wastes a sealed upload | one warm-up upload |
 | 10 | **First sealed upload (Oct 28) = the F64 all-trained zip** | Accept, if the warm-up numbers match | It is the best measured model; later uploads can test variants | yes / no |
 | 11 | **Sealed upload plan:** F64 first; FI64 (+ icoh) as the first variant | Accept; keep ≥ 5 of the 10 uploads unused until the last week | icoh leaned positive twice (+1.1, +1.65) but never cleared the bar | yes / no |
 | 8 | Adopt the 0.4.0 setup as the main one | Accept (done in practice) | One environment, one set of docs | yes / no |
@@ -106,7 +107,7 @@ seconds carry task signal, not only feedback.
 
 | # | Step | Expected gain | Effort | Needs |
 |---|---|---|---|---|
-| 1 | Upload the F64 official zip; compare its three numbers and run time with local (the Dreyer zip took 1.43 s/window there, so the time matters) | proves the sealed format | minutes | your numbers |
+| 1 | Thread-pinned F64 variant; same scores locally; warm-up re-time (decision 12) | removes the timeout risk | ~1 h + 1 upload | your upload |
 | 2 | ~~Update MODEL_ARCHITECTURE.md for F64~~ done 10-26 | — | — | — |
 | 3 | Frontal signal: the raw BIDS has **no EOG** either (checked 10-26), so test indirectly: (a) delta + finer bins around feedback onset on lopo (a possible lever), (b) ICA on the resting runs to remove eye components (for the write-up) | (a) unknown; (b) honesty, not score | (a) ~1–2 h; (b) ~2–3 h | — |
 | 4 | Thesis: XGB on the 0.5–2 s window | — | ~3–4 h | decision 6 |
@@ -132,7 +133,7 @@ this CPU, the personal-LDA path (−4.9).
 - **Size:** under ~150 lines. Detail goes to the documents in § 7, not here.
 - **Numbers:** each one must match its source document.
 - **Change log** (newest first, one line each):
-  - 2026-10-27 (later): the 10-26 warm-up upload was the Oct-1 Dreyer zip by mistake (hash checked): 0.328, 1,081.6 s. F64 not uploaded; decision 9 reopened.
+  - 2026-10-27 (later): F64 warm-up exact match, 198.3 s (263 ms/window, 32× local): decision 9 closed, decision 12 (runtime) new.
   - 2026-10-27: no change to decisions or numbers. HANDOFF.md rewritten as a complete state of record for a new agent; LOG back-filled for 10-26.
   - 2026-10-26 (later): host outage; warm-up extended to Nov 1; official-trained F64 zip uploaded to the warm-up (result pending), so the "nothing uploaded" note below is superseded. MODEL_ARCHITECTURE.md rewritten for F64 with PROTEUS figures (step 2 done).
   - 2026-10-26: no change to decisions. Raw BIDS has no EOG (41 EEG only), so step 3 is now indirect: the frontal task signal falls with distance from the eyes, is as strong in delta as in theta and peaks in the second after feedback onset (possibly ocular). Practice phase closed Oct 25 with nothing uploaded.

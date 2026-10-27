@@ -2256,8 +2256,8 @@ buffers, other K. All planned phases ended Friday 18:47; nothing further was lau
 - Practice phase closed Oct 25 with nothing of ours uploaded. The Codabench host was then
   down for several days; the warm-up was extended to **Nov 1**. The sealed phase start
   (Oct 28) was not re-confirmed after the extension.
-- **10-26:** the upload meant to be `logs/proteus_w1016/proteus_f64_cand_official/riemann_sealed_proteus_f64_official_2026-10-16.zip`
-  was in fact the Oct-1 Dreyer deployment-test zip (corrected 10-27, see below).
+- **10-26:** the user uploaded `logs/proteus_w1016/proteus_f64_cand_official/riemann_sealed_proteus_f64_official_2026-10-16.zip`
+  to the warm-up (expected 0.507944 / 0.506931 / 0.507285; result read 10-27, below). SUBMISSIONS row updated.
 - **10-26:** the raw BIDS release has no EOG channel (41 EEG only), so the frontal-theta /
   ocular caveat cannot be checked directly. An ad hoc indirect look (no script committed):
   the frontal class signal weakens with distance from the eyes, is as strong in delta as
@@ -2267,10 +2267,9 @@ buffers, other K. All planned phases ended Friday 18:47; nothing further was lau
 - **10-27:** HANDOFF.md top section rewritten as a complete state of record for a new
   agent; the stale mid-sprint fragment in the 10-16 section removed. Zip hashes
   re-verified (match SUBMISSIONS); nothing running in WSL.
-- **10-27 correction:** the 10-26 warm-up result came back 0.328352 / 0.328313 / 0.328477
-  (cell mean / bal. acc. / accuracy = 248/755) in 1,081.6 s. The uploaded zip's sha256
-  `0cf3c91b…2e1c17` = `logs/sealed_s1001/deploytest/riemann_sealed_deploytest_dreyer2023_2026-10-01.zip`
-  (Dreyer-trained, 2 classes, 27 ch): chance is the expected result. The F64 official zip
-  (`d4b42478…`, re-verified intact) was never uploaded. Runtime note: 1.43 s/window for
-  this old solver (per-window Welch router) vs 8.2 ms/window for F64 locally; F64's server
-  time is the open question for the sealed 60-min limit.
+- **10-27: F64 warm-up result** (submitted 10-26): 0.5079440 / 0.5069307 / 0.5072848, an
+  EXACT match with the local replay; duration **198.3 s = 263 ms/window** for 755 streamed
+  windows, 32x the local 8.2 ms. At RELEASE_DAY 4.8's upper bound (~21,000 windows) that is
+  ~92 min of the 60 allowed. Suspected cause: thread oversubscription (the solver sets no
+  torch / BLAS thread limits). A separate scoring_result (0.328, 1,081.6 s) the user sent
+  first was from another folder, not F64.
