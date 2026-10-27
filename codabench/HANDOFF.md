@@ -1,5 +1,10 @@
 # HANDOFF
 
+> **2026-10-27 17:15 — accuracy sprint COMPLETE** (supersedes the 13:15 pause note below):
+> C2f (F64T + fb6 + icoh) lopo 0.6083 / later 0.6424, rule-selected, recommended first sealed
+> upload; X4f (C2f + fscale + logreg0.01) lopo 0.6275 / later 0.6735, needs the nested check.
+> Zips + hashes: SUBMISSIONS.md; table: `logs/sprint_1027/RESULTS.md`. Nothing running.
+>
 > **2026-10-27 13:15 — accuracy sprint PAUSED for the user (CPU needed).** Brief
 > `prompts/2026-10-27_sealed_accuracy.md`; results `logs/sprint_1027/RESULTS.md`. New best
 > X1 (F64T + icoh + fscale + logreg0.01): lopo 0.5995 (+3.22), later 0.6458, pending the

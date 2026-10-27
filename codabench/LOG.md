@@ -2307,3 +2307,17 @@ The user's warm-up upload of the **all-trained** F64T zip scored 0.987856 / 0.98
 **Incident 12:12–12:45.** Two 10-thread lanes spin-waited (all 10 OpenMP threads ~80 %
 CPU for 25 min; align 30 → 486 s). Fix: 4 threads per lane + OMP_WAIT_POLICY=PASSIVE;
 fits steady 125–210 s afterwards.
+
+## 2026-10-27 (16:19–17:12) — accuracy sprint resumed and completed
+
+| Time | Step | Estimate | Actual | Result |
+|---|---|---|---|---|
+| 16:19:04–16:59:42 | `scripts/sprint1027_resume.sh` (2 lanes × 4 threads, passive waits): X1 bake, fb6, X2, X3, C2f, X4f | ~2 h 10 | 40 min, well under (fits 50–70 s, 3× faster than at 10 threads) | **fb6 adopted** +2.50 [+0.88, +4.12]; X2 +2.80; X3 +2.57; **C2f +4.11 [+3.11, +5.22] 10/10**; **X4f +6.02 [+4.33, +7.78] 10/10, later +7.31** |
+| 16:19–16:31 / 16:49–17:03 / 16:59–17:12 | bakes X1 / C2f / X4f (`sprint1027_bake_*.sh`): official + all chains, stateful gates, zhou | ~50 min each | 12–14 min each | all EQUAL, stateful gates ALL PASS, zhou EQUAL; g9/g10 show only the 3 by-construction flags of any adaptive model (as F64) |
+
+C2f and X4f switched from fbd to fb6 at 16:21 when fb6 was adopted, before any of their
+numbers (brief, "Phase 2 re-fixed"). **Decision:** by the brief's rule X4f is preferred
+(+1.92 [+0.52, +3.22] over C2f, 9/10, later +3.11) but it is exploratory (fscale and
+logreg picked after seeing them): **nested check required** before it is a sealed
+upload. C2f is the rule-selected candidate and the recommended first sealed upload.
+Table: `logs/sprint_1027/RESULTS.md`. Zips: SUBMISSIONS.md.

@@ -1,8 +1,9 @@
 # Directions: Track 2 at a glance
 
-**Updated 2026-10-27 13:15**: accuracy sprint **paused** (user needs the CPU); resume
-with `scripts/sprint1027_resume.sh` (~2 h). New best: **X1 lopo 0.600 (+3.2), later 0.646
-(+4.5)**, pending the nested check. Warm-up extended to **Nov 1**. The F64 warm-up upload
+**Updated 2026-10-27 17:15**: accuracy sprint **complete**. New candidates over F64T
+(lopo 0.567 / later 0.600): **C2f 0.608 / 0.642** (rule-selected, 10/10 people up) and
+**X4f 0.628 / 0.674** (best, pending the nested check). Zips ready, none uploaded.
+Warm-up open to **Nov 1**; sealed phase from Oct 28. The F64 warm-up upload
 **matched exactly** (0.507944 / 0.506931 / 0.507285) but ran **263 ms/window** on
 the server (32× local). **Cause found and fixed:** default thread pools; the
 thread-pinned F64T gives the same predictions at 9.4 ms/window. F64T zips ready.
@@ -55,10 +56,10 @@ by every session that changes a decision, a number or the plan (§ 8).
 
 | # | Decision | My recommendation | Why it matters | Your effort |
 |---|---|---|---|---|
-| 13 | **X1 = F64T + icoh + fscale + logreg**: lopo +3.22 [+1.83, +5.05] (9/10 people), later +4.53; parts picked after seeing them | Finish the X1 bake (resume script), run the nested check (~4 h) before X1 replaces F64T; meanwhile upload F64T all as the first sealed entry | Up to ~3 points on the ranked board | say when the CPU is free |
+| 13 | **New model for the sealed phase.** C2f = F64T + 6-band filter bank with delta + icoh: lopo **+4.1** [+3.1, +5.2], 10/10 people, later +4.2 (rule-selected). X4f = C2f + feature scaling + logistic regression: lopo **+6.0** [+4.3, +7.8], 10/10, later +7.3 (parts picked after seeing them) | (1) warm-up upload of the **C2f official** zip (expect 0.527602 / 0.526610 / 0.527152) to confirm on the server; (2) **first sealed upload = C2f all**; (3) run the nested check on X4f (~3 h); if it holds, X4f all is the next sealed upload | ~4–6 points on the ranked board vs F64T | two uploads + a go for the nested run |
 | 9 | ~~Warm-up upload of F64~~ done: exact match; 263 ms/window on the server | — | — | — |
 | 12 | ~~Runtime~~ **fixed**: F64T warm-up 10-27 = exact match in **19.0 s** (F64 198.3 s). Was: **Runtime:** F64 at default threads = 263 ms/window (≈ 92 min worst case). F64T (1 thread) = identical predictions, 9.4 ms/window locally | Upload `logs/threads_1027/f64t_official/…_2026-10-27.zip` (sha256 `fcfd7c62`) to the warm-up; if it shows the same three numbers in ≲ 1 min, upload the F64T **all** zip (`a774135a`) as the first sealed one | A timeout wastes a sealed upload | one warm-up upload |
-| 10 | **First sealed upload = the F64T all-trained zip** (F64, threads pinned) | Accept, after the F64T warm-up re-time | It is the best measured model; later uploads can test variants | yes / no |
+| 10 | **First sealed upload = the C2f all-trained zip** (was F64T all) | Accept, after a C2f warm-up check (decision 13) | It is the best measured model; later uploads can test variants | yes / no |
 | 11 | **Sealed upload plan:** F64 first; FI64 (+ icoh) as the first variant | Accept; keep ≥ 5 of the 10 uploads unused until the last week | icoh leaned positive twice (+1.1, +1.65) but never cleared the bar | yes / no |
 | 8 | Adopt the 0.4.0 setup as the main one | Accept (done in practice) | One environment, one set of docs | yes / no |
 | 5 | Optional: REVE/LaBraM weights; merge `docs/sprint0928-consistency` | Low priority | REVE/LaBraM are hours per epoch here | — |
@@ -137,6 +138,7 @@ this CPU, the personal-LDA path (−4.9).
 - **Size:** under ~150 lines. Detail goes to the documents in § 7, not here.
 - **Numbers:** each one must match its source document.
 - **Change log** (newest first, one line each):
+  - 2026-10-27 17:15: sprint complete. fb6 adopted (+2.5); C2f = fb6 + icoh +4.1 (10/10); X4f = C2f + fscale + logreg +6.0 (10/10), pending nested. X1 superseded. Zips for X1 / C2f / X4f baked, all gates pass. Decision 13 rewritten; decision 10 now C2f all.
   - 2026-10-27 13:15: accuracy sprint paused for the user. X1 (icoh + fscale + logreg) lopo 0.5995 (+3.22, CI excludes 0) / later 0.6458; single arms fscale, logreg, delta bins, finer bins, slow waveform no gain; delta in the filter bank lean (+1.09). Warm-up 0.988 of the all-trained zip is memorisation. Decision 13 new.
   - 2026-10-27 (F64T warm-up): exact match 0.507944 / 0.506931 / 0.507285 in 19.0 s on the server (F64: 198.3 s); decision 12 closed. Next: accuracy work.
   - 2026-10-27 (F64T): cause of the slow server run = default thread pools (reproduced locally, 264.7 ms/window); F64T pins them to 1: 9.4 ms/window, 0 of 755 predictions differ; F64T zips built; decisions 10 and 12 updated.
