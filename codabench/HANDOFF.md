@@ -1,4 +1,11 @@
-# HANDOFF — state of record for a new agent (written 2026-10-27)
+# HANDOFF
+
+> **2026-10-27 13:15 — accuracy sprint PAUSED for the user (CPU needed).** Brief
+> `prompts/2026-10-27_sealed_accuracy.md`; results `logs/sprint_1027/RESULTS.md`. New best
+> X1 (F64T + icoh + fscale + logreg0.01): lopo 0.5995 (+3.22), later 0.6458, pending the
+> nested check. Resume: `wsl.exe bash -lc 'bash ~/codabench/scripts/sprint1027_resume.sh'`
+> (~2 h: X1 bake, fb6, X2, X3, C2, X4). Use 4 threads per lane + OMP_WAIT_POLICY=PASSIVE.
+ — state of record for a new agent (written 2026-10-27)
 
 **Read this section first; it is complete on its own.** The user decides from
 [DIRECTIONS.md](DIRECTIONS.md) (short, kept current by every session: § 1 status,

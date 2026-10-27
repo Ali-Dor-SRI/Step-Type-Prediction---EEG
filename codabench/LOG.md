@@ -2285,3 +2285,25 @@ F64T zips (`logs/threads_1027/RESULTS.md`): official `fcfd7c62…` (warm-up re-t
 all `a774135a…` (first sealed upload). Neither uploaded.
 - **F64T warm-up (uploaded 10-27):** 0.5079440 / 0.5069307 / 0.5072848, exact match, **19.0 s**
   on the server (F64 198.3 s). Thread-pool cause confirmed on the server; decision 12 closed.
+
+## 2026-10-27 (11:00–13:12) — accuracy sprint over F64T (paused for the user at 13:12)
+
+Brief `prompts/2026-10-27_sealed_accuracy.md`; table `logs/sprint_1027/RESULTS.md`.
+The user's warm-up upload of the **all-trained** F64T zip scored 0.987856 / 0.988106 /
+0.988079 in 19.0 s: test windows inside training, meaningless (= local replay).
+
+| Time | Step | Estimate | Actual | Result |
+|---|---|---|---|---|
+| 11:08:53–11:14:29 | Phase 0 `sprint1027_p0.sh`: F64 re-run, smokes, zhou | 8 min | 5.5 min, under | F64r = 10-16 rows (0.600302 / 0.600488); zhou EQUAL; smokes sane; sweep scoring at 1 thread: 2 s/fold (was 29) |
+| 11:14:46–12:16:16 | Phase 1 `sprint1027_p1.sh` (2 lanes × 10 threads): fscale, logreg, dbpt8, bpt8, slow | 50–60 min | 61.5 min, on | all **no gain** (best: fscale +0.82, logreg +0.64, CIs cross 0) |
+| 11:55:20–12:26:09 | Phase 1b fbd (delta in the filter bank) | 18 min | 31 min, 1.7× (contention, see incident) | fbd **lean** +1.09 [+0.10, +2.14] |
+| 12:16–13:09:07 | Phase 2x X1 (icoh + fscale + logreg) | 20 min | 53 min (incident, then 4 threads) | **X1 +3.22 [+1.83, +5.05] lopo, 9/10 up; later +4.53** |
+| 13:10:16–13:12 | X1 bake started, fb6 / X2 running | 50 min | stopped at 13:12 for the user (checkpoint) | resumable |
+
+**Decision.** By the pre-registered exploratory rule X1 becomes the candidate, labelled
+"selected after seeing parts": nested check needed before it replaces F64T. Remaining
+(fb6, X2, X3, C2, X4, X1 bake) resume with `scripts/sprint1027_resume.sh` (~2 h).
+
+**Incident 12:12–12:45.** Two 10-thread lanes spin-waited (all 10 OpenMP threads ~80 %
+CPU for 25 min; align 30 → 486 s). Fix: 4 threads per lane + OMP_WAIT_POLICY=PASSIVE;
+fits steady 125–210 s afterwards.

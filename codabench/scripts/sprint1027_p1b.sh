@@ -4,7 +4,8 @@
 exec 2>&1
 LOGDIR="$HOME/codabench/logs/sprint_1027/p1b"
 ENV_SETUP='source ~/codabench/env040.sh >/dev/null'
-THREADS_PER_JOB=10
+THREADS_PER_JOB=4
+export OMP_WAIT_POLICY=PASSIVE   # 12:45: two 10-thread lanes spin-waited 10x slower (logs/sprint_1027 LOG)
 source "/mnt/c/Users/Ali D/Documents/ML/.claude/skills/project-sprint/scripts/step_lib.sh"
 B="personal=pooled align=stream adapt=online buffer=64 fcenter=True xblocks=bpt4"
 SW="python $HOME/codabench/analysis/proteus_sweep.py --lane G1"

@@ -1,6 +1,8 @@
 # Directions: Track 2 at a glance
 
-**Updated 2026-10-27**: warm-up extended to **Nov 1**. The F64 warm-up upload
+**Updated 2026-10-27 13:15**: accuracy sprint **paused** (user needs the CPU); resume
+with `scripts/sprint1027_resume.sh` (~2 h). New best: **X1 lopo 0.600 (+3.2), later 0.646
+(+4.5)**, pending the nested check. Warm-up extended to **Nov 1**. The F64 warm-up upload
 **matched exactly** (0.507944 / 0.506931 / 0.507285) but ran **263 ms/window** on
 the server (32× local). **Cause found and fixed:** default thread pools; the
 thread-pinned F64T gives the same predictions at 9.4 ms/window. F64T zips ready.
@@ -53,6 +55,7 @@ by every session that changes a decision, a number or the plan (§ 8).
 
 | # | Decision | My recommendation | Why it matters | Your effort |
 |---|---|---|---|---|
+| 13 | **X1 = F64T + icoh + fscale + logreg**: lopo +3.22 [+1.83, +5.05] (9/10 people), later +4.53; parts picked after seeing them | Finish the X1 bake (resume script), run the nested check (~4 h) before X1 replaces F64T; meanwhile upload F64T all as the first sealed entry | Up to ~3 points on the ranked board | say when the CPU is free |
 | 9 | ~~Warm-up upload of F64~~ done: exact match; 263 ms/window on the server | — | — | — |
 | 12 | ~~Runtime~~ **fixed**: F64T warm-up 10-27 = exact match in **19.0 s** (F64 198.3 s). Was: **Runtime:** F64 at default threads = 263 ms/window (≈ 92 min worst case). F64T (1 thread) = identical predictions, 9.4 ms/window locally | Upload `logs/threads_1027/f64t_official/…_2026-10-27.zip` (sha256 `fcfd7c62`) to the warm-up; if it shows the same three numbers in ≲ 1 min, upload the F64T **all** zip (`a774135a`) as the first sealed one | A timeout wastes a sealed upload | one warm-up upload |
 | 10 | **First sealed upload = the F64T all-trained zip** (F64, threads pinned) | Accept, after the F64T warm-up re-time | It is the best measured model; later uploads can test variants | yes / no |
@@ -134,6 +137,7 @@ this CPU, the personal-LDA path (−4.9).
 - **Size:** under ~150 lines. Detail goes to the documents in § 7, not here.
 - **Numbers:** each one must match its source document.
 - **Change log** (newest first, one line each):
+  - 2026-10-27 13:15: accuracy sprint paused for the user. X1 (icoh + fscale + logreg) lopo 0.5995 (+3.22, CI excludes 0) / later 0.6458; single arms fscale, logreg, delta bins, finer bins, slow waveform no gain; delta in the filter bank lean (+1.09). Warm-up 0.988 of the all-trained zip is memorisation. Decision 13 new.
   - 2026-10-27 (F64T warm-up): exact match 0.507944 / 0.506931 / 0.507285 in 19.0 s on the server (F64: 198.3 s); decision 12 closed. Next: accuracy work.
   - 2026-10-27 (F64T): cause of the slow server run = default thread pools (reproduced locally, 264.7 ms/window); F64T pins them to 1: 9.4 ms/window, 0 of 755 predictions differ; F64T zips built; decisions 10 and 12 updated.
   - 2026-10-27 (later): F64 warm-up exact match, 198.3 s (263 ms/window, 32× local): decision 9 closed, decision 12 (runtime) new.
