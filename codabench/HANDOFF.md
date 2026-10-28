@@ -29,7 +29,10 @@ uploaded to the sealed phase yet.** Uploading is always the user's action.
    9 people per outer fold (`proteus_sweep.py --protocols nest`, as `RESULTS_p7c_nested.md`;
    F64's nest rows exist in `logs/proteus_w1016/N*.jsonl`). Flag over-selection if nested
    < selected − 3 points. If X4f holds, X4f all is the next sealed upload.
-3. Optional: more levers on top of C2f (e.g. logreg C, more bands) only with pre-registered
+3. **Feature sprint brief written 10-28, not run:** `prompts/2026-10-28_feature_engineering.md`
+   (ROI relative power, asymmetry, |asymmetry|, burstiness on C2f; its Phase 3 nested
+   check includes step 2). Start it with the project-sprint skill.
+4. Optional: other levers on top of C2f (e.g. logreg C, more bands) only with pre-registered
    rules and a nested check — 10 people, selection optimism is the main risk.
 
 **How to run (changes since § 9):**
