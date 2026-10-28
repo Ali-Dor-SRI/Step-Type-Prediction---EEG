@@ -2324,3 +2324,14 @@ Table: `logs/sprint_1027/RESULTS.md`. Zips: SUBMISSIONS.md.
 - **17:29 C2f official warm-up result** (uploaded by the user): 0.5276016 / 0.5266103 /
   0.5271523, **exact match** with the local replay, 22.7 s on the server. Next: the C2f
   all-trained zip as the first sealed upload (decision 10).
+
+## 2026-10-28 (17:44– ) — feature-engineering sprint (brief `prompts/2026-10-28_feature_engineering.md`)
+
+Task-driven blocks on C2f: `roi` (8 ROIs × 6 bands relative power), `asym` (17 pairs ×
+6 bands), `asymabs` (|re-centred asym|), `burst` (ROI envelope CV). Computed on the
+unwhitened windows (addendum 18:40), AF3/AF4 in no block, `align="stream"` only.
+
+| Time | Step | Estimate | Actual | Result |
+|---|---|---|---|---|
+| 17:44–17:47 | Phase 0 code (`riemann_sealed.py` opt-in blocks) + unit check `analysis/sprint1028_ub_unit.py` on 2,655 windows | 1.5–2 h coding | ~40 min coding; unit 13 s | ALL PASS: sizes 48 / 102 / 48, all finite, no AF3/AF4, C3–C4 asym = hand value exactly. Descriptive Fisher (per-session centred, median over people): roi best 0.250, burst 0.133, asym 0.070 |
+| 17:47:51–17:56:52 | Phase 0 runs `scripts/sprint1028_p0.sh` (2 lanes × 4 threads) | 15 min | 9 min, under | C2f re-run = 10-27 rows (fold 0 0.657930, later 0.642419); zhou EQUAL; streaming gates ALL PASS on C2f + all blocks (10,604 features, 20.4 ms/window); smokes on later: roi 0.6357, asym 0.6528, asymabs 0.6570, burst 0.6460 (C2f 0.6424; later decides nothing) |
