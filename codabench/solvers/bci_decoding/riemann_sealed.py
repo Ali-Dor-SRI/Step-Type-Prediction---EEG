@@ -345,8 +345,9 @@ def _parse_xblocks(xblocks):
     ("_" is the separator to use on a benchopt command line.)"""
     names = [s for s in re.split(r"[_+,]", str(xblocks or "")) if s]
     for s in names:
-        if not (s == "icoh" or _XBLOCK_RX.fullmatch(s)):
-            raise ValueError(f"xblocks: unknown block {s!r} (expected tseg<K> / bpt<K> / dbpt<K> / icoh)")
+        if not (s == "icoh" or s in UBLOCKS or _XBLOCK_RX.fullmatch(s)):
+            raise ValueError(f"xblocks: unknown block {s!r} (expected tseg<K> / bpt<K> / "
+                             f"dbpt<K> / icoh / roi / asym / asymabs / burst)")
     if len(set(names)) != len(names):
         raise ValueError(f"xblocks: duplicate block in {xblocks!r}")
     return names
@@ -393,6 +394,94 @@ def _icoh(X, sfreq, chunk_bytes=256 * 2 ** 20):
             blk.append(ic[:, iu[0], iu[1]])
         out.append(np.concatenate(blk, axis=1))
     return np.concatenate(out)
+
+
+# ---------------------------------------------------------------------------
+# Task-driven blocks (opt-in ``xblocks`` names, sprint 2026-10-28, brief
+# codabench/prompts/2026-10-28_feature_engineering.md). Unlike every other
+# block they are computed on the UNWHITENED windows (after preprocessing, the
+# channel pick and clipping, before any covariance re-centring), because they
+# need true channel identities; they are appended after the other blocks, so
+# the per-session feature re-centring (fcenter) still removes session offsets.
+# AF3/AF4 (eye-nearest) are in no block. Bands = parts["fb_bands"].
+#   roi      per ROI and band: log(ROI-mean band power) - log(ROI-mean 1-45 Hz
+#            power): relative power, channel-pooled; 8 * n_bands features;
+#   asym     per homologous pair and band: log power left - log power right;
+#            17 * n_bands features;
+#   burst    per ROI and band: log coefficient of variation over the window of
+#            the ROI-mean band-power envelope (250 ms moving mean); 8 * n_bands;
+#   asymabs  |asym after re-centring - global mean|, appended after fcenter /
+#            fscale (needs fcenter; implies asym): a handedness-free laterality
+#            magnitude relative to the session's running mean; 17 * n_bands.
+# ---------------------------------------------------------------------------
+UBLOCKS = ("roi", "asym", "asymabs", "burst")
+UB_ROIS = {
+    "FM": ["Fz", "FCz", "F1", "F2", "FC1", "FC2"],
+    "LIF": ["F5", "F3", "FC5", "FC3", "C5"],
+    "RIF": ["F6", "F4", "FC6", "FC4", "C6"],
+    "LSM": ["C3", "C1", "CP3", "CP1"],
+    "RSM": ["C4", "C2", "CP4", "CP2"],
+    "PAR": ["P1", "P2", "P3", "P4", "Pz", "CPz"],
+    "LPT": ["CP5", "TP7", "P5", "PO7"],
+    "RPT": ["CP6", "TP8", "P6", "PO8"],
+}
+UB_PAIRS = [("C1", "C2"), ("CP1", "CP2"), ("P1", "P2"), ("C3", "C4"), ("CP3", "CP4"),
+            ("P3", "P4"), ("PO7", "PO8"), ("P5", "P6"), ("TP7", "TP8"), ("CP5", "CP6"),
+            ("C5", "C6"), ("FC5", "FC6"), ("FC3", "FC4"), ("FC1", "FC2"), ("F5", "F6"),
+            ("F3", "F4"), ("F1", "F2")]
+UB_TOTAL_BAND = "1to45"
+UB_ENV_S = 0.25
+
+
+def _ub_index(names):
+    """Channel indices of the ROIs and pairs in the window's channel order
+    (plain lists, stored in the joblib). Every channel must be present."""
+    pos = {str(c).lower(): i for i, c in enumerate(names)}
+    need = sorted({c for v in UB_ROIS.values() for c in v}
+                  | {c for p in UB_PAIRS for c in p})
+    miss = [c for c in need if c.lower() not in pos]
+    if miss:
+        raise ValueError(f"xblocks roi/asym/burst: channels missing: {miss}")
+    return {"rois": [[pos[c.lower()] for c in v] for v in UB_ROIS.values()],
+            "left": [pos[a.lower()] for a, _ in UB_PAIRS],
+            "right": [pos[b.lower()] for _, b in UB_PAIRS]}
+
+
+def _ub_features(parts, X):
+    """(n, C, T) float64 UNWHITENED windows -> (n, k) task-driven block
+    features, in the order roi, asym, burst (those in parts["ublocks"])."""
+    names = [b for b in ("roi", "asym", "burst") if b in parts["ublocks"]]
+    ix, sf = parts["ub_idx"], parts["sfreq"]
+    w = max(1, int(round(UB_ENV_S * sf)))
+    eps = 1e-12
+    out = {b: [] for b in names}
+    tot = None
+    if "roi" in names:
+        Pt = np.concatenate([(xb ** 2).mean(axis=2)
+                             for xb in _band_chunks(X, sf, UB_TOTAL_BAND)])
+        tot = np.stack([Pt[:, r].mean(1) for r in ix["rois"]], axis=1)
+    for band in parts["fb_bands"]:
+        E = np.concatenate([xb ** 2 for xb in _band_chunks(X, sf, band)])   # (n, C, T)
+        P = E.mean(axis=2)                                                  # (n, C)
+        if "roi" in names:
+            Pr = np.stack([P[:, r].mean(1) for r in ix["rois"]], axis=1)
+            out["roi"].append(np.log(Pr + eps) - np.log(tot + eps))
+        if "asym" in names:
+            out["asym"].append(np.log(P[:, ix["left"]] + eps)
+                               - np.log(P[:, ix["right"]] + eps))
+        if "burst" in names:
+            Er = np.stack([E[:, r].mean(1) for r in ix["rois"]], axis=1)     # (n, R, T)
+            cs = np.cumsum(np.concatenate([np.zeros(Er.shape[:2] + (1,)), Er], axis=2),
+                           axis=2)
+            env = (cs[..., w:] - cs[..., :-w]) / w                           # moving mean
+            out["burst"].append(np.log(env.std(axis=2) / (env.mean(axis=2) + eps) + eps))
+    return np.concatenate([np.concatenate(out[b], axis=1) for b in names], axis=1)
+
+
+def _ub_abs(parts, F):
+    """asymabs: |re-centred asym - global mean| appended to the re-centred F."""
+    a, b = parts["ub_asym_cols"]
+    return np.concatenate([F, np.abs(F[:, a:b] - parts["F_global"][a:b])], axis=1)
 
 
 def _xblock_raw(parts, X):
@@ -1509,12 +1598,40 @@ class RiemannSealedModel:
         if self.filterbank:
             parts["fb_bands"] = (self.fbands.split("_") if self.fbands
                                  else list(FB_BANDS))
-        if self.xblocks:
-            parts["xblocks"] = list(self.xblocks)
+        xb_ = [b for b in self.xblocks if b not in UBLOCKS]
+        ub_ = [b for b in self.xblocks if b in UBLOCKS]
+        if xb_:
+            parts["xblocks"] = xb_
+        if ub_:
+            if not self.filterbank:
+                raise ValueError("xblocks roi/asym/asymabs/burst need filterbank=True")
+            if self.align != "stream":
+                raise NotImplementedError("xblocks roi/asym/asymabs/burst: align='stream' only")
+            if "asymabs" in ub_ and not self.fcenter:
+                raise ValueError("xblocks asymabs needs fcenter")
+            if "asymabs" in ub_ and "asym" not in ub_:
+                ub_.append("asym")
+            names_ = parts["ch_names"]
+            if names_ is not None and self._chan_idx is not None:
+                names_ = [names_[i] for i in self._chan_idx]
+            if names_ is None:
+                raise ValueError("xblocks roi/asym/burst need meta['ch_names']")
+            parts.update(ublocks=sorted(ub_, key=UBLOCKS.index), ub_idx=_ub_index(names_))
         raw = _window_blocks(parts, get, n, size)
         _fit_tangent(parts, raw, y)
         feats = _raw_features(parts, raw)
         del raw, Xw
+        if parts.get("ublocks"):
+            uf = np.concatenate([_ub_features(parts, np.asarray(X[s], dtype=np.float64))
+                                 for s in _row_chunks(n, size)])
+            if "asym" in parts["ublocks"]:
+                k = len(UB_PAIRS) * len(parts["fb_bands"])
+                a = feats.shape[1] + (len(UB_ROIS) * len(parts["fb_bands"])
+                                      if "roi" in parts["ublocks"] else 0)
+                parts["ub_asym_cols"] = (int(a), int(a + k))
+            print(f"[Riemann-Sealed] task-driven blocks {parts['ublocks']}: "
+                  f"{uf.shape[1]} features on unwhitened windows", flush=True)
+            feats = np.concatenate([feats, uf], axis=1)
         if self.fcenter:
             # each training (subject, session) group's feature mean moved onto the
             # global one, as each test stream's running mean will be
@@ -1529,6 +1646,8 @@ class RiemannSealedModel:
                     m = gidx == gg
                     feats[m] = mu + (feats[m] - mu) / np.maximum(feats[m].std(0), 1e-9) * sd
                 parts.update(fscale=True, F_sd=sd)
+            if "asymabs" in (parts.get("ublocks") or []):
+                feats = _ub_abs(parts, feats)
         _lap(tm, "features", t0)
 
         t0 = time.time()
@@ -1779,8 +1898,12 @@ class RiemannSealedModel:
             # no routing: one pooled LDA, the stream's own reference (the router's
             # PSD features would be computed for nothing)
             F_ = _features(self.parts, self._stream_whiten(X))
+            if self.parts.get("ublocks"):
+                F_ = np.concatenate([F_, _ub_features(self.parts, X)], axis=1)
             if self.parts.get("fcenter"):
                 F_ = self._stream_fcenter(F_)
+                if "asymabs" in self.parts.get("ublocks", ()):
+                    F_ = _ub_abs(self.parts, F_)
             return self.parts["lda"].predict_proba(F_)
         idx = self._route(X)
         if self.parts.get("align") == "subject_context":
