@@ -2335,3 +2335,9 @@ unwhitened windows (addendum 18:40), AF3/AF4 in no block, `align="stream"` only.
 |---|---|---|---|---|
 | 17:44–17:47 | Phase 0 code (`riemann_sealed.py` opt-in blocks) + unit check `analysis/sprint1028_ub_unit.py` on 2,655 windows | 1.5–2 h coding | ~40 min coding; unit 13 s | ALL PASS: sizes 48 / 102 / 48, all finite, no AF3/AF4, C3–C4 asym = hand value exactly. Descriptive Fisher (per-session centred, median over people): roi best 0.250, burst 0.133, asym 0.070 |
 | 17:47:51–17:56:52 | Phase 0 runs `scripts/sprint1028_p0.sh` (2 lanes × 4 threads) | 15 min | 9 min, under | C2f re-run = 10-27 rows (fold 0 0.657930, later 0.642419); zhou EQUAL; streaming gates ALL PASS on C2f + all blocks (10,604 features, 20.4 ms/window); smokes on later: roi 0.6357, asym 0.6528, asymabs 0.6570, burst 0.6460 (C2f 0.6424; later decides nothing) |
+| 17:57:01–19:02:11 | Phase 1 `scripts/sprint1028_p1.sh` (3 lanes × 4 threads): 4 blocks on C2f and on X4f | ~55 min (revised from 1.7–2 h after Phase 0's fit times) | 65 min, on (fits 75 s → 120–135 s with 3 lanes busy) | **all no gain**: C2f +roi +0.08, +asym +0.12, +asymabs −0.23, +burst +0.15; X4f +roi −0.56, +asym +0.23, +asymabs +0.04, +burst −0.94 [−1.65, −0.12]. Per class: asym lifts mi recall ~1 point, roi / burst do not move sub / word. Table `logs/sprint_1028/RESULTS.md` |
+
+**Decision.** No block adopted or lean, so Phase 2 is skipped (brief contingency) and
+Phase 3 nests {F64, fb6, C2f, X4f}. Inner folds started: C2f 18:39 (lane NF1, after R1's
+arms), X4f 19:01 (NF3), fb6 19:03 (NF2). ETA ≈ 2.5–2.7 h each at ~1.75 min per inner
+fold with three lanes busy → done ≈ 21:45.
