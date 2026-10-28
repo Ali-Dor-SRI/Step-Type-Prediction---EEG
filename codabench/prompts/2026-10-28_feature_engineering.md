@@ -130,3 +130,18 @@ splits, per-class recall), LOG entry, DIRECTIONS § 1/2/4/6 + change log, HANDOF
 - Sealed phase news or a C2f sealed result arrives: note it, keep running.
 - Phase 1 > 1.5× late: decide Phase 2 on the finished arms, report the rest.
 - Nothing lean in Phase 1: skip Phase 2, run Phase 3 on {F64, fb6, C2f, X4f} only.
+
+## 8. Addenda (time-stamped, each before the numbers it concerns)
+
+- **18:40, Phase 0 running, before any Phase 1 number.** (a) The new blocks are
+  computed on the *unwhitened* windows: the existing blocks see covariance-whitened
+  windows, whose "channels" are mixtures, so ROI and pair identities only hold before
+  whitening. They are appended last, so `fcenter` still removes session offsets
+  (e.g. the left-mastoid reference's asymmetry). `align="stream"` only.
+  (b) **Phase 3 rule, made exact** (`analysis/sprint1028_nested.py`): walk the configs
+  in the order F64 → fb6 → C2f → (C2f+F) → X4f → (X4f+F), starting from pick = F64; a
+  config replaces the pick when its inner score ≥ pick + bar **and** ≥ F64 + 2.0, with
+  bar = 2.0 if it adds a task-driven block the pick lacks, else 1.0. Same walk on the
+  full lopo = "selected". Flag over-selection if nested < selected − 3 points.
+  (c) Lane R1 starts C2f's inner folds after its two arms (Phase 3 needs them in every
+  outcome); still ≤ 3 lanes.
