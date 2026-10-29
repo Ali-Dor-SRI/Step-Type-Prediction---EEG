@@ -1,10 +1,11 @@
 # Directions: Track 2 at a glance
 
-**Updated 2026-10-28 21:15**: **X4f passed its nested check** (nested lopo 0.621 vs
+**Updated 2026-10-29**: **X4f official reproduced exactly on the warm-up server**
+(0.546004 / 0.545484 / 0.545695, 22.6 s). **Next: upload X4f all to the sealed phase.**
+10-28: X4f passed its nested check (nested lopo 0.621 vs
 selected 0.628, no over-selection) and is now the recommended sealed model:
 **lopo 0.628 / later 0.674** (C2f 0.608 / 0.642 stays the fallback). The 10-28 feature
-sprint (ROI power, asymmetry, burstiness) found **no gain**. Next: X4f official to the
-warm-up (exact-match check), then **X4f all = sealed upload**. Warm-up open to
+sprint (ROI power, asymmetry, burstiness) found **no gain**. Warm-up open to
 **Nov 1**; sealed phase Oct 28 – Nov 21. Nothing running. This is the short version
 for making decisions; every number links to where it comes from (§ 7). Kept current
 by every session that changes a decision, a number or the plan (§ 8).
@@ -34,7 +35,7 @@ by every session that changes a decision, a number or the plan (§ 8).
   | X4f, nested (every choice re-made inside 9 people) | 0.621 | — | optimism +0.6 points |
 
   Both re-centrings use only the session's own unlabelled windows so far (allowed).
-- **Zips ([SUBMISSIONS.md](SUBMISSIONS.md)):** X4f official `9fb7ffe3` (warm-up check)
+- **Zips ([SUBMISSIONS.md](SUBMISSIONS.md)):** X4f official `9fb7ffe3` (warm-up: exact match 10-29)
   and X4f all `60a0148c` (sealed) in `submissions/`, thread-pinned, every gate PASS,
   12–14 ms/window (sealed test ≈ 5 min of the 60 allowed). C2f all `7059b103` ready as
   the fallback. **Nothing uploaded to the sealed phase yet.**
@@ -47,7 +48,7 @@ by every session that changes a decision, a number or the plan (§ 8).
 
 | # | Decision | My recommendation | Why it matters | Your effort |
 |---|---|---|---|---|
-| 13 | **Sealed model = X4f** (nested check passed 10-28: 0.621 nested vs 0.628 selected; inner choice split X4f 5 / C2f 5, so its edge over C2f is small but survives) | (1) upload **X4f official** (`submissions/riemann_sealed_proteus_x4f_official_2026-10-27.zip`, sha256 `9fb7ffe3`) to the warm-up; expected 0.546004 / 0.545484 / 0.545695; (2) if exact, upload **X4f all** (`…_x4f_all_2026-10-27.zip`, `60a0148c`) to the sealed phase | ~2 points over C2f on lopo, 6 over F64T | two uploads |
+| 13 | **Sealed model = X4f** (nested check passed 10-28: 0.621 nested vs 0.628 selected; inner choice split X4f 5 / C2f 5, so its edge over C2f is small but survives) | (1) ~~upload **X4f official**~~ **done 10-29: exact match, 22.6 s** (`submissions/riemann_sealed_proteus_x4f_official_2026-10-27.zip`, sha256 `9fb7ffe3`) to the warm-up; expected 0.546004 / 0.545484 / 0.545695; (2) if exact, upload **X4f all** (`…_x4f_all_2026-10-27.zip`, `60a0148c`) to the sealed phase | ~2 points over C2f on lopo, 6 over F64T | two uploads |
 | 14 | ~~Feature-engineering sprint~~ **run 10-28: no gain.** ROI relative power, asymmetry, \|asymmetry\|, burstiness: all within 1 point of C2f and X4f, CIs cross 0 (burst on X4f −0.9) | — | — | — |
 | 9 | ~~Warm-up upload of F64~~ done: exact match; 263 ms/window on the server | — | — | — |
 | 12 | ~~Runtime~~ **fixed**: F64T warm-up 10-27 = exact match in **19.0 s** (F64 198.3 s). Was: **Runtime:** F64 at default threads = 263 ms/window (≈ 92 min worst case). F64T (1 thread) = identical predictions, 9.4 ms/window locally | Upload `logs/threads_1027/f64t_official/…_2026-10-27.zip` (sha256 `fcfd7c62`) to the warm-up; if it shows the same three numbers in ≲ 1 min, upload the F64T **all** zip (`a774135a`) as the first sealed one | A timeout wastes a sealed upload | one warm-up upload |
@@ -92,8 +93,8 @@ seconds carry task signal, not only feedback.
 
 ## 5. Bottlenecks and risks
 
-1. **Server format:** proven for F64T and C2f (exact matches); X4f's logistic
-   regression path not yet run on the server (decision 13, step 1).
+1. **Server format:** proven for F64T, C2f and X4f (exact matches; X4f
+   10-29, 22.6 s).
 2. **Small data:** 10 people; `later` rests on 2 people (CIs wide). The nested check
    found no over-selection for F64 (10-16) or X4f (10-28: 0.621 vs 0.628).
 3. **Timing under load:** 8 ms/window quiet, up to ~190 ms/window when the CPU is
@@ -131,6 +132,7 @@ this CPU, the personal-LDA path (−4.9).
 - **Size:** under ~150 lines. Detail goes to the documents in § 7, not here.
 - **Numbers:** each one must match its source document.
 - **Change log** (newest first, one line each):
+  - 2026-10-29: X4f official warm-up = exact match (0.546004 / 0.545484 / 0.545695, 22.6 s); next = X4f all to sealed.
   - 2026-10-28 21:15: feature sprint run: roi / asym / asymabs / burst no gain; X4f nested check passed (0.621 vs 0.628); decision 13 = X4f, decision 14 closed, decisions 10–11 updated, § 1 rewritten.
   - 2026-10-28: feature-engineering sprint brief written and pre-registered (decision 14), not run. No number changed.
   - 2026-10-27 17:35: C2f official warm-up = exact match (0.527602 / 0.526610 / 0.527152), 22.7 s. Upload zips copied to `submissions/` (git-ignored). HANDOFF top rewritten for a new session.

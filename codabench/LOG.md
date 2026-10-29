@@ -2348,3 +2348,11 @@ recommended sealed model; C2f stays the fallback. The feature-engineering questi
 closes as "no gain" for all four task-driven blocks. Incident: the fb6 lane was first
 started with a plain `&` from Git Bash; a keeper `wsl.exe` call was attached at 19:04
 so WSL stayed up; no loss. Sprint ended 21:10, ~11 h before the frame.
+
+## 2026-10-29 — X4f official on the warm-up server
+
+The user uploaded `riemann_sealed_proteus_x4f_official_2026-10-27.zip` (sha256 `9fb7ffe3`)
+to the warm-up. Server scores: balanced_accuracy_cell_mean 0.546004, balanced_accuracy
+0.545484, accuracy 0.545695, duration 22.6 s (ingestion 23.2 s) = **exact match** with
+the local official run. The logistic-regression path runs on image `v3` as it does here.
+Decision 13 step 1 done; next is X4f all (`60a0148c`) to the sealed phase (user's action).
