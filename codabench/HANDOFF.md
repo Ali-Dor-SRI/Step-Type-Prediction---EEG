@@ -101,7 +101,7 @@ unless this section says otherwise.
 |---|---|
 | Oct 24 | registration closed (we are registered, Codabench user `adoroodchi`) |
 | to **Nov 1** | warm-up, extended from Oct 25 after a Codabench host outage of several days; 5 uploads/day; does not rank |
-| **Oct 28 – Nov 21** | **sealed phase**, the only ranked one: 1 upload/day, 10 in total, top 3 audited. Its start date was **not re-confirmed** after the extension: check the site / Discord before relying on Oct 28 |
+| **Nov 4, 18:01 EST – Nov 21, 17:59 EST** | **sealed phase**, the only ranked one: 1 upload/day, 10 in total, top 3 audited. Projected dates per the user (2026-10-29); it had **not opened** on 10-29 (was Oct 28 before the host outage) |
 
 ## 3. The model: candidate F64 (chosen 10-16 by pre-registered rules)
 

@@ -1,12 +1,12 @@
 # Directions: Track 2 at a glance
 
 **Updated 2026-10-29**: **X4f official reproduced exactly on the warm-up server**
-(0.546004 / 0.545484 / 0.545695, 22.6 s). **Next: upload X4f all to the sealed phase.**
+(0.546004 / 0.545484 / 0.545695, 22.6 s). **Next: upload X4f all when the sealed phase opens (Nov 4, 18:01 EST).**
 10-28: X4f passed its nested check (nested lopo 0.621 vs
 selected 0.628, no over-selection) and is now the recommended sealed model:
 **lopo 0.628 / later 0.674** (C2f 0.608 / 0.642 stays the fallback). The 10-28 feature
 sprint (ROI power, asymmetry, burstiness) found **no gain**. Warm-up open to
-**Nov 1**; sealed phase Oct 28 – Nov 21. Nothing running. This is the short version
+**Nov 1**; sealed phase **Nov 4, 18:01 EST – Nov 21, 17:59 EST** (projected; user, 10-29). Nothing running. This is the short version
 for making decisions; every number links to where it comes from (§ 7). Kept current
 by every session that changes a decision, a number or the plan (§ 8).
 
@@ -14,7 +14,7 @@ by every session that changes a decision, a number or the plan (§ 8).
 
 - **Calendar:** registration closed **Oct 24**; the warm-up (5 uploads/day, does
   not rank) was **extended to Nov 1** after the host outage; the **sealed phase,
-  Oct 28 – Nov 21** (start date not re-confirmed since the extension), is the only
+  Nov 4, 18:01 EST – Nov 21, 17:59 EST** (projected start, per the user 10-29; it has not opened yet), is the only
   phase that ranks: 1 upload/day, 10 in total, top 3 audited.
 - **Data: PROTEUS.** 10 people, 14 sessions, 2,655 windows, 41 EEG channels,
   120 Hz, 3 balanced classes. Sealed test = later sessions of these 10 people
@@ -132,6 +132,7 @@ this CPU, the personal-LDA path (−4.9).
 - **Size:** under ~150 lines. Detail goes to the documents in § 7, not here.
 - **Numbers:** each one must match its source document.
 - **Change log** (newest first, one line each):
+  - 2026-10-29: sealed phase has not started; projected Nov 4, 18:01 EST – Nov 21, 17:59 EST (user). X4f all waits for it.
   - 2026-10-29: X4f official warm-up = exact match (0.546004 / 0.545484 / 0.545695, 22.6 s); next = X4f all to sealed.
   - 2026-10-28 21:15: feature sprint run: roi / asym / asymabs / burst no gain; X4f nested check passed (0.621 vs 0.628); decision 13 = X4f, decision 14 closed, decisions 10–11 updated, § 1 rewritten.
   - 2026-10-28: feature-engineering sprint brief written and pre-registered (decision 14), not run. No number changed.

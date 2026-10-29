@@ -27,8 +27,8 @@ release.*
 |---|---|
 | Sep 21, 2026 | Warm-up phase opens; leaderboard scores become the official comparison |
 | **Oct 24, 2026** | **Registration closes** |
-| Oct 25, 2026 | Warm-up ends |
-| Oct 28 – Nov 21, 2026 | **Sealed final phase**, scored on private cohorts |
+| ~~Oct 25~~ Nov 1, 2026 | Warm-up ends (extended after a host outage) |
+| ~~Oct 28~~ **Nov 4, 18:01 EST – Nov 21, 17:59 EST, 2026** (projected, 10-29) | **Sealed final phase**, scored on private cohorts |
 | Dec 11–12, 2026 | Winners' ceremony, NeurIPS Brain & Body Workshop (Sydney) |
 
 ## The four tracks

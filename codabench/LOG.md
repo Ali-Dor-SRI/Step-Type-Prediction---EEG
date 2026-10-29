@@ -2356,3 +2356,7 @@ to the warm-up. Server scores: balanced_accuracy_cell_mean 0.546004, balanced_ac
 0.545484, accuracy 0.545695, duration 22.6 s (ingestion 23.2 s) = **exact match** with
 the local official run. The logistic-regression path runs on image `v3` as it does here.
 Decision 13 step 1 done; next is X4f all (`60a0148c`) to the sealed phase (user's action).
+
+Calendar (user, 2026-10-29): the sealed phase has **not started**; projected
+**Nov 4, 18:01 EST – Nov 21, 17:59 EST**. X4f all (`60a0148c`) waits for it. DIRECTIONS, HANDOFF and COMPETITION
+calendars updated; the copies of the site pages in `2026-competition/` are left as fetched.
