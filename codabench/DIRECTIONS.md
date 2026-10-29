@@ -1,14 +1,12 @@
 # Directions: Track 2 at a glance
 
-**Updated 2026-10-27 17:35**: new candidates over F64T (lopo 0.567 / later 0.600):
-**C2f 0.608 / 0.642** (rule-selected, 10/10 people up; **warm-up exact match, 22.7 s**)
-and **X4f 0.628 / 0.674** (best, pending the nested check). Next: **C2f all = first sealed
-upload**. Warm-up open to **Nov 1**; sealed phase from Oct 28. Nothing running. The F64 warm-up upload
-**matched exactly** (0.507944 / 0.506931 / 0.507285) but ran **263 ms/window** on
-the server (32× local). **Cause found and fixed:** default thread pools; the
-thread-pinned F64T gives the same predictions at 9.4 ms/window. F64T zips ready.
-MODEL_ARCHITECTURE.md now describes F64. Nothing of ours is running. This is the short version for
-making decisions; every number links to where it comes from (§ 7). Kept current
+**Updated 2026-10-28 21:15**: **X4f passed its nested check** (nested lopo 0.621 vs
+selected 0.628, no over-selection) and is now the recommended sealed model:
+**lopo 0.628 / later 0.674** (C2f 0.608 / 0.642 stays the fallback). The 10-28 feature
+sprint (ROI power, asymmetry, burstiness) found **no gain**. Next: X4f official to the
+warm-up (exact-match check), then **X4f all = sealed upload**. Warm-up open to
+**Nov 1**; sealed phase Oct 28 – Nov 21. Nothing running. This is the short version
+for making decisions; every number links to where it comes from (§ 7). Kept current
 by every session that changes a decision, a number or the plan (§ 8).
 
 ## 1. Where we stand
@@ -25,28 +23,21 @@ by every session that changes a decision, a number or the plan (§ 8).
   (leave one person out, 28 cells: the unseen-people half) and `later` (session 1 of
   everyone → sessions 2–3 of P04/P10, 8 cells: the later-sessions half), cell-averaged
   balanced accuracy, paired bootstrap over people. Chance = 0.333.
-- **Sprint 10-16 result ([LOG](LOG.md) "2026-10-16 sprint"):**
+- **Models (lopo / later; [sprint 10-27](logs/sprint_1027/RESULTS.md),
+  [sprint 10-28](logs/sprint_1028/RESULTS.md)):**
 
-  | model | lopo | later |
-  |---|---|---|
-  | setup vehicle (pooled LDA, no bpt4) | 0.419 | 0.492 |
-  | + bpt4 | 0.427 | 0.528 |
-  | + covariance re-centring per stream (S64) | 0.484 | 0.530 |
-  | **+ feature re-centring per stream (F64) = the candidate** | **0.567** | **0.600** |
-  | EEGNet (5 seeds) / EEGNet + Riemann ensemble | 0.485 / 0.487 | 0.476 / 0.533 |
+  | model | lopo | later | status |
+  |---|---|---|---|
+  | F64T: per-session covariance + feature re-centring, pooled LDA | 0.567 | 0.600 | old baseline; warm-up exact, 19 s |
+  | C2f: + 6-band filter bank with delta + icoh | 0.608 | 0.642 | rule-selected; warm-up exact, 22.7 s |
+  | **X4f: C2f + feature scaling + logistic regression** | **0.628** | **0.674** | **nested check passed 10-28** |
+  | X4f, nested (every choice re-made inside 9 people) | 0.621 | — | optimism +0.6 points |
 
   Both re-centrings use only the session's own unlabelled windows so far (allowed).
-  F64 beats S64 by +8.3 points on lopo (CI +4.5 to +12.1, 10/10 people up) and +7.0 on
-  later. No gain: router + personal LDA (−4.9), dropping xDAWN, CAR, amplitude clipping,
-  cropping to 1–3 s, Euclidean means, the EEGNet ensemble, other buffers, other K.
-  icoh on F64: +1.65 lopo (CI +0.4 to +2.9), below the 2-point bar (variant zip ready).
-- **Is the choice over-fitted to these 10 people?** No: re-making every choice inside
-  nine people and testing on the tenth gives lopo **0.567** (vs 0.567 selected).
-- **Zips ([SUBMISSIONS.md](SUBMISSIONS.md)):** the official-trained F64 zip was
-  **uploaded to the warm-up on 10-26: exact match** (0.507944 / 0.506931 /
-  0.507285), 198 s for 755 windows. The F64 sealed zip (trained on all 14 sessions) is
-  ready, not uploaded. Sealed test runtime ≈ 3 min of the 60 allowed (8.2 ms/window
-  on one quiet thread).
+- **Zips ([SUBMISSIONS.md](SUBMISSIONS.md)):** X4f official `9fb7ffe3` (warm-up check)
+  and X4f all `60a0148c` (sealed) in `submissions/`, thread-pinned, every gate PASS,
+  12–14 ms/window (sealed test ≈ 5 min of the 60 allowed). C2f all `7059b103` ready as
+  the fallback. **Nothing uploaded to the sealed phase yet.**
 - **What the data say ([EDA](reports/proteus_eda/EDA.md)):** every session is its own
   domain (two sessions of one person differ as much as two people), which is why
   re-centring per session carries the model; the class signal is strongest in frontal
@@ -56,12 +47,12 @@ by every session that changes a decision, a number or the plan (§ 8).
 
 | # | Decision | My recommendation | Why it matters | Your effort |
 |---|---|---|---|---|
-| 13 | **New model for the sealed phase.** C2f = F64T + 6-band filter bank with delta + icoh: lopo **+4.1** [+3.1, +5.2], 10/10 people, later +4.2 (rule-selected). X4f = C2f + feature scaling + logistic regression: lopo **+6.0** [+4.3, +7.8], 10/10, later +7.3 (parts picked after seeing them) | (1) ~~C2f official warm-up~~ **done 17:29: exact match, 22.7 s**; (2) **first sealed upload = C2f all** (`submissions/riemann_sealed_proteus_c2f_all_2026-10-27.zip`, sha256 `7059b103`); (3) run the nested check on X4f (~3 h); if it holds, X4f all is the next sealed upload | ~4–6 points on the ranked board vs F64T | two uploads + a go for the nested run |
-| 14 | **Feature-engineering sprint** (brief `prompts/2026-10-28_feature_engineering.md`, pre-registered, not run): 4 compact task-driven blocks on C2f (ROI relative power, hemispheric asymmetry, handedness-free asymmetry magnitude, burstiness; eye channels excluded), then one nested check that also settles X4f | Go when convenient: ~4.5 h for the arms, then ~5 h unattended for the nested check; upload C2f all meanwhile | Expected 0–2 points; the nested check is needed anyway for X4f | a time slot |
+| 13 | **Sealed model = X4f** (nested check passed 10-28: 0.621 nested vs 0.628 selected; inner choice split X4f 5 / C2f 5, so its edge over C2f is small but survives) | (1) upload **X4f official** (`submissions/riemann_sealed_proteus_x4f_official_2026-10-27.zip`, sha256 `9fb7ffe3`) to the warm-up; expected 0.546004 / 0.545484 / 0.545695; (2) if exact, upload **X4f all** (`…_x4f_all_2026-10-27.zip`, `60a0148c`) to the sealed phase | ~2 points over C2f on lopo, 6 over F64T | two uploads |
+| 14 | ~~Feature-engineering sprint~~ **run 10-28: no gain.** ROI relative power, asymmetry, \|asymmetry\|, burstiness: all within 1 point of C2f and X4f, CIs cross 0 (burst on X4f −0.9) | — | — | — |
 | 9 | ~~Warm-up upload of F64~~ done: exact match; 263 ms/window on the server | — | — | — |
 | 12 | ~~Runtime~~ **fixed**: F64T warm-up 10-27 = exact match in **19.0 s** (F64 198.3 s). Was: **Runtime:** F64 at default threads = 263 ms/window (≈ 92 min worst case). F64T (1 thread) = identical predictions, 9.4 ms/window locally | Upload `logs/threads_1027/f64t_official/…_2026-10-27.zip` (sha256 `fcfd7c62`) to the warm-up; if it shows the same three numbers in ≲ 1 min, upload the F64T **all** zip (`a774135a`) as the first sealed one | A timeout wastes a sealed upload | one warm-up upload |
-| 10 | **First sealed upload = the C2f all-trained zip** (was F64T all) | Accept, after a C2f warm-up check (decision 13) | It is the best measured model; later uploads can test variants | yes / no |
-| 11 | **Sealed upload plan:** F64 first; FI64 (+ icoh) as the first variant | Accept; keep ≥ 5 of the 10 uploads unused until the last week | icoh leaned positive twice (+1.1, +1.65) but never cleared the bar | yes / no |
+| 10 | **First sealed upload = X4f all** (was C2f all); if C2f all is already up, X4f all is the next one | Accept, after the X4f warm-up check (decision 13) | Best measured model that survived its nested check | yes / no |
+| 11 | **Sealed upload plan:** X4f first, C2f as the fallback variant | Accept; keep ≥ 5 of the 10 uploads unused until the last week | The ranked board is the only check of the 10 unseen people | yes / no |
 | 8 | Adopt the 0.4.0 setup as the main one | Accept (done in practice) | One environment, one set of docs | yes / no |
 | 5 | Optional: REVE/LaBraM weights; merge `docs/sprint0928-consistency` | Low priority | REVE/LaBraM are hours per epoch here | — |
 | 6 | **Thesis: what is the One/Two prompt, and what is the `96` trigger?** ([results](../docs/sprints/2026-10-02_window_effect_check_RESULTS.md), branch `feat/window-effect-check`) | Tell me the prompt's form | Protects a public number | a short answer |
@@ -94,16 +85,17 @@ re-centring does to the features).
 | icoh | +1.65 / +2.35 on F64 (below the 2-point bar) | variant zip FI64 ready |
 | Buffer 16 / all; K 2 / 32 | −1.8 / −0.3; −1.0 / −2.4 on lopo | F64's 64 and 8 kept |
 | No gain | router + personal LDA, no xDAWN, CAR, clipping, 1–3 s crop, Euclidean means, EEGNet ensemble | dropped |
+| Task-driven blocks (10-28): ROI relative power, asymmetry, \|asymmetry\|, burstiness | −0.9 to +0.2 on C2f / X4f | no gain; asymmetry lifts motor-imagery recall ~1 point only |
 
 The 1–3 s crop loses also in the calibration runs (no feedback): the window's last two
 seconds carry task signal, not only feedback.
 
 ## 5. Bottlenecks and risks
 
-1. **Server format of an adaptive model** on image `v3`: being tested by the 10-26
-   warm-up upload (decision 9).
+1. **Server format:** proven for F64T and C2f (exact matches); X4f's logistic
+   regression path not yet run on the server (decision 13, step 1).
 2. **Small data:** 10 people; `later` rests on 2 people (CIs wide). The nested check
-   found no over-selection (0.567 nested vs 0.567 selected).
+   found no over-selection for F64 (10-16) or X4f (10-28: 0.621 vs 0.628).
 3. **Timing under load:** 8 ms/window quiet, up to ~190 ms/window when the CPU is
    oversubscribed (≈ 66 min projected). The server's CPU is unknown; the warm-up
    upload reports the real time.
@@ -113,7 +105,7 @@ seconds carry task signal, not only feedback.
 
 | # | Step | Expected gain | Effort | Needs |
 |---|---|---|---|---|
-| 1 | **Nested check of X4f** (folded into the feature sprint, decision 14; run alone if the sprint waits) (re-select among F64 / fb6 / C2f / X4f inside 9 people) | decides whether X4f (+1.9 over C2f) is real | ~3 h unattended | your go |
+| 1 | ~~Nested check of X4f~~ **done 10-28: holds** | — | — | — |
 | 2 | ~~Update MODEL_ARCHITECTURE.md for F64~~ done 10-26 | — | — | — |
 | 3 | Frontal signal: no EOG in the raw BIDS; delta + finer bins tried 10-27 (dbpt8 / bpt8: no gain; delta in the filter bank: part of C2f). Left: ICA on resting runs for the write-up | honesty, not score | ~2–3 h | — |
 | 4 | Thesis: XGB on the 0.5–2 s window | — | ~3–4 h | decision 6 |
@@ -139,6 +131,7 @@ this CPU, the personal-LDA path (−4.9).
 - **Size:** under ~150 lines. Detail goes to the documents in § 7, not here.
 - **Numbers:** each one must match its source document.
 - **Change log** (newest first, one line each):
+  - 2026-10-28 21:15: feature sprint run: roi / asym / asymabs / burst no gain; X4f nested check passed (0.621 vs 0.628); decision 13 = X4f, decision 14 closed, decisions 10–11 updated, § 1 rewritten.
   - 2026-10-28: feature-engineering sprint brief written and pre-registered (decision 14), not run. No number changed.
   - 2026-10-27 17:35: C2f official warm-up = exact match (0.527602 / 0.526610 / 0.527152), 22.7 s. Upload zips copied to `submissions/` (git-ignored). HANDOFF top rewritten for a new session.
   - 2026-10-27 17:15: sprint complete. fb6 adopted (+2.5); C2f = fb6 + icoh +4.1 (10/10); X4f = C2f + fscale + logreg +6.0 (10/10), pending nested. X1 superseded. Zips for X1 / C2f / X4f baked, all gates pass. Decision 13 rewritten; decision 10 now C2f all.

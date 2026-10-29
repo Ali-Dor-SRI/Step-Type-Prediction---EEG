@@ -1,6 +1,20 @@
 # HANDOFF
 
-## 0. CURRENT STATE — 2026-10-27 17:35 (read first; overrides §§ 3–8 below where they differ)
+## 0. CURRENT STATE — 2026-10-28 21:15 (read first; overrides everything below where they differ)
+
+**Feature sprint 10-28 done** (brief `prompts/2026-10-28_feature_engineering.md`, table
+`logs/sprint_1028/RESULTS.md`, LOG "2026-10-28"):
+- New opt-in `xblocks` in `riemann_sealed.py`: `roi`, `asym`, `asymabs`, `burst`
+  (computed on unwhitened windows, AF3/AF4 excluded, `align="stream"` only; defaults
+  bit-identical: zhou EQUAL, C2f re-run equal). **All no gain** on C2f and X4f.
+- **X4f passed its nested check**: nested lopo 0.6210 vs selected 0.6275 (optimism
+  +0.64, flag at 3); inner picks X4f ×5, C2f ×5. `analysis/sprint1028_nested.py`.
+- **Next (user):** X4f official zip (`9fb7ffe3`) to the warm-up, expect 0.546004 /
+  0.545484 / 0.545695; if exact, X4f all (`60a0148c`) to the sealed phase. C2f all
+  (`7059b103`) is the fallback. Nothing uploaded to the sealed phase yet (as far as we know).
+- Nothing running (checked 21:15).
+
+## 0b. STATE — 2026-10-27 17:35 (superseded where § 0 differs)
 
 **Candidates (accuracy sprint 10-27, brief `prompts/2026-10-27_sealed_accuracy.md`,
 table `logs/sprint_1027/RESULTS.md`, LOG "2026-10-27"):**

@@ -2341,3 +2341,10 @@ unwhitened windows (addendum 18:40), AF3/AF4 in no block, `align="stream"` only.
 Phase 3 nests {F64, fb6, C2f, X4f}. Inner folds started: C2f 18:39 (lane NF1, after R1's
 arms), X4f 19:01 (NF3), fb6 19:03 (NF2). ETA ≈ 2.5–2.7 h each at ~1.75 min per inner
 fold with three lanes busy → done ≈ 21:45.
+| 18:39:26–21:05:46 | Phase 3 inner folds (90 each): C2f (lane R1 → NF1), X4f (NF3, from 19:01), fb6 (NF2, from 19:03); `analysis/sprint1028_nested.py` | C2f 110, X4f 110, fb6 100 min | 131 / 125 / 121 min, 1.2× (3 lanes busy, fits 70–90 s) | Nested lopo **0.6210** vs selected X4f 0.6275: optimism +0.64, **no over-selection**; picks X4f ×5, C2f ×5 |
+
+**Decision.** X4f passes its nested check (DIRECTIONS decision 13) and becomes the
+recommended sealed model; C2f stays the fallback. The feature-engineering question
+closes as "no gain" for all four task-driven blocks. Incident: the fb6 lane was first
+started with a plain `&` from Git Bash; a keeper `wsl.exe` call was attached at 19:04
+so WSL stayed up; no loss. Sprint ended 21:10, ~11 h before the frame.
