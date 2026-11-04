@@ -1,5 +1,14 @@
 # HANDOFF
 
+## 00. RUNNING — 2026-11-04 overnight sprint "train as streamed"
+
+Brief: `prompts/2026-11-04_train_as_streamed.md` (plan, rules, phases). New opt-in
+`trainstream` (training only) in `riemann_sealed.py`. Logs `logs/sprint_1104/p*/`
+(STATUS.md per phase; resumable: re-run `scripts/sprint1104_p<N>.sh` inside WSL).
+The user uploads X4f all (`60a0148c`) to the sealed phase at 18:01 (Nov 4).
+Probes 17:00–17:15 (no refit): online class-balance correction and arm averages
+**no gain**. § 0 below still holds otherwise.
+
 ## 0. CURRENT STATE — 2026-10-28 21:15 (read first; overrides everything below where they differ)
 
 **Feature sprint 10-28 done** (brief `prompts/2026-10-28_feature_engineering.md`, table

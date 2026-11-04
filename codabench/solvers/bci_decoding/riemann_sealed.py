@@ -1268,8 +1268,20 @@ class RiemannSealedModel:
                  chans="eeg", ch_names=None, chs_info=None, ch_types=None,
                  ctx_min=CTX_MIN_WINDOWS, ch_perm=None, xblocks="", wcv_ref="all",
                  stream_k=8, crop="", clip=0.0, fcenter=False, fscale=False,
-                 clf="lda", fbands=""):
+                 clf="lda", fbands="", trainstream=""):
         self.parts, self.preproc = parts, preproc
+        # sprint 2026-11-04, opt-in, training only: "f" = training features
+        # re-centred (and scaled) by the same causal running estimator as a test
+        # stream, per training (subject, session) in recording order; "c" = training
+        # windows whitened by the causal running reference (_stream_whiten);
+        # "cf" = both. "" = full-group means (the recipe). Inference unchanged.
+        self.trainstream = str(trainstream or "")
+        if self.trainstream not in ("", "f", "c", "cf"):
+            raise ValueError(f"trainstream must be ''|f|c|cf, got {trainstream!r}")
+        if self.trainstream and align != "stream":
+            raise ValueError("trainstream needs align='stream'")
+        if "f" in self.trainstream and not fcenter:
+            raise ValueError("trainstream f needs fcenter")
         # blend_w="auto": whitening references of the weight search's folds,
         # "all" (the whole training set's) | "strict" (each fold's fit rows)
         if wcv_ref not in ("all", "strict"):
@@ -1579,7 +1591,16 @@ class RiemannSealedModel:
         # pass for the xDAWN statistics, one for every per-window block
         t0 = time.time()
         n, size = len(X), _chunk_len(X.shape)
-        if size >= n:               # one chunk (every proxy): whiten once
+        if "c" in self.trainstream:
+            # each training group replayed as a test stream (causal reference)
+            Xw = self._replay_groups(parts, "_stream_whiten", X, gidx)
+            size = n
+            print(f"[Riemann-Sealed] trainstream c: {len(np.unique(gidx))} training "
+                  "groups whitened by the causal running reference", flush=True)
+
+            def get(s):
+                return Xw[s]
+        elif size >= n:               # one chunk (every proxy): whiten once
             Xw = _whiten_rows(X, gidx, Wset, parts["W_global"])
 
             def get(s):
@@ -1632,6 +1653,7 @@ class RiemannSealedModel:
             print(f"[Riemann-Sealed] task-driven blocks {parts['ublocks']}: "
                   f"{uf.shape[1]} features on unwhitened windows", flush=True)
             feats = np.concatenate([feats, uf], axis=1)
+        raw_feats = feats.copy() if "f" in self.trainstream else None
         if self.fcenter:
             # each training (subject, session) group's feature mean moved onto the
             # global one, as each test stream's running mean will be
@@ -1646,6 +1668,12 @@ class RiemannSealedModel:
                     m = gidx == gg
                     feats[m] = mu + (feats[m] - mu) / np.maximum(feats[m].std(0), 1e-9) * sd
                 parts.update(fscale=True, F_sd=sd)
+            if "f" in self.trainstream:
+                # same F_global / F_sd as the recipe; the features themselves
+                # re-centred causally per group, as a test stream's are
+                feats = self._replay_groups(parts, "_stream_fcenter", raw_feats, gidx)
+                print("[Riemann-Sealed] trainstream f: training features centred by "
+                      "the causal running estimator", flush=True)
             if "asymabs" in (parts.get("ublocks") or []):
                 feats = _ub_abs(parts, feats)
         _lap(tm, "features", t0)
@@ -1826,6 +1854,26 @@ class RiemannSealedModel:
                 out[m] = np.einsum("ij,njt->nit", W, X[m])
         return out
 
+    def _replay_groups(self, parts, method, data, gidx):
+        """trainstream: run the test-time causal method (``_stream_whiten`` or
+        ``_stream_fcenter``) over each training group's rows in order, each group
+        on an empty buffer, exactly as a test stream after reset_state()."""
+        saved = (self.parts, self._buf)
+        self.parts = parts
+        out = None
+        try:
+            for gg in np.unique(gidx):
+                m = np.flatnonzero(gidx == gg)
+                self._buf = {}
+                r = getattr(self, method)(data[m])
+                if out is None:
+                    out = np.empty((len(data),) + r.shape[1:], dtype=r.dtype)
+                out[m] = r
+        finally:
+            self.parts, self._buf = saved
+            parts.pop("L_global", None)      # a cache, rebuilt at prediction
+        return out
+
     def _stream_whiten(self, X):
         """align="stream": window i is whitened with the reference of the stream's
         windows up to and including i (the last ``buffer``; 0 = all), pulled to
@@ -2002,6 +2050,8 @@ class Solver(CompetSolver):
         "threads": [0],
         # filter-bank bands "_"-joined, e.g. "1to4_4to8_8to13_13to30_30to45" ("" = FB_BANDS)
         "fbands": [""],
+        # sprint 2026-11-04, opt-in, training only: "" | "f" | "c" | "cf" (see model)
+        "trainstream": [""],
         "ctx_min": [CTX_MIN_WINDOWS],   # subject_context: min windows for a pair's own W
         # blend_w="auto" fold references: "all" (whole training set) | "strict"
         # (each fold's fit rows; sprint 2026-10-01, RELEASE_DAY rule 4)
@@ -2049,7 +2099,7 @@ class Solver(CompetSolver):
                                   stream_k=self.stream_k, crop=self.crop,
                                   clip=self.clip, fcenter=self.fcenter,
                                   fscale=self.fscale, clf=self.clf,
-                                  fbands=self.fbands)
+                                  fbands=self.fbands, trainstream=self.trainstream)
 
     def fit(self, model, train_loader):
         model.fit(train_loader)
