@@ -105,3 +105,5 @@ unless 1.5× its ETA ends before 06:45.
 - The user's sealed X4f score arrives: note it in SUBMISSIONS / DIRECTIONS; keep running.
 
 ## 9. Addenda (time-stamped, each before the numbers it concerns)
+
+- 2026-11-04 18:20: no deviation. Phase 1 done in 51 min; no arm adopted or lean, so Phases 2-4 are skipped (§ 5 rules). No extra arm added; sprint closes early.

@@ -1,6 +1,6 @@
 # Directions: Track 2 at a glance
 
-**Updated 2026-10-29**: **X4f official reproduced exactly on the warm-up server**
+**Updated 2026-11-04 18:25**: the train-as-streamed sprint found **no gain** (training on causal running-centred inputs: −0.3 to −1.2 lopo; C 0.003 / 0.03: +0.3 / −0.5). X4f stays; upload X4f all `60a0148c` at 18:01 as planned. Earlier (2026-10-29): **X4f official reproduced exactly on the warm-up server**
 (0.546004 / 0.545484 / 0.545695, 22.6 s). **Next: upload X4f all when the sealed phase opens (Nov 4, 18:01 EST).**
 10-28: X4f passed its nested check (nested lopo 0.621 vs
 selected 0.628, no over-selection) and is now the recommended sealed model:
@@ -86,6 +86,7 @@ re-centring does to the features).
 | icoh | +1.65 / +2.35 on F64 (below the 2-point bar) | variant zip FI64 ready |
 | Buffer 16 / all; K 2 / 32 | −1.8 / −0.3; −1.0 / −2.4 on lopo | F64's 64 and 8 kept |
 | No gain | router + personal LDA, no xDAWN, CAR, clipping, 1–3 s crop, Euclidean means, EEGNet ensemble | dropped |
+| Train as streamed (11-04): replay training sessions through the causal estimators (f / c / cf); logreg C 0.003 / 0.03 | −1.05 / −0.29 / −1.17 lopo; +0.34 / −0.53 | no gain (later also negative) |
 | Task-driven blocks (10-28): ROI relative power, asymmetry, \|asymmetry\|, burstiness | −0.9 to +0.2 on C2f / X4f | no gain; asymmetry lifts motor-imagery recall ~1 point only |
 
 The 1–3 s crop loses also in the calibration runs (no feedback): the window's last two
@@ -109,6 +110,7 @@ seconds carry task signal, not only feedback.
 | 1 | ~~Nested check of X4f~~ **done 10-28: holds** | — | — | — |
 | 2 | ~~Update MODEL_ARCHITECTURE.md for F64~~ done 10-26 | — | — | — |
 | 3 | Frontal signal: no EOG in the raw BIDS; delta + finer bins tried 10-27 (dbpt8 / bpt8: no gain; delta in the filter bank: part of C2f). Left: ICA on resting runs for the write-up | honesty, not score | ~2–3 h | — |
+| 3b | Sealed phase: use uploads 2–10 (1/day); a different model family is the only untried lever, the single-model tweaks are exhausted | uncertain | open | your call after the first sealed score |
 | 4 | Thesis: XGB on the 0.5–2 s window | — | ~3–4 h | decision 6 |
 
 Not worth it now: EEGNet variants (no gain alone or in the ensemble), REVE/LaBraM on
@@ -132,6 +134,7 @@ this CPU, the personal-LDA path (−4.9).
 - **Size:** under ~150 lines. Detail goes to the documents in § 7, not here.
 - **Numbers:** each one must match its source document.
 - **Change log** (newest first, one line each):
+  - 2026-11-04 18:25: train-as-streamed sprint (tsf / tsc / tscf, C 0.003 / 0.03) no gain; Phases 2–4 skipped; X4f unchanged, no new zips.
   - 2026-10-29: sealed phase has not started; projected Nov 4, 18:01 EST – Nov 21, 17:59 EST (user). X4f all waits for it.
   - 2026-10-29: X4f official warm-up = exact match (0.546004 / 0.545484 / 0.545695, 22.6 s); next = X4f all to sealed.
   - 2026-10-28 21:15: feature sprint run: roi / asym / asymabs / burst no gain; X4f nested check passed (0.621 vs 0.628); decision 13 = X4f, decision 14 closed, decisions 10–11 updated, § 1 rewritten.

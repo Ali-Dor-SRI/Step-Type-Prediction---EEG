@@ -2360,3 +2360,14 @@ Decision 13 step 1 done; next is X4f all (`60a0148c`) to the sealed phase (user'
 Calendar (user, 2026-10-29): the sealed phase has **not started**; projected
 **Nov 4, 18:01 EST – Nov 21, 17:59 EST**. X4f all (`60a0148c`) waits for it. DIRECTIONS, HANDOFF and COMPETITION
 calendars updated; the copies of the site pages in `2026-competition/` are left as fetched.
+
+## 2026-11-04 — sprint "train as streamed" (17:17–18:25)
+
+| Time | Step | Estimate | Actual | Result |
+|---|---|---|---|---|
+| 17:17–17:25 | Phase 0 smoke + equality gates | ~15 min | 8 min | passed: zhou EQUAL, X4f re-run equal, gates ALL PASS |
+| 17:28:50–18:19:40 | Phase 1 `scripts/sprint1104_p1.sh` (3 lanes × 4 threads, 6 arms) | ~90 min (up to 150 at night) | 51 min, under | X4f+tsf −1.05, +tsc −0.29, +tscf −1.17, C0.003 +0.34, C0.03 −0.53 lopo; C2f+tscf −0.53 vs C2f. Table `logs/sprint_1104/RESULTS.md` |
+
+**Decision.** No gain. Training on causal running-centred inputs does not help (slightly
+hurts); C = 0.01 stays. Phases 2–4 skipped by the brief's rules. X4f all (`60a0148c`) remains
+the sealed model. No incidents. Nothing running.
