@@ -1,0 +1,85 @@
+16:43:45 [data] shallow all train=(2655, 41, 480) test=(0, 41, 480) offsets=[] epochs=60 seed=33 threads=4
+/mnt/c/Users/Ali D/Documents/ML/codabench/analysis/sprint1106_netsmoke.py:168: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+Consider using tensor.detach() first. (Triggered internally at /__w/pytorch/pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:820.)
+  tl += float(loss) * len(b)
+16:44:00 [epoch] 5/60 loss=1.0344 2.2 s/epoch
+16:44:10 [epoch] 10/60 loss=0.9199 2.2 s/epoch
+16:44:21 [epoch] 15/60 loss=0.7921 2.1 s/epoch
+16:44:31 [epoch] 20/60 loss=0.7517 2.1 s/epoch
+16:44:42 [epoch] 25/60 loss=0.6612 2.1 s/epoch
+16:44:54 [epoch] 30/60 loss=0.6335 2.2 s/epoch
+16:45:05 [epoch] 35/60 loss=0.5788 2.2 s/epoch
+16:45:16 [epoch] 40/60 loss=0.5482 2.2 s/epoch
+16:45:27 [epoch] 45/60 loss=0.5177 2.2 s/epoch
+16:45:37 [epoch] 50/60 loss=0.5053 2.2 s/epoch
+16:45:48 [epoch] 55/60 loss=0.4856 2.2 s/epoch
+16:46:00 [epoch] 60/60 loss=0.5004 2.2 s/epoch
+16:46:00 [row] shallow all trained, nothing to score fit=131s
+16:46:02 [data] shallow all train=(2655, 41, 480) test=(0, 41, 480) offsets=[] epochs=60 seed=34 threads=4
+/mnt/c/Users/Ali D/Documents/ML/codabench/analysis/sprint1106_netsmoke.py:168: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+Consider using tensor.detach() first. (Triggered internally at /__w/pytorch/pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:820.)
+  tl += float(loss) * len(b)
+16:46:19 [epoch] 5/60 loss=1.0550 2.5 s/epoch
+16:46:30 [epoch] 10/60 loss=0.8564 2.4 s/epoch
+16:46:41 [epoch] 15/60 loss=0.7859 2.3 s/epoch
+16:46:51 [epoch] 20/60 loss=0.7229 2.3 s/epoch
+16:47:01 [epoch] 25/60 loss=0.6766 2.2 s/epoch
+16:47:12 [epoch] 30/60 loss=0.6047 2.2 s/epoch
+16:47:22 [epoch] 35/60 loss=0.5721 2.2 s/epoch
+16:47:32 [epoch] 40/60 loss=0.5353 2.2 s/epoch
+16:47:43 [epoch] 45/60 loss=0.5194 2.2 s/epoch
+16:47:53 [epoch] 50/60 loss=0.5103 2.1 s/epoch
+16:48:04 [epoch] 55/60 loss=0.4881 2.1 s/epoch
+16:48:15 [epoch] 60/60 loss=0.4928 2.1 s/epoch
+16:48:15 [row] shallow all trained, nothing to score fit=129s
+16:48:18 [data] shallow all train=(2655, 41, 480) test=(0, 41, 480) offsets=[] epochs=60 seed=35 threads=4
+/mnt/c/Users/Ali D/Documents/ML/codabench/analysis/sprint1106_netsmoke.py:168: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+Consider using tensor.detach() first. (Triggered internally at /__w/pytorch/pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:820.)
+  tl += float(loss) * len(b)
+16:48:34 [epoch] 5/60 loss=1.0119 2.3 s/epoch
+16:48:46 [epoch] 10/60 loss=0.9061 2.3 s/epoch
+16:48:57 [epoch] 15/60 loss=0.8026 2.3 s/epoch
+16:49:08 [epoch] 20/60 loss=0.7329 2.3 s/epoch
+16:49:19 [epoch] 25/60 loss=0.6786 2.3 s/epoch
+16:49:30 [epoch] 30/60 loss=0.6325 2.3 s/epoch
+16:49:41 [epoch] 35/60 loss=0.5770 2.3 s/epoch
+16:49:54 [epoch] 40/60 loss=0.5528 2.3 s/epoch
+16:50:06 [epoch] 45/60 loss=0.5300 2.3 s/epoch
+16:50:17 [epoch] 50/60 loss=0.5125 2.3 s/epoch
+16:50:29 [epoch] 55/60 loss=0.5075 2.3 s/epoch
+16:50:43 [epoch] 60/60 loss=0.5016 2.3 s/epoch
+16:50:43 [row] shallow all trained, nothing to score fit=140s
+16:50:45 [data] shallow all train=(2655, 41, 480) test=(0, 41, 480) offsets=[] epochs=60 seed=36 threads=4
+/mnt/c/Users/Ali D/Documents/ML/codabench/analysis/sprint1106_netsmoke.py:168: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+Consider using tensor.detach() first. (Triggered internally at /__w/pytorch/pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:820.)
+  tl += float(loss) * len(b)
+16:51:01 [epoch] 5/60 loss=1.0567 2.3 s/epoch
+16:51:13 [epoch] 10/60 loss=0.8760 2.4 s/epoch
+16:51:25 [epoch] 15/60 loss=0.8221 2.4 s/epoch
+16:51:36 [epoch] 20/60 loss=0.7164 2.3 s/epoch
+16:51:46 [epoch] 25/60 loss=0.6857 2.3 s/epoch
+16:51:57 [epoch] 30/60 loss=0.6083 2.3 s/epoch
+16:52:08 [epoch] 35/60 loss=0.5726 2.2 s/epoch
+16:52:18 [epoch] 40/60 loss=0.5461 2.2 s/epoch
+16:52:29 [epoch] 45/60 loss=0.5212 2.2 s/epoch
+16:52:40 [epoch] 50/60 loss=0.4973 2.2 s/epoch
+16:52:51 [epoch] 55/60 loss=0.4887 2.2 s/epoch
+16:53:01 [epoch] 60/60 loss=0.4960 2.2 s/epoch
+16:53:01 [row] shallow all trained, nothing to score fit=132s
+16:53:04 [data] shallow all train=(2655, 41, 480) test=(0, 41, 480) offsets=[] epochs=60 seed=37 threads=4
+/mnt/c/Users/Ali D/Documents/ML/codabench/analysis/sprint1106_netsmoke.py:168: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+Consider using tensor.detach() first. (Triggered internally at /__w/pytorch/pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:820.)
+  tl += float(loss) * len(b)
+16:53:18 [epoch] 5/60 loss=1.0330 2.1 s/epoch
+16:53:28 [epoch] 10/60 loss=0.8896 2.1 s/epoch
+16:53:39 [epoch] 15/60 loss=0.7798 2.1 s/epoch
+16:53:49 [epoch] 20/60 loss=0.6897 2.1 s/epoch
+16:54:00 [epoch] 25/60 loss=0.6367 2.1 s/epoch
+16:54:10 [epoch] 30/60 loss=0.6218 2.1 s/epoch
+16:54:21 [epoch] 35/60 loss=0.5739 2.1 s/epoch
+16:54:31 [epoch] 40/60 loss=0.5366 2.1 s/epoch
+16:54:42 [epoch] 45/60 loss=0.5202 2.1 s/epoch
+16:54:52 [epoch] 50/60 loss=0.4919 2.1 s/epoch
+16:55:03 [epoch] 55/60 loss=0.4959 2.1 s/epoch
+16:55:14 [epoch] 60/60 loss=0.4860 2.1 s/epoch
+16:55:14 [row] shallow all trained, nothing to score fit=126s

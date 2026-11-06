@@ -1,0 +1,82 @@
+  0%|          | 0/84 [00:00<?, ?it/s]100%|██████████| 84/84 [00:00<00:00, 1691.26it/s]
+Preparing segments:   0%|          | 0/3 [00:00<?, ?it/s]Preparing segments: 100%|██████████| 3/3 [00:00<00:00, 83.89it/s]
+[X4f-Shallow-ens] 5 ShallowNetT nets (seeds [33, 34, 35, 36, 37]), w=0.3, torch threads=1
+[Riemann-Sealed] predict: 20 calls, 20 windows, 0.3 s (14.4 ms/window), maxrss 0.84 GB
+[Riemann-Sealed] predict: 40 calls, 40 windows, 0.6 s (14.3 ms/window), maxrss 0.84 GB
+[Riemann-Sealed] predict: 60 calls, 60 windows, 0.9 s (14.7 ms/window), maxrss 0.84 GB
+[Riemann-Sealed] predict: 80 calls, 80 windows, 1.2 s (14.5 ms/window), maxrss 0.84 GB
+[Riemann-Sealed] predict: 100 calls, 100 windows, 1.5 s (14.5 ms/window), maxrss 0.84 GB
+[Riemann-Sealed] predict: 120 calls, 120 windows, 1.7 s (14.6 ms/window), maxrss 0.84 GB
+[Riemann-Sealed] predict: 140 calls, 140 windows, 2.1 s (14.9 ms/window), maxrss 0.84 GB
+[Riemann-Sealed] predict: 160 calls, 160 windows, 2.4 s (14.9 ms/window), maxrss 0.84 GB
+[Riemann-Sealed] predict: 180 calls, 180 windows, 2.7 s (14.8 ms/window), maxrss 0.84 GB
+[Riemann-Sealed] predict: 20 calls, 20 windows, 0.3 s (14.8 ms/window), maxrss 0.84 GB
+[Riemann-Sealed] predict: 40 calls, 40 windows, 0.6 s (14.8 ms/window), maxrss 0.84 GB
+[Riemann-Sealed] predict: 60 calls, 60 windows, 0.9 s (14.8 ms/window), maxrss 0.84 GB
+[Riemann-Sealed] predict: 80 calls, 80 windows, 1.2 s (14.8 ms/window), maxrss 0.84 GB
+[Riemann-Sealed] predict: 100 calls, 100 windows, 1.5 s (14.7 ms/window), maxrss 0.84 GB
+[Riemann-Sealed] predict: 120 calls, 120 windows, 1.8 s (14.7 ms/window), maxrss 0.84 GB
+[Riemann-Sealed] predict: 140 calls, 140 windows, 2.1 s (14.7 ms/window), maxrss 0.84 GB
+[Riemann-Sealed] predict: 160 calls, 160 windows, 2.3 s (14.7 ms/window), maxrss 0.84 GB
+[Riemann-Sealed] predict: 180 calls, 180 windows, 2.6 s (14.7 ms/window), maxrss 0.84 GB
+[Riemann-Sealed] predict: 20 calls, 20 windows, 0.3 s (14.7 ms/window), maxrss 0.84 GB
+[Riemann-Sealed] predict: 40 calls, 40 windows, 0.6 s (14.4 ms/window), maxrss 0.84 GB
+[Riemann-Sealed] predict: 60 calls, 60 windows, 0.9 s (14.4 ms/window), maxrss 0.84 GB
+[Riemann-Sealed] predict: 80 calls, 80 windows, 1.1 s (14.4 ms/window), maxrss 0.84 GB
+[Riemann-Sealed] predict: 100 calls, 100 windows, 1.4 s (14.4 ms/window), maxrss 0.84 GB
+[Riemann-Sealed] predict: 120 calls, 120 windows, 1.7 s (14.4 ms/window), maxrss 0.84 GB
+[Riemann-Sealed] predict: 140 calls, 140 windows, 2.0 s (14.5 ms/window), maxrss 0.84 GB
+[Riemann-Sealed] predict: 160 calls, 160 windows, 2.3 s (14.5 ms/window), maxrss 0.84 GB
+[Riemann-Sealed] predict: 180 calls, 180 windows, 2.6 s (14.5 ms/window), maxrss 0.84 GB
+[Riemann-Sealed] predict: 20 calls, 20 windows, 0.3 s (14.9 ms/window), maxrss 0.84 GB
+[Riemann-Sealed] predict: 40 calls, 40 windows, 0.6 s (14.6 ms/window), maxrss 0.84 GB
+[Riemann-Sealed] predict: 60 calls, 60 windows, 0.9 s (14.6 ms/window), maxrss 0.84 GB
+[Riemann-Sealed] predict: 80 calls, 80 windows, 1.2 s (14.5 ms/window), maxrss 0.84 GB
+[Riemann-Sealed] predict: 100 calls, 100 windows, 1.4 s (14.4 ms/window), maxrss 0.84 GB
+[Riemann-Sealed] predict: 120 calls, 120 windows, 1.7 s (14.4 ms/window), maxrss 0.84 GB
+[Riemann-Sealed] predict: 140 calls, 140 windows, 2.0 s (14.5 ms/window), maxrss 0.84 GB
+[Riemann-Sealed] predict: 160 calls, 160 windows, 2.3 s (14.5 ms/window), maxrss 0.84 GB
+[Riemann-Sealed] predict: 180 calls, 180 windows, 2.6 s (14.5 ms/window), maxrss 0.84 GB
+loaded logs/sprint_1109/ens_cand_all/unzipped: personal='pooled' align='stream' adapt='online' buffer=64; streamed official cell mean 0.998611; 26.8 ms/window
+[Riemann-Sealed] predict: 20 calls, 20 windows, 0.3 s (14.5 ms/window), maxrss 1.13 GB
+[Riemann-Sealed] predict: 40 calls, 40 windows, 0.6 s (14.5 ms/window), maxrss 1.13 GB
+[Riemann-Sealed] predict: 60 calls, 60 windows, 0.9 s (14.6 ms/window), maxrss 1.13 GB
+[Riemann-Sealed] predict: 80 calls, 80 windows, 1.2 s (14.6 ms/window), maxrss 1.13 GB
+[Riemann-Sealed] predict: 100 calls, 100 windows, 1.5 s (14.6 ms/window), maxrss 1.13 GB
+[Riemann-Sealed] predict: 120 calls, 120 windows, 1.7 s (14.6 ms/window), maxrss 1.13 GB
+[Riemann-Sealed] predict: 140 calls, 140 windows, 2.0 s (14.5 ms/window), maxrss 1.13 GB
+[Riemann-Sealed] predict: 160 calls, 160 windows, 2.3 s (14.7 ms/window), maxrss 1.13 GB
+[Riemann-Sealed] predict: 180 calls, 180 windows, 2.6 s (14.6 ms/window), maxrss 1.13 GB
+[Riemann-Sealed] predict: 20 calls, 20 windows, 0.3 s (14.5 ms/window), maxrss 1.16 GB
+[Riemann-Sealed] predict: 40 calls, 40 windows, 0.6 s (14.4 ms/window), maxrss 1.16 GB
+[Riemann-Sealed] predict: 60 calls, 60 windows, 0.9 s (14.4 ms/window), maxrss 1.16 GB
+[Riemann-Sealed] predict: 80 calls, 80 windows, 1.2 s (14.7 ms/window), maxrss 1.16 GB
+[Riemann-Sealed] predict: 100 calls, 100 windows, 1.5 s (15.5 ms/window), maxrss 1.16 GB
+[Riemann-Sealed] predict: 120 calls, 120 windows, 1.8 s (15.3 ms/window), maxrss 1.16 GB
+[Riemann-Sealed] predict: 140 calls, 140 windows, 2.1 s (15.2 ms/window), maxrss 1.16 GB
+[Riemann-Sealed] predict: 160 calls, 160 windows, 2.4 s (15.1 ms/window), maxrss 1.16 GB
+[Riemann-Sealed] predict: 180 calls, 180 windows, 2.7 s (15.1 ms/window), maxrss 1.16 GB
+[Riemann-Sealed] predict: 20 calls, 20 windows, 0.3 s (14.7 ms/window), maxrss 1.16 GB
+[Riemann-Sealed] predict: 40 calls, 40 windows, 0.6 s (15.3 ms/window), maxrss 1.16 GB
+[Riemann-Sealed] predict: 60 calls, 60 windows, 0.9 s (14.9 ms/window), maxrss 1.16 GB
+[Riemann-Sealed] predict: 80 calls, 80 windows, 1.2 s (14.9 ms/window), maxrss 1.16 GB
+[Riemann-Sealed] predict: 100 calls, 100 windows, 1.5 s (14.9 ms/window), maxrss 1.16 GB
+[Riemann-Sealed] predict: 120 calls, 120 windows, 1.8 s (14.8 ms/window), maxrss 1.16 GB
+[Riemann-Sealed] predict: 140 calls, 140 windows, 2.1 s (14.8 ms/window), maxrss 1.16 GB
+[Riemann-Sealed] predict: 160 calls, 160 windows, 2.4 s (14.8 ms/window), maxrss 1.16 GB
+[Riemann-Sealed] predict: 180 calls, 180 windows, 2.7 s (14.8 ms/window), maxrss 1.16 GB
+[Riemann-Sealed] predict: 20 calls, 20 windows, 0.3 s (15.0 ms/window), maxrss 1.16 GB
+[Riemann-Sealed] predict: 40 calls, 40 windows, 0.6 s (14.9 ms/window), maxrss 1.16 GB
+[Riemann-Sealed] predict: 60 calls, 60 windows, 0.9 s (14.8 ms/window), maxrss 1.16 GB
+[Riemann-Sealed] predict: 80 calls, 80 windows, 1.2 s (14.6 ms/window), maxrss 1.16 GB
+[Riemann-Sealed] predict: 100 calls, 100 windows, 1.5 s (14.8 ms/window), maxrss 1.16 GB
+[Riemann-Sealed] predict: 120 calls, 120 windows, 1.8 s (15.0 ms/window), maxrss 1.16 GB
+[Riemann-Sealed] predict: 140 calls, 140 windows, 2.1 s (14.9 ms/window), maxrss 1.16 GB
+[Riemann-Sealed] predict: 160 calls, 160 windows, 2.4 s (15.0 ms/window), maxrss 1.16 GB
+[Riemann-Sealed] predict: 180 calls, 180 windows, 2.7 s (14.9 ms/window), maxrss 1.16 GB
+PASS  1 B=1 streamed == batched per stream  0 of 755 differ
+PASS  2 each stream alone == inside the streamed run  
+PASS  3a without reset the state is used (predictions change)  1 differ
+PASS  3b reset_state() restores the clean prediction  
+PASS  4 projected sealed test < 30 min (60 allowed)  26.8 ms/window -> 9.4 min for 106 sessions x 199 windows
+ALL PASS

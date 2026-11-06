@@ -1,0 +1,3 @@
+zip ens_x4f_shallow_all_2026-11-06.zip 2512717 bytes, files [submission.py, riemann_sealed.joblib, shallow_nets.pt]
+sha256 1f6589b809ee918f76e5ee023e843002dd99bb3d88c1a608466b85037fb5cb18
+joblib sha256 2c85739f1543ff712312cb10b7347febb0644f69e26c4b0234f54051e49b8dee (byte-identical to the sealed X4f all zip)
