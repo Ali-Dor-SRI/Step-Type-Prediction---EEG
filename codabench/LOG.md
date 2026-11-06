@@ -2403,3 +2403,13 @@ added; TTA screen and Shallow seeds pulled forward from the weekend. No incident
 Addendum 13:22: Shallow seeds 36–37 (12:58–13:22, 24 min, under). **5-seed ensemble, nested
 w = 0.3 in 10 / 10 folds: lopo 0.6444, +1.69 [+0.94, +2.38] (9/10), later 0.7013 (+2.78) =
 lean** (rules v2). The weekend baseline. Nothing running.
+
+## 2026-11-06 — weekend sprint "X4f + ShallowNet ensemble" (14:12–18:30)
+
+Brief `prompts/2026-11-06_weekend_ensemble.md`; results `logs/sprint_1109/RESULTS.md`.
+- W0 (14:12–14:25, budget 1.5 h): plain-torch `ShallowNetT` == braindecode ShallowFBCSPNet, max |ΔP| 0. PASS.
+- W1: solver `solvers/bci_decoding/ens_x4f_shallow.py`; gates (i) streamed == post-hoc (0 diffs), (ii) w=0 == X4f, (iii) stateful 1–4, (vi) no braindecode: all PASS. Finding: net training is not reproducible across thread counts (seeds at 3 vs 4 threads agree on 86–96 % of argmaxes).
+- W2 (14:38–18:17; ETAs 2.2 h / 3.7 h, both on): (b) stream alignment +1.11 [+0.09, +2.35] vs base ens but later −0.26 → not adopted; (a) 120 epochs +0.40 [−0.10, +0.87] → not adopted. 11-06 config stands.
+- W3: nested row = lopo 0.6444, +1.69 [+0.94, +2.38] vs X4f (9/10), later +2.78 → lean.
+- W4/W5: 5 all-nets 12 min (ETA 15–20); zip `1f6589b8…` 2.5 MB, gates ALL PASS, 21.4 ms/window quiet → 7.5 min, benchopt CLI rc 0 (23 s).
+- Decision: recommend the zip for sealed slot 2 (Tue Nov 10), fact-sheet `X4f-Shallow-ens`. Nothing uploaded.

@@ -1,0 +1,12 @@
+[Riemann-Sealed] predict: 80 calls, 80 windows, 1.0 s (12.3 ms/window), maxrss 1.15 GB
+[Riemann-Sealed] predict: 100 calls, 100 windows, 1.2 s (12.3 ms/window), maxrss 1.15 GB
+[Riemann-Sealed] predict: 120 calls, 120 windows, 1.5 s (12.3 ms/window), maxrss 1.15 GB
+[Riemann-Sealed] predict: 140 calls, 140 windows, 1.7 s (12.3 ms/window), maxrss 1.15 GB
+[Riemann-Sealed] predict: 160 calls, 160 windows, 2.0 s (12.4 ms/window), maxrss 1.15 GB
+[Riemann-Sealed] predict: 180 calls, 180 windows, 2.2 s (12.4 ms/window), maxrss 1.15 GB
+PASS  1 B=1 streamed == batched per stream  0 of 755 differ
+PASS  2 each stream alone == inside the streamed run  
+PASS  3a without reset the state is used (predictions change)  1 differ
+PASS  3b reset_state() restores the clean prediction  
+PASS  4 projected sealed test < 30 min (60 allowed)  21.4 ms/window -> 7.5 min for 106 sessions x 199 windows
+ALL PASS

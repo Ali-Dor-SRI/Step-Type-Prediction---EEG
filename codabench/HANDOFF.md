@@ -1,11 +1,20 @@
 # HANDOFF
 
-## 0000. RUNNING — 2026-11-06 → 11-09 weekend sprint (brief `prompts/2026-11-06_weekend_ensemble.md`)
+## 0000. DONE — 2026-11-06 weekend sprint "X4f + ShallowNet ensemble" (14:12–18:30)
 
-Build the X4f + ShallowNet ensemble zip for sealed slot 2 (Tue Nov 10). Live state:
-`logs/sprint_1109/RESULTS.md`, lanes `logs/sprint_1109/w2/STATUS.md`. W0 PASS (plain-torch
-`analysis/shallownet_t.py` == braindecode, Δ 0); W1 solver `solvers/bci_decoding/ens_x4f_shallow.py`
-(built by `analysis/sprint1109_build_ens.py`) gates (i)(ii)(iii)(vi) PASS; W2 arms running.
+Brief `prompts/2026-11-06_weekend_ensemble.md`; results `logs/sprint_1109/RESULTS.md`
+(force-added); LOG "2026-11-06 — weekend sprint". **Slot-2 zip ready, not uploaded:**
+`logs/sprint_1109/ens_cand_all/ens_x4f_shallow_all_2026-11-06.zip` (copy in `submissions/`),
+sha256 `1f6589b8…`, fact-sheet `X4f-Shallow-ens`; nested lopo 0.6444 (+1.69 [+0.94, +2.38])
+/ later 0.7013 (+2.78) = lean; all gates PASS (21.4 ms/window quiet → 7.5 min; braindecode
+not needed; benchopt CLI rc 0).
+- Code: `analysis/shallownet_t.py` (plain-torch ShallowFBCSPNet, same state-dict keys),
+  `sprint1109_build_ens.py` → `solvers/bci_decoding/ens_x4f_shallow.py`, `sprint1109_w1_gates.py`,
+  `sprint1109_nobd.py`, `sprint1109_compare.py`, `sprint1109_bake.py`; netsmoke gained
+  `--outdir --save-weights --align --skip-done` and split `all` (defaults unchanged).
+- Not adopted: 120 epochs (+0.40), stream alignment (+1.11 but later −0.26; w → 0.4 grid edge).
+- Trap: net training differs across thread counts; train `all` nets at 4 threads.
+- Next: user uploads slot 2 Tue Nov 10; then `prompts/2026-11-09_midweek_explore.md` (draft).
 
 ## 000. DONE — 2026-11-06 sprint "two cheapest big levers" (10:50–15:00)
 

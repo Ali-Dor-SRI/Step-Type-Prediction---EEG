@@ -30,9 +30,9 @@ nothing uploaded.
 | (i) streamed == post-hoc ensemble, K = 5, w 0.3 (`w1/gates_i_ii_k5.log`) | PASS: 0 / 190 (lopo0), 0 / 762 (later) classes differ; X4f probabilities = dump to 1e-8; net probabilities = saved to 3.6e-7 |
 | (ii) w = 0 == X4f | PASS: 0 differ, cell means 0.695397 / 0.673546 = X4f |
 | (iii) `proteus_w1016_gates.py --submission` (K = 5 later folder) | ALL PASS (1–4); 29.5 ms/window under load |
-| (iv) ms/window × 13,000 | under load 30 ms → 6.5 min; quiet-machine timing at bake |
-| (v) zip size | at bake |
-| (vi) loads + predicts with braindecode blocked, `python -I` (`analysis/sprint1109_nobd.py`) | PASS (K = 1 folder; re-run on the bake) |
+| (iv) ms/window, quiet machine, baked zip (`gate_iv_quiet.txt`, 18:18) | PASS: 21.4 ms/window → 7.5 min projected (60 allowed) |
+| (v) zip size | 2,512,717 B (X4f alone 1.2 MB) |
+| (vi) loads + predicts with braindecode blocked, `python -I` (`analysis/sprint1109_nobd.py`) | PASS (K = 1 folder and the baked zip) |
 
 Gate (vi) deviation: instead of a fresh venv (a ~200 MB torch download), the image's venv
 with `braindecode` made unimportable by a meta-path blocker; same proof (no braindecode
@@ -44,16 +44,42 @@ on 86–96 % of windows). The gates compare against the probabilities of the ver
 in the folder, so they are unaffected; W4 trains the `all` nets at 4 threads (the 11-06
 setting).
 
-## W2 — strengthen the net (running)
+## W2 — strengthen the net (done 18:17; neither arm adopted)
 
 Baseline (11-06 npz, grid {0.2, 0.3, 0.4}, nested; `ens_baseline_grid234.txt`): lopo
 0.6444, **+1.69 [+0.94, +2.38]** (9 / 10), picks 0.3 × 10; later 0.7013 (+2.78).
 
 | arm | 5-seed ensemble nested lopo | Δ vs baseline ens | later | rule | verdict |
 |---|---|---|---|---|---|
-| (a) 120 epochs | | | | Δ ≥ +1.0, CI lo > 0, later ≥ 0 | |
+| (a) 120 epochs (14:38 → 18:17, ETA 3.7 h: on) | 0.6485, +2.10 [+1.09, +2.72] vs X4f (8) | **+0.40 [−0.10, +0.87]** (7) | 0.7060 (+0.47 vs base ens) | Δ ≥ +1.0 ✗, CI lo > 0 ✗, later ≥ 0 ✓ | **not adopted** (`cmp_e120.txt`) |
 | (b) stream alignment (14:38 → 16:43, ETA 2.2 h: on) | 0.6555, +2.81 [+1.37, +4.21] vs X4f (9) | **+1.11 [+0.09, +2.35]** (8) | 0.6987 (−0.26 vs base ens) | Δ ≥ +1.0 ✓, CI lo > 0 ✓, later ≥ 0 ✗ | **not adopted** (`cmp_align.txt`) |
 
 Arm (b) note: its nested w = 0.4 in 10 / 10 folds, the edge of the grid (the net carries
 more weight once aligned); a stronger net with a wider grid is a mid-week candidate,
 not adopted here by the pre-registered rule (later −0.26). Seeds trained at 3 threads.
+
+## W3 — nested check
+
+No arm adopted, so the config is the 11-06 one (60 epochs, 4 threads, 5 seeds, w from
+{0.2, 0.3, 0.4} chosen nested) and the 5-seed nested row above is the check: **lopo 0.6444,
++1.69 [+0.94, +2.38] vs X4f (9 / 10 people), w = 0.3 in 10 / 10 folds; later 0.7013 (+2.78)**.
+By rules v2 that is **lean** (Δ ≥ +1.0, CI lower > 0), not "adopted" (Δ < +2.0).
+
+## W4 / W5 — all-trained nets and the bake
+
+- 5 nets on `all` (seeds 33–37, 60 epochs, 4 threads): `rows_all/`, 16:43 → 16:55 (12 min,
+  ETA 15–20).
+- Zip `ens_cand_all/ens_x4f_shallow_all_2026-11-06.zip`, 2,512,717 B, **sha256
+  `1f6589b809ee918f76e5ee023e843002dd99bb3d88c1a608466b85037fb5cb18`**; X4f joblib
+  byte-identical to the sealed `60a0148c` one (sha256 `2c85739f…`); w = 0.3. Copy in
+  `submissions/` (git-ignored).
+- Gates on the unzipped zip: (iii) ALL PASS 1–4; (iv) 21.4 ms/window quiet → 7.5 min;
+  (v) 2.5 MB; (vi) loads + predicts with braindecode blocked; benchopt CLI inference-only on
+  the official dataset rc 0, 23.2 s, weights loaded (`cli/cli_official.log`). Its official
+  score (~0.999) is meaningless: test inside training.
+
+## Recommendation for slot 2 (Tue Nov 10)
+
+**Upload the baked zip** (`1f6589b8…`), fact-sheet name `X4f-Shallow-ens`: the ensemble is
+lean on the nested row and every W0 / W1 / W5 gate passes (rule § 5). Expected: +1.7 lopo /
++2.8 later locally on top of X4f's sealed 0.713; record Δsealed next to Δlocal.

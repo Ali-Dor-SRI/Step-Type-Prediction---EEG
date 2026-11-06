@@ -24,3 +24,9 @@
 | 16:18:26 | END align_s36 rc=0 |
 | 16:18:26 | START align_s37 (ETA 60 min) |
 | 16:43:15 | END align_s37 rc=0 |
+| 16:49:09 | END e120_s35 rc=0 |
+| 16:49:09 | START e120_s36 (ETA 110 min) |
+| 17:34:10 | END e120_s36 rc=0 |
+| 17:34:10 | START e120_s37 (ETA 110 min) |
+| 18:17:31 | END e120_s37 rc=0 |
+| 18:17:31 | ALL DONE |
