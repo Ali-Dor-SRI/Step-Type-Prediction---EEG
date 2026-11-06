@@ -23,7 +23,7 @@ the bake if it clears its rule; it never delays it.
   day (the day turns at 19:00 EST), **final rank = best of each team's last five sealed
   uploads**. No warm-up check exists any more: a crash or timeout burns a slot.
 - **Sealed upload 1** = X4f all (`60a0148c`, Nov 4): **0.713, rank 51 / 51** (top 0.828,
-  median 0.775, 50th 0.736). 4 uploads left (user's count). A team's
+  median 0.775, 50th 0.736). 4 uploads left (confirmed on the Codabench page by the user, 2026-11-06). A team's
   "FBCNet-ensemble-v1" scores 0.741, a plain "LDA" 0.808.
 - Local X4f (Riemann, per-stream re-centring, logreg): **lopo 0.6275 / later 0.6735**,
   nested 0.6210. Protocols: `lopo` = leave one of 10 people out (28 cells), `later` =
@@ -200,4 +200,4 @@ nets or on Riemann.
 - Everything blocked: deliver the measured state + "hold slot 2"; C2f all (`7059b103`,
   ready, all gates PASS) is the zero-work alternative for the user to consider.
 - Needs the user (list in the final summary, do not wait): the upload and its fact-sheet
-  name; confirming the remaining-upload counter on the Codabench page.
+  name. (The remaining-upload counter, 4, was confirmed on 2026-11-06.)

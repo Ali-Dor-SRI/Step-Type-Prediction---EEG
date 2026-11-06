@@ -3,7 +3,7 @@
 **Updated 2026-11-06 10:50**: **first sealed score: X4f all = 0.713** (cell mean / pooled /
 accuracy all 0.713, 362.63 s; uploaded Nov 4 18:01 EST, id 1033809). **Rank 51 of 51** on the
 sealed board (Nov 6 10:20: top 0.828 / 0.825 / 0.825, median 0.775, 50th 0.736). The final rank
-is the **best of a team's last five** sealed uploads (site timeline); **4 uploads left** (user).
+is the **best of a team's last five** sealed uploads (site timeline); **4 uploads left** (confirmed on the Codabench page, 11-06).
 **Sprint 11-06 (to 15:00, [results](logs/sprint_1106/RESULTS.md)):** extra training windows at
 other cue offsets (built bit-exactly through the official loader) **no gain** (−1.2 / −0.5);
 label-free adaptation of the classifier **no gain** (best +0.1); deep nets alone 10–20 points
