@@ -142,14 +142,18 @@ class _AugWindows:
     stream id; ``onset`` = the window's own start). Test windows never come
     from here."""
 
-    def __init__(self, cache, idx, offsets):
+    def __init__(self, cache, idx, offsets, sep=False):
+        """sep: each offset's copy of a session is its own session (session id
+        session * 100 + k, k = 0 official, 1.. the offsets), so the solver's
+        per-session centring and stream whitening use that offset's windows
+        only, as a test stream is centred on its own (official) windows."""
         import pandas as pd
         import torch
         import proteus_cache_aug as PA
         idx = np.asarray(idx, dtype=np.int64)
         keys = ["person", "session", "run", "cue", "label"]
         Xs, dfs = [np.asarray(cache.X[idx])], [cache.rows.iloc[idx][keys + ["interface", "start"]]]
-        for o in offsets:
+        for k, o in enumerate(offsets, start=1):
             d = PA.off_dir(o)
             ro = pd.read_parquet(d / "rows.parquet")
             for k in keys:       # the offset cache is row-aligned with the official one
@@ -157,6 +161,9 @@ class _AugWindows:
                     raise RuntimeError(f"offset cache {d} not row-aligned on {k}")
             Xs.append(np.asarray(np.load(d / "X.npy", mmap_mode="r")[idx]))
             dfs.append(ro.iloc[idx][keys + ["interface", "start"]])
+        if sep:
+            dfs = [d.assign(session=d["session"].to_numpy(dtype=np.int64) * 100 + k)
+                   for k, d in enumerate(dfs)]
         df = pd.concat(dfs, ignore_index=True)
         X = np.concatenate(Xs)
         order = np.lexsort((df["start"].to_numpy(), df["run"].to_numpy(),
@@ -193,10 +200,11 @@ def parse_offsets(s):
         return None
     if s == "none":
         return []
+    s = s.split(":")[0]
     return [float(v) for v in s.replace(",", "_").split("_")]
 
 
-def fit_and_score(Solver, params, protocol, fold, seed=42, train_offsets=None):
+def fit_and_score(Solver, params, protocol, fold, seed=42, train_offsets=None, sep=False):
     """(model, scores, y_true, y_pred, info, fit_seconds) for one split."""
     import torch
     torch.manual_seed(seed)
@@ -208,13 +216,13 @@ def fit_and_score(Solver, params, protocol, fold, seed=42, train_offsets=None):
         tr_idx = np.asarray(PS.split(protocol, fold).train, dtype=np.int64)
         if len(tr_idx) != len(data["train_loader"].dataset):
             raise RuntimeError("train rows differ from route B's")
-        ds = _AugWindows(PC.load(), tr_idx, train_offsets)
+        ds = _AugWindows(PC.load(), tr_idx, train_offsets, sep)
         from torch.utils.data import DataLoader
         data["train_loader"] = DataLoader(
             ds, batch_size=64, shuffle=True, generator=torch.Generator().manual_seed(0),
             collate_fn=ds._collate(data["device"]))
-        log(f"[aug] train_offsets={train_offsets}: {len(tr_idx)} official rows -> "
-            f"{len(ds)} training windows")
+        log(f"[aug] train_offsets={train_offsets} sep={sep}: {len(tr_idx)} official rows -> "
+            f"{len(ds)} training windows, {len(np.unique(ds.ids['stream_id']))} training sessions")
     tr, te = data["train_loader"], data["test_loader"]
     meta = {k: v for k, v in data.items() if not k.endswith("_loader")}
     n_tr, n_te = len(tr.dataset), len(te.dataset)
@@ -303,7 +311,8 @@ def main():
             continue
         t0 = time.time()
         model, sc, y_true, y_pred, info, fit_s = fit_and_score(
-            Solver, params, protocol, fold, a.seed, train_offsets)
+            Solver, params, protocol, fold, a.seed, train_offsets,
+            a.train_offsets.endswith(":sep"))
         test_idx = (nest_split(fold)[1] if protocol == "nest"
                     else np.asarray(PS.split(protocol, fold).test))
         t1 = time.time()
