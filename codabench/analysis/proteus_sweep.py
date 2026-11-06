@@ -133,12 +133,88 @@ def one_thread():
         torch.set_num_threads(n)
 
 
-def fit_and_score(Solver, params, protocol, fold, seed=42):
+class _AugWindows:
+    """Training windows at several cue offsets (sprint 2026-11-06): the official
+    rows ``idx`` of the cache plus the same (person, session, run, cue) rows of
+    each ``proteus_cache_aug`` offset cache, sorted by (person, session, run,
+    window start) = recording order. Items and ``seg_ds.triggers`` as route B's
+    ``_Windows`` (ids from ``proteus_splits.ids_of``, so a session keeps its
+    stream id; ``onset`` = the window's own start). Test windows never come
+    from here."""
+
+    def __init__(self, cache, idx, offsets):
+        import pandas as pd
+        import torch
+        import proteus_cache_aug as PA
+        idx = np.asarray(idx, dtype=np.int64)
+        keys = ["person", "session", "run", "cue", "label"]
+        Xs, dfs = [np.asarray(cache.X[idx])], [cache.rows.iloc[idx][keys + ["interface", "start"]]]
+        for o in offsets:
+            d = PA.off_dir(o)
+            ro = pd.read_parquet(d / "rows.parquet")
+            for k in keys:       # the offset cache is row-aligned with the official one
+                if not (ro[k].to_numpy() == cache.rows[k].to_numpy()).all():
+                    raise RuntimeError(f"offset cache {d} not row-aligned on {k}")
+            Xs.append(np.asarray(np.load(d / "X.npy", mmap_mode="r")[idx]))
+            dfs.append(ro.iloc[idx][keys + ["interface", "start"]])
+        df = pd.concat(dfs, ignore_index=True)
+        X = np.concatenate(Xs)
+        order = np.lexsort((df["start"].to_numpy(), df["run"].to_numpy(),
+                            df["session"].to_numpy(), df["person"].to_numpy()))
+        self.df = df.iloc[order].reset_index(drop=True)
+        self.X = np.ascontiguousarray(X[order])
+        self.y = torch.as_tensor(self.df["label"].to_numpy(), dtype=torch.long)
+        self.ids = PS.ids_of(self.df, np.arange(len(self.df)))
+        spec = importlib.util.spec_from_file_location("proteus_protocols_module", PE.ROUTE_B)
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        self.seg_ds = mod._Segments(pd.DataFrame({
+            "subject": self.df["person"].to_numpy(),
+            "session": self.df["session"].to_numpy(dtype=np.int64),
+            "run": self.df["run"].to_numpy(dtype=np.int64),
+            "context": self.df["interface"].to_numpy(),
+            "start": self.df["start"].to_numpy(dtype=np.float64)}))
+        self._collate = mod._collate
+
+    def __len__(self):
+        return len(self.df)
+
+    def __getitem__(self, i):
+        import torch
+        info = {k: int(self.ids[k][i]) for k in
+                ("subject_id", "record_id", "onset", "stream_id", "context_id")}
+        return torch.from_numpy(np.array(self.X[i], dtype=np.float32)), self.y[i], info
+
+
+def parse_offsets(s):
+    """'' -> None (route B's loader, untouched); 'none' -> [] (the aug loader
+    with official rows only: the parity check); '0.5_1.5' -> [0.5, 1.5]."""
+    if not s:
+        return None
+    if s == "none":
+        return []
+    return [float(v) for v in s.replace(",", "_").split("_")]
+
+
+def fit_and_score(Solver, params, protocol, fold, seed=42, train_offsets=None):
     """(model, scores, y_true, y_pred, info, fit_seconds) for one split."""
     import torch
     torch.manual_seed(seed)
     np.random.seed(seed)
     data = nest_data(fold) if protocol == "nest" else PE.route_b_data(protocol, fold)
+    if train_offsets is not None:
+        if protocol == "nest":
+            raise ValueError("--train-offsets is not wired for nest")
+        tr_idx = np.asarray(PS.split(protocol, fold).train, dtype=np.int64)
+        if len(tr_idx) != len(data["train_loader"].dataset):
+            raise RuntimeError("train rows differ from route B's")
+        ds = _AugWindows(PC.load(), tr_idx, train_offsets)
+        from torch.utils.data import DataLoader
+        data["train_loader"] = DataLoader(
+            ds, batch_size=64, shuffle=True, generator=torch.Generator().manual_seed(0),
+            collate_fn=ds._collate(data["device"]))
+        log(f"[aug] train_offsets={train_offsets}: {len(tr_idx)} official rows -> "
+            f"{len(ds)} training windows")
     tr, te = data["train_loader"], data["test_loader"]
     meta = {k: v for k, v in data.items() if not k.endswith("_loader")}
     n_tr, n_te = len(tr.dataset), len(te.dataset)
@@ -188,7 +264,11 @@ def main():
     ap.add_argument("--folds", default="0-9", help="lopo folds, e.g. 0-9 or 0,3")
     ap.add_argument("--seed", type=int, default=42)
     ap.add_argument("--outer", default="0-9", help="nest: outer lopo folds")
+    ap.add_argument("--train-offsets", default="",
+                    help="extra training windows at these cue offsets (s), e.g. 0.5_1.5_2.0_2.5 "
+                         "(training rows only; 'none' = the aug loader with official rows only)")
     a = ap.parse_args()
+    train_offsets = parse_offsets(a.train_offsets)
     PC.require_env040()
 
     params = {}
@@ -214,13 +294,16 @@ def main():
     log(f"[config] lane={a.lane} name={a.name} solver={a.solver} params={params} "
         f"jobs={len(jobs)} seed={a.seed}")
     for protocol, fold in jobs:
-        key = config_key(a.name, a.solver, {**params, "_seed": a.seed}, protocol, fold)
+        kp = {**params, "_seed": a.seed}
+        if train_offsets is not None:
+            kp["_train_offsets"] = a.train_offsets
+        key = config_key(a.name, a.solver, kp, protocol, fold)
         if key in done:
             log(f"skip {key} (done)")
             continue
         t0 = time.time()
         model, sc, y_true, y_pred, info, fit_s = fit_and_score(
-            Solver, params, protocol, fold, a.seed)
+            Solver, params, protocol, fold, a.seed, train_offsets)
         test_idx = (nest_split(fold)[1] if protocol == "nest"
                     else np.asarray(PS.split(protocol, fold).test))
         t1 = time.time()
@@ -229,6 +312,7 @@ def main():
                                    np.asarray(info["stream_id"]), y_pred)
         log(f"[probas] replayed {len(probas)} windows in {time.time() - t1:.1f}s, argmax = y_pred")
         row = dict(key=key, lane=a.lane, name=a.name, solver=a.solver, params=params,
+                   train_offsets=a.train_offsets,
                    seed=a.seed, protocol=protocol, fold=fold,
                    cell_mean=sc["balanced_accuracy_cell_mean"],
                    session_mean=sc["balanced_accuracy_session_mean"],

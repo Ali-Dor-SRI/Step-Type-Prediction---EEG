@@ -1,21 +1,26 @@
 # Directions: Track 2 at a glance
 
-**Updated 2026-11-04 18:25**: the train-as-streamed sprint found **no gain** (training on causal running-centred inputs: −0.3 to −1.2 lopo; C 0.003 / 0.03: +0.3 / −0.5). X4f stays; upload X4f all `60a0148c` at 18:01 as planned. Earlier (2026-10-29): **X4f official reproduced exactly on the warm-up server**
-(0.546004 / 0.545484 / 0.545695, 22.6 s). **Next: upload X4f all when the sealed phase opens (Nov 4, 18:01 EST).**
-10-28: X4f passed its nested check (nested lopo 0.621 vs
-selected 0.628, no over-selection) and is now the recommended sealed model:
-**lopo 0.628 / later 0.674** (C2f 0.608 / 0.642 stays the fallback). The 10-28 feature
-sprint (ROI power, asymmetry, burstiness) found **no gain**. Warm-up open to
-**Nov 1**; sealed phase **Nov 4, 18:01 EST – Nov 21, 17:59 EST** (projected; user, 10-29). Nothing running. This is the short version
-for making decisions; every number links to where it comes from (§ 7). Kept current
-by every session that changes a decision, a number or the plan (§ 8).
+**Updated 2026-11-06 10:50**: **first sealed score: X4f all = 0.713** (cell mean / pooled /
+accuracy all 0.713, 362.63 s; uploaded Nov 4 18:01 EST, id 1033809). **Rank 51 of 51** on the
+sealed board (Nov 6 10:20: top 0.828 / 0.825 / 0.825, median 0.775, 50th 0.736). The final rank
+is the **best of a team's last five** sealed uploads (site timeline); **4 uploads left** (user).
+A gap of 2.3–11.5 points is a model-family gap, not tuning: the plan is
+`prompts/2026-11-06_next_session_plan.md` (extra training windows at other cue offsets through
+the official loader, label-free test-time adaptation, a deep-net lane; sprint today to 15:00,
+weekend sprint to Mon Nov 9 12:00; upload 2 targeted Tue Nov 10).
+
+Earlier: 11-04 train-as-streamed sprint **no gain**; 10-29 X4f official exact on the warm-up
+server (22.6 s); 10-28 X4f nested check passed (0.621 vs 0.628): **lopo 0.628 / later 0.674**,
+C2f 0.608 / 0.642 the fallback. Nothing running. This is the short version for making
+decisions; every number links to where it comes from (§ 7). Kept current by every session
+that changes a decision, a number or the plan (§ 8).
 
 ## 1. Where we stand
 
 - **Calendar:** registration closed **Oct 24**; the warm-up (5 uploads/day, does
   not rank) was **extended to Nov 1** after the host outage; the **sealed phase,
-  Nov 4, 18:01 EST – Nov 21, 17:59 EST** (projected start, per the user 10-29; it has not opened yet), is the only
-  phase that ranks: 1 upload/day, 10 in total, top 3 audited.
+  Nov 4, 18:01 EST – Nov 21, 17:59 EST** (open; it scored our first upload Nov 4), is the only
+  phase that ranks: 1 upload/day, yaml cap 10, **final rank = best of the last five**, top 3 audited.
 - **Data: PROTEUS.** 10 people, 14 sessions, 2,655 windows, 41 EEG channels,
   120 Hz, 3 balanced classes. Sealed test = later sessions of these 10 people
   **plus 10 unseen people**, streamed one window at a time per session, label-free
@@ -38,7 +43,8 @@ by every session that changes a decision, a number or the plan (§ 8).
 - **Zips ([SUBMISSIONS.md](SUBMISSIONS.md)):** X4f official `9fb7ffe3` (warm-up: exact match 10-29)
   and X4f all `60a0148c` (sealed) in `submissions/`, thread-pinned, every gate PASS,
   12–14 ms/window (sealed test ≈ 5 min of the 60 allowed). C2f all `7059b103` ready as
-  the fallback. **Nothing uploaded to the sealed phase yet.**
+  the fallback. **X4f all uploaded to the sealed phase Nov 4 18:01 EST: 0.713, rank 51 / 51
+  (Nov 6); 362.63 s ⇒ the sealed test is ≈ 12–13 k windows.**
 - **What the data say ([EDA](reports/proteus_eda/EDA.md)):** every session is its own
   domain (two sessions of one person differ as much as two people), which is why
   re-centring per session carries the model; the class signal is strongest in frontal
@@ -48,6 +54,7 @@ by every session that changes a decision, a number or the plan (§ 8).
 
 | # | Decision | My recommendation | Why it matters | Your effort |
 |---|---|---|---|---|
+| 15 | **Upload plan for the 4 remaining sealed slots** (final rank = best of the last five, so a worse upload cannot lower it) | Slot 2 Tue Nov 10 = the weekend winner if at least lean (Δ lopo ≥ +1.0, CI > 0) and gates PASS; slots 3–4 ~Nov 14 / 18 for stacked levers; slot 5 by Fri Nov 20 18:00 EST, never the last hours; every slot a model-family change, none for ≤ 2-point tweaks; record Δsealed next to Δlocal each time | 0.713 is last of 51; the field is 0.736–0.828 | confirm the slot counter; approve each upload |
 | 13 | **Sealed model = X4f** (nested check passed 10-28: 0.621 nested vs 0.628 selected; inner choice split X4f 5 / C2f 5, so its edge over C2f is small but survives) | (1) ~~upload **X4f official**~~ **done 10-29: exact match, 22.6 s** (`submissions/riemann_sealed_proteus_x4f_official_2026-10-27.zip`, sha256 `9fb7ffe3`) to the warm-up; expected 0.546004 / 0.545484 / 0.545695; (2) if exact, upload **X4f all** (`…_x4f_all_2026-10-27.zip`, `60a0148c`) to the sealed phase | ~2 points over C2f on lopo, 6 over F64T | two uploads |
 | 14 | ~~Feature-engineering sprint~~ **run 10-28: no gain.** ROI relative power, asymmetry, \|asymmetry\|, burstiness: all within 1 point of C2f and X4f, CIs cross 0 (burst on X4f −0.9) | — | — | — |
 | 9 | ~~Warm-up upload of F64~~ done: exact match; 263 ms/window on the server | — | — | — |
@@ -107,6 +114,7 @@ seconds carry task signal, not only feedback.
 
 | # | Step | Expected gain | Effort | Needs |
 |---|---|---|---|---|
+| 0 | **Close the gap** (`prompts/2026-11-06_next_session_plan.md`): (a) training windows at other cue offsets via the official loader's `start` (trial 0–8 s, cue spacing ≥ 10 s: up to 9× rows, bit-exact preprocessing), (b) label-free test-time adaptation of the classifier per stream, (c) deep net with cropped training + ensemble | needs 2–10 points; (a) is the cheapest and a plain "LDA" scores 0.81 on the board | today + weekend | decision 15 |
 | 1 | ~~Nested check of X4f~~ **done 10-28: holds** | — | — | — |
 | 2 | ~~Update MODEL_ARCHITECTURE.md for F64~~ done 10-26 | — | — | — |
 | 3 | Frontal signal: no EOG in the raw BIDS; delta + finer bins tried 10-27 (dbpt8 / bpt8: no gain; delta in the filter bank: part of C2f). Left: ICA on resting runs for the write-up | honesty, not score | ~2–3 h | — |
@@ -134,6 +142,7 @@ this CPU, the personal-LDA path (−4.9).
 - **Size:** under ~150 lines. Detail goes to the documents in § 7, not here.
 - **Numbers:** each one must match its source document.
 - **Change log** (newest first, one line each):
+  - 2026-11-06 10:50: first sealed score X4f all 0.713, rank 51 / 51 (top 0.828); rule = best of the last five; 4 uploads left; decision 15 (upload plan) and § 6 step 0 (gap-closing plan) new; plan file `prompts/2026-11-06_next_session_plan.md`.
   - 2026-11-04 18:25: train-as-streamed sprint (tsf / tsc / tscf, C 0.003 / 0.03) no gain; Phases 2–4 skipped; X4f unchanged, no new zips.
   - 2026-10-29: sealed phase has not started; projected Nov 4, 18:01 EST – Nov 21, 17:59 EST (user). X4f all waits for it.
   - 2026-10-29: X4f official warm-up = exact match (0.546004 / 0.545484 / 0.545695, 22.6 s); next = X4f all to sealed.
@@ -146,7 +155,4 @@ this CPU, the personal-LDA path (−4.9).
   - 2026-10-27 (F64T): cause of the slow server run = default thread pools (reproduced locally, 264.7 ms/window); F64T pins them to 1: 9.4 ms/window, 0 of 755 predictions differ; F64T zips built; decisions 10 and 12 updated.
   - 2026-10-27 (later): F64 warm-up exact match, 198.3 s (263 ms/window, 32× local): decision 9 closed, decision 12 (runtime) new.
   - 2026-10-27: no change to decisions or numbers. HANDOFF.md rewritten as a complete state of record for a new agent; LOG back-filled for 10-26.
-  - 2026-10-26 (later): host outage; warm-up extended to Nov 1; official-trained F64 zip uploaded to the warm-up (result pending), so the "nothing uploaded" note below is superseded. MODEL_ARCHITECTURE.md rewritten for F64 with PROTEUS figures (step 2 done).
-  - 2026-10-26: no change to decisions. Raw BIDS has no EOG (41 EEG only), so step 3 is now indirect: the frontal task signal falls with distance from the eyes, is as strong in delta as in theta and peaks in the second after feedback onset (possibly ocular). Practice phase closed Oct 25 with nothing uploaded.
-  - 2026-10-16 (evening): sprint complete. Nested check lopo 0.567 (no over-selection); icoh on F64 +1.65 (FI64 variant zip); buffer and K alternatives no gain; EDA; decision 11 new. Nothing running.
-  - older entries (10-02 … 10-16 morning): see git history of this file.
+  - older entries (10-02 … 10-26): see git history of this file.
