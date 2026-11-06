@@ -2371,3 +2371,31 @@ calendars updated; the copies of the site pages in `2026-competition/` are left 
 **Decision.** No gain. Training on causal running-centred inputs does not help (slightly
 hurts); C = 0.01 stays. Phases 2–4 skipped by the brief's rules. X4f all (`60a0148c`) remains
 the sealed model. No incidents. Nothing running.
+
+## 2026-11-06 — first sealed score; sprint "two cheapest big levers" (10:50–15:00)
+
+Sealed upload 1 (user, Nov 4 18:01 EST, id 1033809): X4f all `60a0148c` = **0.713 / 0.713 /
+0.713**, 362.63 s; **rank 51 / 51** on Nov 6 10:20 (top 0.828, median 0.775). Brief
+`prompts/2026-11-06_next_session_plan.md` § 2; results `logs/sprint_1106/RESULTS.md`.
+
+| Time | Step | Estimate | Actual | Result |
+|---|---|---|---|---|
+| 10:51–10:53 | P1 offset caches via `load_task(overrides={"start": o})` (`analysis/proteus_cache_aug.py`), 11 offsets, own exca cache copy | 60–90 min | 2 min (+3 min parity), under | gate A0 bit-for-bit PASS, A1 PASS; `--train-offsets none` parity = K2 exactly |
+| 10:58–12:48 | P2 X4f+aug4 (`scripts/sprint1106_p2.sh`) | 70 min | 1 h 50, 1.6× over (5× rows ⇒ 9× fit under contention; diagnosed 11:10, not a stall) | lopo −1.18 [−3.56, +0.50], later −1.04: **no gain** |
+| 10:58–11:13 | P2 C2f+aug4 | 70 min | stopped after fold 0 | fold 0 −13.7 (deviation: lane reused) |
+| 11:13–12:24 | P2b X4f+near2s {0.75, 1.25}:sep (`sprint1106_p2b.sh`) | 75–90 min | 71 min, under | −0.47 [−1.44, +0.48], later −1.07: **no gain** |
+| 10:59–11:26 | P3 Shallow / EEGNet 1×, fold 0 + later (`sprint1106_netsmoke.py`) | 25–30 min | 26 min, on | Shallow −11 / −11; EEGNet −19 / −22 |
+| 11:26–11:59 | P3 Shallow + aug8, fold 0 | 25 min | 33 min (1.3×); `later` stopped | 0.429 (−15.7 vs 1×) |
+| 11:19–11:53 | X4f streamed-feature dump, 11 splits (`sprint1106_dump.py`) | 40–45 min | 30 min, under | all reproduce X4f exactly |
+| 11:53–11:55 | label-free TTA probes (`sprint1106_tta_probe.py`) | 8–10 min | 2 min | best T3A M50 +0.08 [−1.24, +1.33]: **no gain** |
+| 12:02–12:57 | Shallow 1× seeds 33–35, all splits; ensemble with X4f (`sprint1106_ensemble.py`) | 40–45 min per seed | 25–30 min per seed | 3-seed nested w: **+1.32 [−0.12, +2.33] (8/10), later +3.81**; fixed w 0.3: +1.65 [+0.83, +2.40] |
+
+**Decision.** Augmented training windows: **no gain** (X4f's xDAWN / bpt4 features are
+locked to the official window; shifted windows blur them; even the net loses). Label-free
+classifier adaptation: **no gain** (a stream's class clusters are a uniform contraction
+that fcenter / fscale already undo). Nets alone: 10–20 points under X4f. **But the X4f +
+ShallowNet log-prob ensemble moves**: +0.9 to +1.7 lopo for every seed, later +1.2 to
++4.1; nested 3-seed row just short of lean, fixed w 0.3 lean. Weekend branch by the
+11-06 table = B, re-scoped in the open to develop this ensemble into a gated slot-2 zip:
+`prompts/2026-11-06_weekend_ensemble.md`. Deviations: C2f+aug4 stopped at fold 0; near2s
+added; TTA screen and Shallow seeds pulled forward from the weekend. No incidents.

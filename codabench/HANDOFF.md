@@ -1,5 +1,24 @@
 # HANDOFF
 
+## 000. DONE — 2026-11-06 sprint "two cheapest big levers" (10:50–15:00)
+
+Sealed upload 1: X4f all `60a0148c` = **0.713, rank 51 / 51** (SUBMISSIONS.md). Results
+`logs/sprint_1106/RESULTS.md` (force-added), LOG "2026-11-06". **Next: the weekend brief
+`prompts/2026-11-06_weekend_ensemble.md`** (develop X4f + ShallowNet ensemble → gated
+slot-2 zip; DIRECTIONS decision 16).
+- No gain: offset-augmented training windows (X4f+aug4 −1.18, X4f+near2s:sep −0.47,
+  C2f+aug4 fold 0 −13.7), label-free TTA of X4f's classifier (best +0.08), nets alone.
+- Lead: X4f + ShallowFBCSPNet (3 seeds) log-prob ensemble, w = 0.3 chosen nested:
+  lopo +1.32 [−0.12, +2.33] (8/10), later +3.81; seeds 36–37 added at the end (RESULTS).
+- New tools (harness only; no solver file changed): `analysis/proteus_cache_aug.py`
+  (offset caches in `~/neuralbench/proteus_cache_aug/`, A0 bit-exact), `proteus_sweep.py
+  --train-offsets <o_o>[:sep]` (default path unchanged), `sprint1106_dump.py` (streamed
+  features + probabilities, `logs/sprint_1106/dump/`), `sprint1106_tta_probe.py`,
+  `sprint1106_netsmoke.py`, `sprint1106_ensemble.py`, `sprint1106_diag.py`.
+- Facts: 5×-row Riemann fits ≈ 10–14 min per fold under 3–4 jobs (6 GB); one Shallow seed
+  on all 11 splits ≈ 25–30 min on 4 threads; the server's braindecode is unpinned
+  (submissions must define the net in plain torch). Nothing running after 15:00.
+
 ## 00. DONE — 2026-11-04 sprint "train as streamed": no gain (18:25)
 
 Brief `prompts/2026-11-04_train_as_streamed.md`; results `logs/sprint_1104/RESULTS.md`

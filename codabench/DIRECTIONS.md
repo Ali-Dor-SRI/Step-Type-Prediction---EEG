@@ -4,10 +4,12 @@
 accuracy all 0.713, 362.63 s; uploaded Nov 4 18:01 EST, id 1033809). **Rank 51 of 51** on the
 sealed board (Nov 6 10:20: top 0.828 / 0.825 / 0.825, median 0.775, 50th 0.736). The final rank
 is the **best of a team's last five** sealed uploads (site timeline); **4 uploads left** (user).
-A gap of 2.3–11.5 points is a model-family gap, not tuning: the plan is
-`prompts/2026-11-06_next_session_plan.md` (extra training windows at other cue offsets through
-the official loader, label-free test-time adaptation, a deep-net lane; sprint today to 15:00,
-weekend sprint to Mon Nov 9 12:00; upload 2 targeted Tue Nov 10).
+**Sprint 11-06 (to 15:00, [results](logs/sprint_1106/RESULTS.md)):** extra training windows at
+other cue offsets (built bit-exactly through the official loader) **no gain** (−1.2 / −0.5);
+label-free adaptation of the classifier **no gain** (best +0.1); deep nets alone 10–20 points
+under X4f, **but X4f + a ShallowNet ensemble moves: +1.3 to +1.7 lopo, +3.8 later** (3 seeds,
+weight chosen nested; just short of / at "lean"). Weekend sprint (to Mon Nov 9 12:00)
+develops it into a gated zip for slot 2 (Tue Nov 10): `prompts/2026-11-06_weekend_ensemble.md`.
 
 Earlier: 11-04 train-as-streamed sprint **no gain**; 10-29 X4f official exact on the warm-up
 server (22.6 s); 10-28 X4f nested check passed (0.621 vs 0.628): **lopo 0.628 / later 0.674**,
@@ -54,6 +56,7 @@ that changes a decision, a number or the plan (§ 8).
 
 | # | Decision | My recommendation | Why it matters | Your effort |
 |---|---|---|---|---|
+| 16 | **Weekend = develop the X4f + ShallowNet ensemble** (11-06 15:00 rule said "explore"; its two screens already ran today: TTA no gain, nets only useful in the ensemble) | Accept; the weekend brief bakes an ensemble zip with a plain-torch net (the server's braindecode is unpinned) and full gates; slot 2 recommended if lean on the nested row, else offered as a model-family draw with the risk stated | The only lever of 11-06 that moved; a family change is what the board gap needs | say go, or nothing (15:00 default) |
 | 15 | **Upload plan for the 4 remaining sealed slots** (final rank = best of the last five, so a worse upload cannot lower it) | Slot 2 Tue Nov 10 = the weekend winner if at least lean (Δ lopo ≥ +1.0, CI > 0) and gates PASS; slots 3–4 ~Nov 14 / 18 for stacked levers; slot 5 by Fri Nov 20 18:00 EST, never the last hours; every slot a model-family change, none for ≤ 2-point tweaks; record Δsealed next to Δlocal each time | 0.713 is last of 51; the field is 0.736–0.828 | confirm the slot counter; approve each upload |
 | 13 | **Sealed model = X4f** (nested check passed 10-28: 0.621 nested vs 0.628 selected; inner choice split X4f 5 / C2f 5, so its edge over C2f is small but survives) | (1) ~~upload **X4f official**~~ **done 10-29: exact match, 22.6 s** (`submissions/riemann_sealed_proteus_x4f_official_2026-10-27.zip`, sha256 `9fb7ffe3`) to the warm-up; expected 0.546004 / 0.545484 / 0.545695; (2) if exact, upload **X4f all** (`…_x4f_all_2026-10-27.zip`, `60a0148c`) to the sealed phase | ~2 points over C2f on lopo, 6 over F64T | two uploads |
 | 14 | ~~Feature-engineering sprint~~ **run 10-28: no gain.** ROI relative power, asymmetry, \|asymmetry\|, burstiness: all within 1 point of C2f and X4f, CIs cross 0 (burst on X4f −0.9) | — | — | — |
@@ -95,6 +98,10 @@ re-centring does to the features).
 | No gain | router + personal LDA, no xDAWN, CAR, clipping, 1–3 s crop, Euclidean means, EEGNet ensemble | dropped |
 | Train as streamed (11-04): replay training sessions through the causal estimators (f / c / cf); logreg C 0.003 / 0.03 | −1.05 / −0.29 / −1.17 lopo; +0.34 / −0.53 | no gain (later also negative) |
 | Task-driven blocks (10-28): ROI relative power, asymmetry, \|asymmetry\|, burstiness | −0.9 to +0.2 on C2f / X4f | no gain; asymmetry lifts motor-imagery recall ~1 point only |
+| Extra training windows at other cue offsets (11-06; official loader, bit-exact): X4f+aug4 / X4f+near2s | −1.18 / −0.47 lopo; −1.0 / −1.1 later (C2f+aug4 fold 0 −13.7) | no gain: the features are locked to the official window |
+| Label-free classifier adaptation per stream (11-06): EM priors, bias info-max, T3A, class-mean shift | best +0.08 lopo | no gain |
+| Deep nets alone (11-06): ShallowFBCSPNet / EEGNetv4, 1× | 0.533 (3 seeds) / ~0.50 fold 0 | 10–20 points under X4f |
+| **X4f + ShallowNet log-prob ensemble** (11-06, 3 seeds, net weight 0.3 chosen nested) | **+1.32 [−0.12, +2.33] nested / +1.65 fixed lopo; +3.81 later** | **weekend lead** |
 
 The 1–3 s crop loses also in the calibration runs (no feedback): the window's last two
 seconds carry task signal, not only feedback.
@@ -114,7 +121,8 @@ seconds carry task signal, not only feedback.
 
 | # | Step | Expected gain | Effort | Needs |
 |---|---|---|---|---|
-| 0 | **Close the gap** (`prompts/2026-11-06_next_session_plan.md`): (a) training windows at other cue offsets via the official loader's `start` (trial 0–8 s, cue spacing ≥ 10 s: up to 9× rows, bit-exact preprocessing), (b) label-free test-time adaptation of the classifier per stream, (c) deep net with cropped training + ensemble | needs 2–10 points; (a) is the cheapest and a plain "LDA" scores 0.81 on the board | today + weekend | decision 15 |
+| 0 | **Weekend: X4f + ShallowNet ensemble → gated slot-2 zip** (`prompts/2026-11-06_weekend_ensemble.md`: stronger net (120 epochs, input re-centring per stream), 5 seeds, nested weight, plain-torch submission wrapper, nested check, bake) | +1.3 to +2 lopo locally; a family change on the board | weekend | decision 16 |
+| 0b | ~~Offset-augmented training windows; label-free classifier adaptation~~ **11-06: no gain** | — | — | — |
 | 1 | ~~Nested check of X4f~~ **done 10-28: holds** | — | — | — |
 | 2 | ~~Update MODEL_ARCHITECTURE.md for F64~~ done 10-26 | — | — | — |
 | 3 | Frontal signal: no EOG in the raw BIDS; delta + finer bins tried 10-27 (dbpt8 / bpt8: no gain; delta in the filter bank: part of C2f). Left: ICA on resting runs for the write-up | honesty, not score | ~2–3 h | — |
@@ -142,6 +150,7 @@ this CPU, the personal-LDA path (−4.9).
 - **Size:** under ~150 lines. Detail goes to the documents in § 7, not here.
 - **Numbers:** each one must match its source document.
 - **Change log** (newest first, one line each):
+  - 2026-11-06 14:30: sprint 11-06: offset-augmented training no gain, label-free TTA no gain, nets alone −10 to −20, X4f + ShallowNet ensemble +1.3 nested / +1.65 fixed lopo, +3.8 later; decision 16 (weekend = develop the ensemble) new; § 4 / § 6 updated.
   - 2026-11-06 10:50: first sealed score X4f all 0.713, rank 51 / 51 (top 0.828); rule = best of the last five; 4 uploads left; decision 15 (upload plan) and § 6 step 0 (gap-closing plan) new; plan file `prompts/2026-11-06_next_session_plan.md`.
   - 2026-11-04 18:25: train-as-streamed sprint (tsf / tsc / tscf, C 0.003 / 0.03) no gain; Phases 2–4 skipped; X4f unchanged, no new zips.
   - 2026-10-29: sealed phase has not started; projected Nov 4, 18:01 EST – Nov 21, 17:59 EST (user). X4f all waits for it.
