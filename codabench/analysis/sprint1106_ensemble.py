@@ -19,7 +19,8 @@ import proteus_cache as PC  # noqa: E402
 from sprint1106_tta_probe import cells, paired  # noqa: E402
 
 DUMP = Path.home() / "codabench/logs/sprint_1106/dump"
-ROWS = Path.home() / "codabench/logs/sprint_1106/rows"
+import os
+ROWS = Path(os.environ.get("ENS_ROWS", Path.home() / "codabench/logs/sprint_1106/rows"))
 WS = (0.0, 0.1, 0.2, 0.3, 0.4, 0.5)
 
 

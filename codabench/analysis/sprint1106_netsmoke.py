@@ -10,6 +10,15 @@ averaged over cells). Optional ``--offsets`` adds training windows from
 to ``logs/sprint_1106/rows/NET.jsonl``; heartbeat every 5 epochs.
 
     python sprint1106_netsmoke.py --model shallow --epochs 60 --seed 33 --splits lopo0 later
+
+Sprint 2026-11-09 options (all default off = the 11-06 behaviour, bit-identical):
+``--outdir`` writes rows / npz there instead of rows/; ``--save-weights``
+also writes the trained state dict (w_<model>_<split>_s<seed>.pt);
+``--align stream`` = Euclidean alignment per stream before the z-score
+(training (person, session) whitened by its own mean covariance; each test
+stream causally by its running mean of the last 64 window covariances with
+the global training mean as a prior of weight 8, as X4f's re-centring);
+split ``all`` trains on every window and scores nothing (W4).
 """
 
 import argparse
@@ -72,13 +81,69 @@ def train_rows(c, idx, offsets):
     return np.concatenate(Xs), np.concatenate(ys)
 
 
-def run(model, split, epochs, seed, offsets, lr, bs):
+def _covs(X):
+    X = np.asarray(X, dtype=np.float64)
+    X = X - X.mean(-1, keepdims=True)
+    return np.einsum("nct,ndt->ncd", X, X) / X.shape[-1]
+
+
+def _isqrt(C):
+    w, V = np.linalg.eigh((C + C.T) / 2)
+    return (V * (1.0 / np.sqrt(np.maximum(w, 1e-12)))) @ V.T
+
+
+def stream_keys(rows, idx):
+    r = rows.iloc[idx]
+    return list(zip(r.person.astype(str), r.session.astype(str)))
+
+
+def align_train(rows, X, idx):
+    """Each training (person, session) whitened by its own mean covariance."""
+    keys = stream_keys(rows, idx)
+    out = np.empty(X.shape, dtype=np.float32)
+    C = _covs(X)
+    for k in sorted(set(keys)):
+        m = np.array([kk == k for kk in keys])
+        W = _isqrt(C[m].mean(0))
+        out[m] = np.einsum("ij,njt->nit", W, X[m])
+    return out, C.mean(0)
+
+
+def align_test(rows, X, idx, Cg, buffer=64, prior=8.0):
+    """Causal, per test stream (idx in stream order): window i whitened by
+    (prior * Cg + sum of the stream's last `buffer` covs up to i) / (prior + n)."""
+    keys = stream_keys(rows, idx)
+    C = _covs(X)
+    out = np.empty(X.shape, dtype=np.float32)
+    buf, cur = [], None
+    for i, k in enumerate(keys):
+        if k != cur:
+            buf, cur = [], k
+        buf.append(C[i])
+        del buf[:-buffer]
+        W = _isqrt((prior * Cg + np.sum(buf, 0)) / (prior + len(buf)))
+        out[i] = W @ X[i]
+    return out
+
+
+def run(model, split, epochs, seed, offsets, lr, bs, outdir=OUT, save_weights=False,
+        align="none"):
     c = PC.load()
     proto, fold = ("lopo", int(split[4:])) if split.startswith("lopo") else (split, None)
     sp = PS.split(proto, fold)
     tr, te = np.asarray(sp.train), np.asarray(sp.test)
-    Xtr, ytr = train_rows(c, tr, offsets)
-    Xte, yte = zscore(c.X[te]), c.y[te]
+    if split == "all":
+        tr, te = np.arange(len(c.y)), np.asarray([], dtype=int)
+    if align == "stream":
+        assert not offsets
+        Xa, Cg = align_train(c.rows, np.asarray(c.X[tr]), tr)
+        Xtr, ytr = zscore(Xa), c.y[tr]
+        Xte = (zscore(align_test(c.rows, np.asarray(c.X[te]), te, Cg)) if len(te)
+               else np.zeros((0,) + Xtr.shape[1:], np.float32))
+        yte = c.y[te]
+    else:
+        Xtr, ytr = train_rows(c, tr, offsets)
+        Xte, yte = zscore(c.X[te]), c.y[te]
     log(f"[data] {model} {split} train={Xtr.shape} test={Xte.shape} offsets={offsets} "
         f"epochs={epochs} seed={seed} threads={torch.get_num_threads()}")
     torch.manual_seed(seed)
@@ -106,6 +171,15 @@ def run(model, split, epochs, seed, offsets, lr, bs):
             log(f"[epoch] {ep + 1}/{epochs} loss={tl / len(yt):.4f} "
                 f"{(time.time() - t0) / (ep + 1):.1f} s/epoch")
     fit_s = time.time() - t0
+    outdir = Path(outdir)
+    outdir.mkdir(parents=True, exist_ok=True)
+    if save_weights:
+        torch.save(net.state_dict(), outdir / f"w_{model}_{split}_s{seed}.pt")
+        if align == "stream":
+            np.save(outdir / f"cg_{model}_{split}_s{seed}.npy", Cg)
+    if not len(te):
+        log(f"[row] {model} {split} trained, nothing to score fit={fit_s:.0f}s")
+        return
     net.eval()
     with torch.no_grad():
         P = torch.softmax(net(torch.from_numpy(Xte)), -1).numpy()
@@ -114,10 +188,11 @@ def run(model, split, epochs, seed, offsets, lr, bs):
                cell_mean=score, cells=cells, fit_s=round(fit_s, 1),
                s_per_epoch=round(fit_s / epochs, 2), n_train=int(len(ytr)),
                time=time.strftime("%F %T"))
-    OUT.mkdir(parents=True, exist_ok=True)
-    with open(OUT / "NET.jsonl", "a") as fh:
+    if align != "none":
+        row["align"] = align
+    with open(outdir / "NET.jsonl", "a") as fh:
         fh.write(json.dumps(row) + "\n")
-    np.savez_compressed(OUT / f"net_{model}_{split}_s{seed}_o{len(offsets or [])}.npz",
+    np.savez_compressed(outdir / f"net_{model}_{split}_s{seed}_o{len(offsets or [])}.npz",
                         probas=P, y=yte, test_idx=te)
     log(f"[row] {model} {split} cell_mean={score:.4f} fit={fit_s:.0f}s")
 
@@ -131,7 +206,18 @@ if __name__ == "__main__":
     ap.add_argument("--offsets", default="")
     ap.add_argument("--lr", type=float, default=1e-3)
     ap.add_argument("--bs", type=int, default=64)
+    ap.add_argument("--outdir", default=str(OUT))
+    ap.add_argument("--save-weights", action="store_true")
+    ap.add_argument("--align", default="none", choices=["none", "stream"])
+    ap.add_argument("--skip-done", action="store_true",
+                    help="skip a split whose npz (or weights, for all) already exists")
     a = ap.parse_args()
     offs = [float(v) for v in a.offsets.split("_")] if a.offsets else []
     for s in a.splits:
-        run(a.model, s, a.epochs, a.seed, offs, a.lr, a.bs)
+        od = Path(a.outdir)
+        done = (od / f"w_{a.model}_{s}_s{a.seed}.pt" if s == "all"
+                else od / f"net_{a.model}_{s}_s{a.seed}_o{len(offs)}.npz")
+        if a.skip_done and done.exists():
+            log(f"[skip] {s} s{a.seed}: {done.name} exists")
+            continue
+        run(a.model, s, a.epochs, a.seed, offs, a.lr, a.bs, a.outdir, a.save_weights, a.align)

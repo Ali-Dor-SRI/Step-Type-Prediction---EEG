@@ -1,0 +1,13 @@
+bd keys ['conv_time_spat.conv_time.weight', 'conv_time_spat.conv_time.bias', 'conv_time_spat.conv_spat.weight', 'bnorm.weight', 'bnorm.bias', 'bnorm.running_mean', 'bnorm.running_var', 'bnorm.num_batches_tracked', 'final_layer.conv_classifier.weight', 'final_layer.conv_classifier.bias']
+T  keys ['conv_time_spat.conv_time.weight', 'conv_time_spat.conv_time.bias', 'conv_time_spat.conv_spat.weight', 'bnorm.weight', 'bnorm.bias', 'bnorm.running_mean', 'bnorm.running_var', 'bnorm.num_batches_tracked', 'final_layer.conv_classifier.weight', 'final_layer.conv_classifier.bias']
+PASS lopo0 T vs braindecode: max|d|=0.00e+00 classes equal=True
+PASS lopo0 T at B=1 vs braindecode at B=1: max|d|=0.00e+00 classes equal=True
+PASS lopo0 (info) T at B=1 vs batched braindecode: max|d|=7.15e-07 classes equal=True
+PASS lopo0 T vs retrain npz: max|d|=0.00e+00 classes equal=True
+bd keys ['conv_time_spat.conv_time.weight', 'conv_time_spat.conv_time.bias', 'conv_time_spat.conv_spat.weight', 'bnorm.weight', 'bnorm.bias', 'bnorm.running_mean', 'bnorm.running_var', 'bnorm.num_batches_tracked', 'final_layer.conv_classifier.weight', 'final_layer.conv_classifier.bias']
+T  keys ['conv_time_spat.conv_time.weight', 'conv_time_spat.conv_time.bias', 'conv_time_spat.conv_spat.weight', 'bnorm.weight', 'bnorm.bias', 'bnorm.running_mean', 'bnorm.running_var', 'bnorm.num_batches_tracked', 'final_layer.conv_classifier.weight', 'final_layer.conv_classifier.bias']
+PASS later T vs braindecode: max|d|=0.00e+00 classes equal=True
+PASS later T at B=1 vs braindecode at B=1: max|d|=0.00e+00 classes equal=True
+PASS later (info) T at B=1 vs batched braindecode: max|d|=1.07e-06 classes equal=True
+PASS later T vs retrain npz: max|d|=0.00e+00 classes equal=True
+ALL PASS
