@@ -93,8 +93,13 @@ every seed and weight in 0.2–0.4, positive on `later` every time (+1.2 to +4.1
 fully nested 3-seed row is just short of **lean** (CI lower −0.12); the fixed w = 0.3 row,
 the weight the nested selection takes 9 times in 10, is lean. Below the +2.0 adopt bar.
 A Shallow net 10 points weaker than X4f still adds independent information: the two
-families err on different windows. Seeds 36–37 run at the end of the sprint
-(5-seed row: FIVE_SEED).
+families err on different windows.
+
+**5 seeds (33–37, net probabilities averaged; seeds 36–37 run 12:58–13:22):** Shallow alone
+lopo 0.5312 / later 0.5803; ensemble **nested: w = 0.3 picked in all 10 folds → lopo
+0.6444, +1.69 [+0.94, +2.38] (9/10); later 0.7013 (+2.78)** = **lean** by rules v2
+(below the +2.0 adopt bar). w = 0.2 / 0.4: +1.03 / +1.21. This is the weekend's starting
+point (`prompts/2026-11-06_weekend_ensemble.md`).
 
 ## W2 screen pulled forward — label-free test-time adaptation of X4f's classifier
 

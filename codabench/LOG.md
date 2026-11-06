@@ -2399,3 +2399,7 @@ ShallowNet log-prob ensemble moves**: +0.9 to +1.7 lopo for every seed, later +1
 11-06 table = B, re-scoped in the open to develop this ensemble into a gated slot-2 zip:
 `prompts/2026-11-06_weekend_ensemble.md`. Deviations: C2f+aug4 stopped at fold 0; near2s
 added; TTA screen and Shallow seeds pulled forward from the weekend. No incidents.
+
+Addendum 13:22: Shallow seeds 36–37 (12:58–13:22, 24 min, under). **5-seed ensemble, nested
+w = 0.3 in 10 / 10 folds: lopo 0.6444, +1.69 [+0.94, +2.38] (9/10), later 0.7013 (+2.78) =
+lean** (rules v2). The weekend baseline. Nothing running.

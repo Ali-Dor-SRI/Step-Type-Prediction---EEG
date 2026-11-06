@@ -9,7 +9,7 @@ slot-2 zip; DIRECTIONS decision 16).
 - No gain: offset-augmented training windows (X4f+aug4 −1.18, X4f+near2s:sep −0.47,
   C2f+aug4 fold 0 −13.7), label-free TTA of X4f's classifier (best +0.08), nets alone.
 - Lead: X4f + ShallowFBCSPNet (3 seeds) log-prob ensemble, w = 0.3 chosen nested:
-  lopo +1.32 [−0.12, +2.33] (8/10), later +3.81; seeds 36–37 added at the end (RESULTS).
+  3 seeds +1.32 [−0.12, +2.33]; **5 seeds (33–37): w 0.3 nested in 10/10, lopo 0.6444, +1.69 [+0.94, +2.38] (9/10), later +2.78 = lean**.
 - New tools (harness only; no solver file changed): `analysis/proteus_cache_aug.py`
   (offset caches in `~/neuralbench/proteus_cache_aug/`, A0 bit-exact), `proteus_sweep.py
   --train-offsets <o_o>[:sep]` (default path unchanged), `sprint1106_dump.py` (streamed

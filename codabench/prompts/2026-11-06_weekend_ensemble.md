@@ -34,7 +34,10 @@ ensemble (the plan's W3 / W4 / W5 path) instead of re-running Branch B's screens
   |---|---|---|---|
   | 3-seed net, w nested (0.3 in 9 / 10) | 0.6406 | +1.32 [−0.12, +2.33] (8) | 0.7117 (+3.81) |
   | 3-seed net, w = 0.3 fixed | 0.6440 | +1.65 [+0.83, +2.40] (9) | 0.7117 (+3.81) |
-  | 5-seed net (seeds 33–37), nested | FIVE_SEED_ROW | | |
+  | **5-seed net (seeds 33–37), w nested (0.3 in 10 / 10)** | **0.6444** | **+1.69 [+0.94, +2.38] (9)** | **0.7013 (+2.78)** |
+
+  The 5-seed nested row is **lean** (rules v2) and is the baseline every W1 arm is judged
+  against.
 
 - Tools: `analysis/sprint1106_netsmoke.py` (nets; rows `logs/sprint_1106/rows/NET.jsonl`,
   probabilities `net_<model>_<split>_s<seed>_o0.npz`), `sprint1106_ensemble.py`
