@@ -1,0 +1,4 @@
+base (logs/sprint_1106/rows): nested lopo 0.6444 vs X4f +1.69 [+0.94, +2.38] up 9; picks [0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3]; later w=0.3 0.7013 (+2.78)
+arm (logs/sprint_1109/rows_align): nested lopo 0.6555 vs X4f +2.81 [+1.37, +4.21] up 9; picks [0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4]; later w=0.4 0.6987 (+2.52)
+arm - base: lopo +1.11 [+0.09, +2.35] up 8; later -0.26
+rule (Δ ≥ +1.0, CI lo > 0, later ≥ 0): not adopted

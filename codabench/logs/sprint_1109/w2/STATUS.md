@@ -11,3 +11,16 @@
 | 14:38:23 | START align_smoke (ETA 3 min) |
 | 14:38:36 | END align_smoke rc=0 |
 | 14:38:36 | START align_s33 (ETA 60 min) |
+| 15:04:38 | END align_s33 rc=0 |
+| 15:04:38 | START align_s34 (ETA 60 min) |
+| 15:11:27 | END e120_s33 rc=0 |
+| 15:11:27 | START e120_s34 (ETA 110 min) |
+| 15:29:34 | END align_s34 rc=0 |
+| 15:29:34 | START align_s35 (ETA 60 min) |
+| 15:54:01 | END align_s35 rc=0 |
+| 15:54:01 | START align_s36 (ETA 60 min) |
+| 15:59:59 | END e120_s34 rc=0 |
+| 15:59:59 | START e120_s35 (ETA 110 min) |
+| 16:18:26 | END align_s36 rc=0 |
+| 16:18:26 | START align_s37 (ETA 60 min) |
+| 16:43:15 | END align_s37 rc=0 |

@@ -52,4 +52,8 @@ Baseline (11-06 npz, grid {0.2, 0.3, 0.4}, nested; `ens_baseline_grid234.txt`): 
 | arm | 5-seed ensemble nested lopo | Δ vs baseline ens | later | rule | verdict |
 |---|---|---|---|---|---|
 | (a) 120 epochs | | | | Δ ≥ +1.0, CI lo > 0, later ≥ 0 | |
-| (b) stream alignment | | | | same | |
+| (b) stream alignment (14:38 → 16:43, ETA 2.2 h: on) | 0.6555, +2.81 [+1.37, +4.21] vs X4f (9) | **+1.11 [+0.09, +2.35]** (8) | 0.6987 (−0.26 vs base ens) | Δ ≥ +1.0 ✓, CI lo > 0 ✓, later ≥ 0 ✗ | **not adopted** (`cmp_align.txt`) |
+
+Arm (b) note: its nested w = 0.4 in 10 / 10 folds, the edge of the grid (the net carries
+more weight once aligned); a stronger net with a wider grid is a mid-week candidate,
+not adopted here by the pre-registered rule (later −0.26). Seeds trained at 3 threads.
