@@ -21,7 +21,10 @@ from sprint1106_tta_probe import cells, paired  # noqa: E402
 DUMP = Path.home() / "codabench/logs/sprint_1106/dump"
 import os
 ROWS = Path(os.environ.get("ENS_ROWS", Path.home() / "codabench/logs/sprint_1106/rows"))
-WS = (0.0, 0.1, 0.2, 0.3, 0.4, 0.5)
+WS = tuple(float(v) for v in os.environ.get("ENS_WS", "0.0_0.1_0.2_0.3_0.4_0.5").split("_"))
+assert WS[0] == 0.0, "ENS_WS must start with 0.0 (the X4f base)"
+# with ENS_WS set (sprint 2026-11-09), the nested pick is over WS[1:] only (brief rule: w from the grid)
+NEST = WS[1:] if "ENS_WS" in os.environ else WS
 
 
 def load(model, seed, split):
@@ -63,12 +66,12 @@ def main(model="shallow", seed="33"):
     picks, nest = [], []
     for k, s in enumerate(lopo):
         others = [t for t in lopo if t != s]
-        w = max(WS, key=lambda w: pd.concat([cell[(t, w)] for t in others]).score.mean())
+        w = max(NEST, key=lambda w: pd.concat([cell[(t, w)] for t in others]).score.mean())
         picks.append(w)
         nest.append(cell[(s, w)])
     a = pd.concat(nest)
     d, lo, hi, up = paired(base_l, a)
-    wl = max(WS, key=lambda w: pd.concat([cell[(t, w)] for t in lopo]).score.mean())
+    wl = max(NEST, key=lambda w: pd.concat([cell[(t, w)] for t in lopo]).score.mean())
     dt = cell[("later", wl)].score.mean() - base_t.score.mean()
     print(f"  nested: picks {picks} lopo {a.score.mean():.4f} {100*d:+.2f} "
           f"[{100*lo:+.2f}, {100*hi:+.2f}] up {up}; later w={wl} "
