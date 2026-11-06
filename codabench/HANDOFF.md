@@ -1,5 +1,12 @@
 # HANDOFF
 
+## 0000. RUNNING — 2026-11-06 → 11-09 weekend sprint (brief `prompts/2026-11-06_weekend_ensemble.md`)
+
+Build the X4f + ShallowNet ensemble zip for sealed slot 2 (Tue Nov 10). Live state:
+`logs/sprint_1109/RESULTS.md`, lanes `logs/sprint_1109/w2/STATUS.md`. W0 PASS (plain-torch
+`analysis/shallownet_t.py` == braindecode, Δ 0); W1 solver `solvers/bci_decoding/ens_x4f_shallow.py`
+(built by `analysis/sprint1109_build_ens.py`) gates (i)(ii)(iii)(vi) PASS; W2 arms running.
+
 ## 000. DONE — 2026-11-06 sprint "two cheapest big levers" (10:50–15:00)
 
 Sealed upload 1: X4f all `60a0148c` = **0.713, rank 51 / 51** (SUBMISSIONS.md). Results
