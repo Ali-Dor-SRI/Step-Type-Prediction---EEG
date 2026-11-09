@@ -57,6 +57,15 @@ def make(model, n_chans, n_times):
     if model == "eegnet":
         cls = getattr(M, "EEGNetv4", None) or getattr(M, "EEGNet")
         return cls(n_chans=n_chans, n_outputs=3, n_times=n_times)
+    # midweek 11-10: further families (sfreq 120 Hz, 480-sample windows = 4 s)
+    if model == "fbcnet":
+        return M.FBCNet(n_chans=n_chans, n_outputs=3, n_times=n_times, sfreq=120.0)
+    if model == "deep4":
+        return M.Deep4Net(n_chans=n_chans, n_outputs=3, n_times=n_times,
+                          final_conv_length="auto")
+    if model == "atcnet":
+        return M.ATCNet(n_chans=n_chans, n_outputs=3, n_times=n_times, sfreq=120.0,
+                        input_window_seconds=n_times / 120.0)
     raise ValueError(model)
 
 

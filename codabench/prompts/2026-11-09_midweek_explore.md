@@ -1,7 +1,8 @@
 # DRAFT brief — mid-week exploration sprint, Tue Nov 10 → Fri Nov 13 2026
 
-Status: **draft** (written 2026-11-06 18:30 at the end of the weekend sprint). Review the
-"Context" section against the slot-2 sealed score before running.
+Status: **running since Mon 2026-11-09 17:15** (user: "run the latest version"); deadline
+Fri 2026-11-13 18:00 (assumed), wrap-up reserve from 15:00. Slot 2 not yet uploaded at start, so
+the desk study is re-done after the Tue upload. Results: `logs/sprint_1110/RESULTS.md`.
 
 ## Context (verified 2026-11-06)
 

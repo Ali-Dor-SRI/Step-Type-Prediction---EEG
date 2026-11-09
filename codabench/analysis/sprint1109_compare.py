@@ -25,13 +25,23 @@ DUMP = Path.home() / "codabench/logs/sprint_1106/dump"
 LOPO = [f"lopo{k}" for k in range(10)]
 
 
+def net_probs(spec, split, seeds):
+    """spec = DIR[:MODEL][+DIR[:MODEL]...] (model default shallow); members averaged
+    with equal weight, each member = its seed mean (midweek 11-10 generalisation)."""
+    out = []
+    for m in spec.split("+"):
+        d, _, model = m.partition(":")
+        out.append(np.mean([np.load(Path(d) / f"net_{model or 'shallow'}_{split}_s{x}_o0.npz")
+                            ["probas"] for x in seeds], axis=0))
+    return np.mean(out, axis=0)
+
+
 def nested(rows, rdir, seeds, grid):
     cell, x4f = {}, {}
     for s in LOPO + ["later"]:
         proto, fold = ("lopo", s[4:]) if s.startswith("lopo") else ("later", "None")
         d = np.load(DUMP / f"X4f__{proto}__{fold}.npz")
-        Pn = np.mean([np.load(Path(rdir) / f"net_shallow_{s}_s{x}_o0.npz")["probas"]
-                      for x in seeds], axis=0)
+        Pn = net_probs(rdir, s, seeds)
         for w in (0.0,) + grid:
             cell[(s, w)] = cells(rows, d["test_idx"], d["y_test"], mix(d["P_test"], Pn, w))
     picks, out = [], []
