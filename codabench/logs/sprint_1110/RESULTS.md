@@ -1,4 +1,4 @@
-# Midweek sprint 11-10 — results (running)
+# Midweek sprint 11-10 — results (done Tue 02:20)
 
 Brief `prompts/2026-11-09_midweek_explore.md`. Started Mon 2026-11-09 17:15 EST.
 
@@ -41,3 +41,17 @@ FBCNet 27/55, ATCNet 13/55 at 20:05.
 
 FBCNet helps X4f (a lean second-family option vs X4f, slightly weaker than Shallow) but adds nothing on top of Shallow.
 ATCNet 27/55 at 22:34.
+
+### W2c ATCNet — done 02:14 Tue (est ~06:30 → 8 h 53 min, under) — **no gain**
+
+| arm (5 seeds, w grid 0.1–0.5 nested) | nested lopo | vs X4f | vs slot-2 ens | later vs slot-2 ens | rule |
+|---|---|---|---|---|---|
+| X4f + ATCNet (w 0.1, grid floor) | 0.6295 | +0.20 [−0.52, +1.07] | −1.50 [−2.75, −0.22] | −1.76 | not adopted |
+| X4f + (Shallow+ATCNet averaged) | 0.6355 | +0.80 [+0.23, +1.70] | −0.89 [−1.79, +0.28] | −1.27 | not adopted |
+
+## Verdict (02:20 Tue)
+
+- **W2 families: no gain.** None of FBCNet / Deep4 / ATCNet beats the slot-2 ensemble, alone with X4f or stacked with Shallow (W4 stacks: −0.02 / −1.15 / −0.89). Only FBCNet helps X4f at all (+1.20), less than Shallow.
+- **W3 aligned Shallow, w 0.5:** closest arm, +1.68 [+0.02, +3.28] vs slot-2 ens, later −0.16 → fails the later bar by 0.16 points; not adopted.
+- **Slot 3: hold** = the slot-2 ensemble stays the best local model. Read slot 2's sealed Δ first (local +1.7 / +2.8 vs X4f). Optional draw for slot 3, if you want one: the aligned-Shallow ensemble (w 0.5, lean vs X4f +3.37; same family, re-centred input) — not baked; ≈ 2 h for bake + gates.
+- Brief finished 3½ days early; all pre-registered items ran. Nothing running.

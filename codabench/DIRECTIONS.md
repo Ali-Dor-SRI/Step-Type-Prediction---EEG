@@ -1,6 +1,6 @@
 # Directions: Track 2 at a glance
 
-**Updated 2026-11-06 18:30**: **weekend sprint done early: the X4f + ShallowNet ensemble zip is baked and every gate passes** (`1f6589b8`, 2.5 MB, 7.5 min projected; [results](logs/sprint_1109/RESULTS.md)); recommended for **sealed slot 2 Tue Nov 10**, fact-sheet name `X4f-Shallow-ens`. Stronger-net arms (120 epochs, stream alignment) not adopted. Before that, 11-06 10:50: **first sealed score: X4f all = 0.713** (cell mean / pooled /
+**Updated 2026-11-10 02:20**: **mid-week sprint done early: no new net family beats the slot-2 ensemble** (FBCNet / Deep4 / ATCNet −0.5 to −1.8; [results](logs/sprint_1110/RESULTS.md)); board 11-09: X4f 0.713 = rank 94 / 166, median 0.723, top 0.838. Slot 3 = hold unless you want the aligned-Shallow draw (decision 17). Earlier, 11-06 18:30: **weekend sprint done early: the X4f + ShallowNet ensemble zip is baked and every gate passes** (`1f6589b8`, 2.5 MB, 7.5 min projected; [results](logs/sprint_1109/RESULTS.md)); recommended for **sealed slot 2 Tue Nov 10**, fact-sheet name `X4f-Shallow-ens`. Stronger-net arms (120 epochs, stream alignment) not adopted. Before that, 11-06 10:50: **first sealed score: X4f all = 0.713** (cell mean / pooled /
 accuracy all 0.713, 362.63 s; uploaded Nov 4 18:01 EST, id 1033809). **Rank 51 of 51** on the
 sealed board (Nov 6 10:20: top 0.828 / 0.825 / 0.825, median 0.775, 50th 0.736). The final rank
 is the **best of a team's last five** sealed uploads (site timeline); **4 uploads left** (confirmed on the Codabench page, 11-06).
@@ -57,6 +57,7 @@ that changes a decision, a number or the plan (§ 8).
 
 | # | Decision | My recommendation | Why it matters | Your effort |
 |---|---|---|---|---|
+| 17 | **Slot 3 (~Sat Nov 14)** | Hold: re-read after slot 2's sealed score. Optional draw: the stream-aligned ShallowNet ensemble (w 0.5): +3.37 vs X4f, +1.68 [+0.02, +3.28] vs slot 2 but later −0.16 (fails one bar); same family. ≈ 2 h to bake + gate | The only arm close to the bar; the other families lose | say "bake it" or nothing |
 | 16 | ~~**Weekend = develop the X4f + ShallowNet ensemble**~~ **done 11-06 18:30: zip `1f6589b8` baked, gated; lean (+1.69 [+0.94, +2.38])** (11-06 15:00 rule said "explore"; its two screens already ran today: TTA no gain, nets only useful in the ensemble) | Accept; the weekend brief bakes an ensemble zip with a plain-torch net (the server's braindecode is unpinned) and full gates; slot 2 recommended if lean on the nested row, else offered as a model-family draw with the risk stated | The only lever of 11-06 that moved; a family change is what the board gap needs | say go, or nothing (15:00 default) |
 | 15 | **Upload plan for the 4 remaining sealed slots** (final rank = best of the last five, so a worse upload cannot lower it) | Portfolio, not a ladder: **slot 2 Tue Nov 10** = **upload `submissions/ens_x4f_shallow_all_2026-11-06.zip` (sha256 `1f6589b8…`), fact-sheet `X4f-Shallow-ens`** (lean + all gates PASS); **mid-week exploration sprint Tue–Fri Nov 10–13** (desk study of the board, stronger net families judged in the ensemble, wider stacks, slot 2's sealed Δ as a measurement); **slot 3 ~Sat Nov 14** = its best; **slot 4 ~Tue Nov 17** = a different family or stack after its nested check; **slot 5 Thu Nov 19** (Fri Nov 20 18:00 EST latest; Friday kept for a re-upload after a failure). Every slot a family change or stack, none for ≤ 2-point tweaks; record Δsealed next to Δlocal each time. Calendar in `prompts/2026-11-06_weekend_ensemble.md` § 8 | 0.713 is last of 51; the field is 0.736–0.828 | confirm the slot counter; approve each upload |
 | 13 | **Sealed model = X4f** (nested check passed 10-28: 0.621 nested vs 0.628 selected; inner choice split X4f 5 / C2f 5, so its edge over C2f is small but survives) | (1) ~~upload **X4f official**~~ **done 10-29: exact match, 22.6 s** (`submissions/riemann_sealed_proteus_x4f_official_2026-10-27.zip`, sha256 `9fb7ffe3`) to the warm-up; expected 0.546004 / 0.545484 / 0.545695; (2) if exact, upload **X4f all** (`…_x4f_all_2026-10-27.zip`, `60a0148c`) to the sealed phase | ~2 points over C2f on lopo, 6 over F64T | two uploads |
@@ -103,6 +104,7 @@ re-centring does to the features).
 | Label-free classifier adaptation per stream (11-06): EM priors, bias info-max, T3A, class-mean shift | best +0.08 lopo | no gain |
 | Deep nets alone (11-06): ShallowFBCSPNet / EEGNetv4, 1× | 0.533 (3 seeds) / ~0.50 fold 0 | 10–20 points under X4f |
 | **X4f + ShallowNet log-prob ensemble** (11-06, 5 net seeds, net weight 0.3 chosen nested) | **+1.69 [+0.94, +2.38] lopo (9/10); +2.78 later** (3 seeds: +1.32 [−0.12, +2.33]) | **lean; baked `1f6589b8`** |
+| Other net families in the ensemble (11-10): FBCNet / Deep4 / ATCNet, 5 seeds; stacked with Shallow | vs slot-2 ens −0.49 / −1.81 / −1.50; stacked −0.02 / −1.15 / −0.89; aligned Shallow w 0.5 +1.68, later −0.16 | no gain |
 | Stronger net in the ensemble (11-06 weekend): 120 epochs / input re-centring per stream | +0.40 [−0.10, +0.87] / +1.11 [+0.09, +2.35] lopo vs the 60-epoch ensemble; later +0.47 / −0.26 | not adopted (rule); alignment pushes w to 0.4 = grid edge |
 
 The 1–3 s crop loses also in the calibration runs (no feedback): the window's last two
@@ -124,7 +126,7 @@ seconds carry task signal, not only feedback.
 | # | Step | Expected gain | Effort | Needs |
 |---|---|---|---|---|
 | 0 | ~~Weekend ensemble zip~~ **done 11-06: `1f6589b8`, gated** | — | — | upload slot 2 (you) |
-| 0a | **Mid-week exploration Nov 10–13** (`prompts/2026-11-09_midweek_explore.md`, draft): board desk study; FBCNet / Deep4 / ATCNet judged in the ensemble; aligned net with a wider w grid; slot-2 Δsealed vs Δlocal | uncertain; feeds slots 3–4 | 3–4 days | slot 2 score |
+| 0a | ~~Mid-week exploration~~ **done 11-10 02:20: no gain** (families); left: slot-2 Δsealed vs Δlocal once scored | — | 15 min | slot 2 score |
 | 0b | ~~Offset-augmented training windows; label-free classifier adaptation~~ **11-06: no gain** | — | — | — |
 | 1 | ~~Nested check of X4f~~ **done 10-28: holds** | — | — | — |
 | 2 | ~~Update MODEL_ARCHITECTURE.md for F64~~ done 10-26 | — | — | — |
@@ -153,6 +155,7 @@ this CPU, the personal-LDA path (−4.9).
 - **Size:** under ~150 lines. Detail goes to the documents in § 7, not here.
 - **Numbers:** each one must match its source document.
 - **Change log** (newest first, one line each):
+  - 2026-11-10 02:20: mid-week sprint done: FBCNet / Deep4 / ATCNet no gain in the ensemble; aligned Shallow w 0.5 misses on later (−0.16); board rank 94/166; decision 17 (slot 3) new; § 4 / § 6 updated.
   - 2026-11-06 18:30: weekend sprint done: ensemble zip `1f6589b8` baked, all gates PASS (7.5 min projected); 120-epoch and stream-aligned arms not adopted; decision 16 closed, decision 15 slot 2 = this zip; § 4 / § 6 updated; mid-week brief drafted.
   - 2026-11-06 14:00: decision 15 rewritten as the upload calendar (slots Nov 10 / ~14 / ~17 / 19, mid-week exploration sprint Nov 10–13); weekend brief made paste-ready (plain-torch net gate, X4f weights reused from `60a0148c`).
   - 2026-11-06 13:30: sprint 11-06: offset-augmented training no gain, label-free TTA no gain, nets alone −10 to −20, X4f + ShallowNet ensemble (5 seeds, nested w 0.3) +1.69 [+0.94, +2.38] lopo, +2.8 later = lean; decision 16 (weekend = develop the ensemble) new; § 4 / § 6 updated.

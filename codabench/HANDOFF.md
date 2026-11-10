@@ -1,5 +1,14 @@
 # HANDOFF
 
+## 00000. DONE — 2026-11-09/10 mid-week sprint (Mon 17:15 – Tue 02:20)
+
+Brief `prompts/2026-11-09_midweek_explore.md`; results `logs/sprint_1110/RESULTS.md`. FBCNet / Deep4 /
+ATCNet judged in the ensemble with X4f: **no gain** vs the slot-2 ensemble (−0.49 / −1.81 / −1.50; stacked
+with Shallow −0.02 / −1.15 / −0.89). Aligned Shallow w 0.5: +1.68 [+0.02, +3.28] but later −0.16 → not
+adopted. Board 11-09: rank 94/166, median 0.723. Slot 3 = hold unless the user wants the aligned-Shallow
+draw baked (~2 h). Nets in `logs/sprint_1110/rows_fam/` (git-ignored); `netsmoke --model fbcnet|deep4|atcnet`;
+`sprint1109_compare.py` takes `DIR[:MODEL][+DIR[:MODEL]]`. Nothing running.
+
 ## 0000. DONE — 2026-11-06 weekend sprint "X4f + ShallowNet ensemble" (14:12–18:30)
 
 Brief `prompts/2026-11-06_weekend_ensemble.md`; results `logs/sprint_1109/RESULTS.md`

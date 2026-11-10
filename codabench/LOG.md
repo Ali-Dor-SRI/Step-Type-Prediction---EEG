@@ -2413,3 +2413,11 @@ Brief `prompts/2026-11-06_weekend_ensemble.md`; results `logs/sprint_1109/RESULT
 - W3: nested row = lopo 0.6444, +1.69 [+0.94, +2.38] vs X4f (9/10), later +2.78 → lean.
 - W4/W5: 5 all-nets 12 min (ETA 15–20); zip `1f6589b8…` 2.5 MB, gates ALL PASS, 21.4 ms/window quiet → 7.5 min, benchopt CLI rc 0 (23 s).
 - Decision: recommend the zip for sealed slot 2 (Tue Nov 10), fact-sheet `X4f-Shallow-ens`. Nothing uploaded.
+
+## 2026-11-09/10 — mid-week exploration sprint (Mon 17:15 – Tue 02:20)
+
+Brief `prompts/2026-11-09_midweek_explore.md`; results `logs/sprint_1110/RESULTS.md`.
+- W1 desk study (17:35): 166 sealed entries, top 0.838, median 0.723; X4f 0.713 = rank 94/166. An "LDA" entry at 0.808.
+- W3 aligned Shallow, grid {0.3–0.6}: w 0.5 interior; +1.68 [+0.02, +3.28] vs slot-2 ens, later −0.16 → not adopted.
+- W2 families, 5 seeds × 11 splits, 60 ep, 3 lanes × 4 threads (smoke 4.1 / 9.9 / 14.3 s/epoch): Deep4 17:21–20:05 (est 3–4 h, under), FBCNet –22:34 (est 9 h, under), ATCNet –02:14 (est 13 h, under). vs slot-2 ens: Deep4 −1.81, FBCNet −0.49, ATCNet −1.50; stacked with Shallow −1.15 / −0.02 / −0.89 → **no gain**.
+- Decision: slot 3 = hold (slot-2 ensemble remains best); optional draw = aligned-Shallow ensemble (needs bake). No incidents.
