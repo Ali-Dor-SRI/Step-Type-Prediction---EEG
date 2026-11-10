@@ -14,3 +14,9 @@
 15:32:11 START p1b al_cand_all w=0.5
 15:39:08 END p1b al_cand_all gate_iii=1 gate_vi=0 cli=1
 15:42:06 END diag_d4_d2 rc=0
+15:48:58 START p1b al_cand_all w=0.5 adabn=none
+15:49:48 END p1b al_cand_all gate_iii=skip gate_vi=skip cli=0
+15:49:48 START p1b ab_cand_all w=0.5 adabn=32
+15:53:12 END p1b ab_cand_all gate_iii=0 gate_vi=0 cli=0
+15:53:53 START nets shallow none s33 (rows_pl)
+15:53:53 START nets shallow stream s38 (rows_al2)

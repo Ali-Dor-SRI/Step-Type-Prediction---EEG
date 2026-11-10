@@ -1,0 +1,52 @@
+Benchopt is running!
+Loading objective, datasets and solvers.../home/ali_d/neuralbench/.venv040/lib/python3.12/site-packages/benchopt/utils/parametrized_name_mixin.py:507: UserWarning: Parameter 'wcv_ref' of solver 'X4f-Shallow-ens-al' does not declare an enumerable value set, so 'wcv_ref=all' is used as a literal value. Override Solver.get_all_parameter_values('wcv_ref') to return the valid values (to enable 'wcv_ref=all') or 'all' (to keep 'all' as a literal value and silence this warning).
+  warnings.warn(
+ done.
+BCI[batch_size=64,num_workers=0,study=dreyer2026proteus,subset=full]                                
+  |--BCI-decoding[training=False]                                                                   
+  0%|          | 0/84 [00:00<?, ?it/s]100%|██████████| 84/84 [00:00<00:00, 1383.60it/s]
+Preparing segments:   0%|          | 0/3 [00:00<?, ?it/s]Preparing segments: 100%|██████████| 3/3 [00:00<00:00, 59.41it/s]
+[X4f-Shallow-ens-al] 5 ShallowNetT nets (seeds [33, 34, 35, 36, 37]), w=0.5, align=stream, torch threads=1
+[Riemann-Sealed] predict: 20 calls, 20 windows, 0.4 s (21.2 ms/window), maxrss 0.72 GB
+[Riemann-Sealed] predict: 40 calls, 40 windows, 0.9 s (21.3 ms/window), maxrss 0.72 GB
+[Riemann-Sealed] predict: 60 calls, 60 windows, 1.3 s (22.5 ms/window), maxrss 0.72 GB
+[Riemann-Sealed] predict: 80 calls, 80 windows, 1.8 s (22.4 ms/window), maxrss 0.72 GB
+[Riemann-Sealed] predict: 100 calls, 100 windows, 2.2 s (22.3 ms/window), maxrss 0.72 GB
+[Riemann-Sealed] predict: 120 calls, 120 windows, 2.7 s (22.3 ms/window), maxrss 0.72 GB
+[Riemann-Sealed] predict: 140 calls, 140 windows, 3.1 s (22.2 ms/window), maxrss 0.73 GB
+[Riemann-Sealed] predict: 160 calls, 160 windows, 3.5 s (21.9 ms/window), maxrss 0.73 GB
+[Riemann-Sealed] predict: 180 calls, 180 windows, 3.9 s (21.9 ms/window), maxrss 0.73 GB
+[Riemann-Sealed] predict: 20 calls, 20 windows, 0.4 s (21.5 ms/window), maxrss 0.73 GB
+[Riemann-Sealed] predict: 40 calls, 40 windows, 0.8 s (20.9 ms/window), maxrss 0.73 GB
+[Riemann-Sealed] predict: 60 calls, 60 windows, 1.3 s (21.3 ms/window), maxrss 0.73 GB
+[Riemann-Sealed] predict: 80 calls, 80 windows, 1.8 s (22.1 ms/window), maxrss 0.73 GB
+[Riemann-Sealed] predict: 100 calls, 100 windows, 2.2 s (21.9 ms/window), maxrss 0.73 GB
+[Riemann-Sealed] predict: 120 calls, 120 windows, 2.7 s (22.1 ms/window), maxrss 0.73 GB
+[Riemann-Sealed] predict: 140 calls, 140 windows, 3.1 s (22.4 ms/window), maxrss 0.73 GB
+[Riemann-Sealed] predict: 160 calls, 160 windows, 3.6 s (22.3 ms/window), maxrss 0.73 GB
+[Riemann-Sealed] predict: 180 calls, 180 windows, 4.0 s (22.3 ms/window), maxrss 0.73 GB
+[Riemann-Sealed] predict: 20 calls, 20 windows, 0.4 s (21.3 ms/window), maxrss 0.73 GB
+[Riemann-Sealed] predict: 40 calls, 40 windows, 0.9 s (21.7 ms/window), maxrss 0.73 GB
+[Riemann-Sealed] predict: 60 calls, 60 windows, 1.3 s (21.8 ms/window), maxrss 0.73 GB
+[Riemann-Sealed] predict: 80 calls, 80 windows, 1.7 s (21.4 ms/window), maxrss 0.73 GB
+[Riemann-Sealed] predict: 100 calls, 100 windows, 2.2 s (21.9 ms/window), maxrss 0.73 GB
+[Riemann-Sealed] predict: 120 calls, 120 windows, 2.6 s (21.7 ms/window), maxrss 0.73 GB
+[Riemann-Sealed] predict: 140 calls, 140 windows, 3.0 s (21.6 ms/window), maxrss 0.73 GB
+[Riemann-Sealed] predict: 160 calls, 160 windows, 3.5 s (21.6 ms/window), maxrss 0.73 GB
+[Riemann-Sealed] predict: 180 calls, 180 windows, 3.9 s (21.7 ms/window), maxrss 0.73 GB
+[Riemann-Sealed] predict: 20 calls, 20 windows, 0.4 s (21.1 ms/window), maxrss 0.73 GB
+[Riemann-Sealed] predict: 40 calls, 40 windows, 0.9 s (21.5 ms/window), maxrss 0.73 GB
+[Riemann-Sealed] predict: 60 calls, 60 windows, 1.3 s (21.7 ms/window), maxrss 0.73 GB
+[Riemann-Sealed] predict: 80 calls, 80 windows, 1.7 s (21.8 ms/window), maxrss 0.73 GB
+[Riemann-Sealed] predict: 100 calls, 100 windows, 2.2 s (21.7 ms/window), maxrss 0.73 GB
+[Riemann-Sealed] predict: 120 calls, 120 windows, 2.7 s (22.1 ms/window), maxrss 0.73 GB
+[Riemann-Sealed] predict: 140 calls, 140 windows, 3.1 s (21.9 ms/window), maxrss 0.73 GB
+[Riemann-Sealed] predict: 160 calls, 160 windows, 3.5 s (21.9 ms/window), maxrss 0.73 GB
+[Riemann-Sealed] predict: 180 calls, 180 windows, 4.0 s (22.0 ms/window), maxrss 0.73 GB
+------------------------------------------------------------
+set -e
+git describe --tags --abbrev=0
+------------------------------------------------------------
+128 fatal: No names found, cannot describe anything.
+[1;34m    |--X4f-Shallow-ens-al[adapt=online,align=stream,bandpass=none,blend_w=0.5,buffer=64,chans=eeg,clf=logreg0.01,clip=0.0,crop=,ctx_min=16,estimator=oas,fbands=1to4_4to8_8to13_13to20_20to30_30to45,fcenter=True,filterbank=True,fscale=True,kind=riemann,max_batches=None,net_w=None,nfilter=4,personal=pooled,reference=none,slow_block=False,stream_k=8,threads=1,use_xdawn=True,wcv_ref=all,xblocks=bpt4_icoh]:[0m [1;32mdone[0m
+[1;32mSaving result in: /home/ali_d/codabench/logs/sprint_1112/al_cand_all/cli/cli_official.parquet[0m       

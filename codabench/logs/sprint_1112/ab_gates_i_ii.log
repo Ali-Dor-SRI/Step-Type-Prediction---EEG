@@ -1,0 +1,13 @@
+lopo0: loaded AlignedEnsembleModel K=5 w=0.5 torch threads=1
+lopo0: streamed ensemble cell mean 0.721270, 60.4 ms/window
+PASS  (i) lopo0 streamed classes == post-hoc ensemble  0 of 190 differ
+PASS  (i) lopo0 X4f probabilities == dump  max|d|=1.16e-09
+PASS  (i) lopo0 aligned-net probabilities == saved (<= 1e-4)  max|d|=1.58e-05
+PASS  (ii) lopo0 w=0 == X4f streamed classes  0 differ; cell mean 0.695397
+later: loaded AlignedEnsembleModel K=5 w=0.5 torch threads=1
+later: streamed ensemble cell mean 0.706487, 54.3 ms/window
+PASS  (i) later streamed classes == post-hoc ensemble  0 of 762 differ
+PASS  (i) later X4f probabilities == dump  max|d|=8.24e-09
+PASS  (i) later aligned-net probabilities == saved (<= 1e-4)  max|d|=1.30e-05
+PASS  (ii) later w=0 == X4f streamed classes  0 differ; cell mean 0.673546
+ALL PASS

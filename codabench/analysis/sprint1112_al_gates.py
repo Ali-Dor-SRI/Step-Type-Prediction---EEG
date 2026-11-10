@@ -39,7 +39,7 @@ W1 = CB / "logs/sprint_1109/w1"
 OUT = CB / "logs/sprint_1112/al_gates"
 
 
-def make_folder_al(folder, joblib_path, rows, seeds, w, split="all", buffer=64, prior=8.0):
+def make_folder_al(folder, joblib_path, rows, seeds, w, split="all", buffer=64, prior=8.0, adabn=None):
     folder.mkdir(parents=True, exist_ok=True)
     shutil.copyfile(ENS, folder / "submission.py")
     if Path(joblib_path) != folder / "riemann_sealed.joblib":
@@ -51,7 +51,8 @@ def make_folder_al(folder, joblib_path, rows, seeds, w, split="all", buffer=64, 
     torch.save({"w": float(w), "seeds": [int(s) for s in seeds], "state_dicts": sds,
                 "net_kwargs": {},
                 "align": {"kind": "stream", "Cg": torch.from_numpy(cgs[0]),
-                          "buffer": int(buffer), "prior": float(prior)}},
+                          "buffer": int(buffer), "prior": float(prior)},
+                **({"adabn": {"prior": float(adabn)}} if adabn is not None else {})},
                folder / "shallow_nets.pt")
 
 
@@ -61,6 +62,9 @@ def main():
     ap.add_argument("--seeds", default="33_34_35_36_37")
     ap.add_argument("--w", type=float, default=0.5)
     ap.add_argument("--splits", nargs="+", default=["lopo0", "later"])
+    ap.add_argument("--adabn", type=float, default=None, help="AdaBN prior (opt-in)")
+    ap.add_argument("--saved", default=None, help="dir of the saved net probabilities (default --rows)")
+    ap.add_argument("--out", default=str(OUT))
     a = ap.parse_args()
     seeds = a.seeds.split("_")
     PC.require_env040()
@@ -76,13 +80,13 @@ def main():
 
     for split in a.splits:
         proto, fold = ("lopo", int(split[4:])) if split.startswith("lopo") else (split, None)
-        folder = OUT / f"sub_{split}"
+        folder = Path(a.out) / f"sub_{split}"
         make_folder_al(folder, W1 / f"sub_{split}" / "riemann_sealed.joblib", a.rows, seeds,
-                       a.w, split)
+                       a.w, split, adabn=a.adabn)
         te = np.asarray(PS.split(proto, fold, c.rows).test)
         d = np.load(DUMP / f"X4f__{proto}__{fold}.npz")
         assert np.array_equal(d["test_idx"], te)
-        Pn_saved = np.mean([np.load(Path(a.rows) / f"net_shallow_{split}_s{s}_o0.npz")["probas"]
+        Pn_saved = np.mean([np.load(Path(a.saved or a.rows) / f"net_shallow_{split}_s{s}_o0.npz")["probas"]
                             for s in seeds], axis=0)
         post = mix(d["P_test"], Pn_saved, a.w)
 

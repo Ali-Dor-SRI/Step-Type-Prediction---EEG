@@ -2090,14 +2090,49 @@ class AlignedEnsembleModel(EnsembleModel):
     """EnsembleModel whose nets see each window Euclidean-aligned by the
     stream's running covariance (causal; state cleared by reset_state)."""
 
-    def __init__(self, x4f, nets, w, Cg, buffer=64, prior=8.0):
+    def __init__(self, x4f, nets, w, Cg, buffer=64, prior=8.0, adabn_prior=None):
         super().__init__(x4f, nets, w)
         self.Cg, self.buffer, self.prior = np.asarray(Cg), int(buffer), float(prior)
+        # adabn_prior (sprint 2026-11-12): None = frozen BatchNorm statistics; a number p =
+        # causal per-stream BN statistics, p training-statistics windows as the prior
+        self.adabn_prior = None if adabn_prior is None else float(adabn_prior)
         self._buf = []
+        self._bn = None
 
     def reset_state(self):
         self.x4f.reset_state()
         self._buf = []
+        self._bn = None
+
+    @torch.no_grad()
+    def _adabn_proba(self, Xz):
+        """Xz (n, C, T) aligned + z-scored windows in stream order -> mean softmax of the
+        nets, each with BatchNorm statistics (p * train + sum of this stream's window
+        moments so far, this window included) / (p + n)."""
+        if self._bn is None:
+            self._bn = [[torch.zeros_like(n.bnorm.running_mean),
+                         torch.zeros_like(n.bnorm.running_mean), 0] for n in self.nets]
+        p = self.adabn_prior
+        out = np.empty((len(Xz), 3), dtype=np.float64)
+        for i in range(len(Xz)):
+            x = torch.from_numpy(Xz[i:i + 1]).unsqueeze(-1).permute(0, 3, 2, 1)   # (1, 1, T, C)
+            Ps = []
+            for net, st in zip(self.nets, self._bn):
+                bn = net.bnorm
+                h = net.conv_time_spat(x)                                         # (1, F, T', 1)
+                st[0] += h.mean(dim=(0, 2, 3))
+                st[1] += (h ** 2).mean(dim=(0, 2, 3))
+                st[2] += 1
+                mu0, v0 = bn.running_mean, bn.running_var
+                m = (p * mu0 + st[0]) / (p + st[2])
+                v = torch.clamp((p * (v0 + mu0 ** 2) + st[1]) / (p + st[2]) - m ** 2, min=1e-6)
+                h = (h - m[None, :, None, None]) / torch.sqrt(v[None, :, None, None] + bn.eps)
+                h = h * bn.weight[None, :, None, None] + bn.bias[None, :, None, None]
+                h = net.pool(h * h)
+                h = torch.log(torch.clamp(h, min=1e-6))
+                Ps.append(torch.softmax(net.final_layer(h), -1).numpy()[0])
+            out[i] = np.mean(Ps, axis=0)
+        return out
 
     def net_proba(self, X):
         X = to_numpy(X)
@@ -2108,6 +2143,8 @@ class AlignedEnsembleModel(EnsembleModel):
             W = _isqrt_np((self.prior * self.Cg + np.sum(self._buf, 0))
                           / (self.prior + len(self._buf)))
             out[i] = W @ X[i]
+        if self.adabn_prior is not None:
+            return self._adabn_proba(_zscore_np(out))
         Xz = torch.from_numpy(_zscore_np(out))
         with torch.no_grad():
             Ps = [torch.softmax(n(Xz), -1).numpy() for n in self.nets]
@@ -2126,11 +2163,13 @@ class Solver(_EnsSolver):
         nets, w, d = load_nets(meta["submission_dir"] / NETS_FILE)
         if self.net_w is not None:
             w = float(self.net_w)
-        al = d.get("align")
+        al, ab = d.get("align"), d.get("adabn")
         print(f"[X4f-Shallow-ens-al] {len(nets)} ShallowNetT nets (seeds {list(d.get('seeds', []))}), "
-              f"w={w}, align={'stream' if al else 'none'}, torch threads={torch.get_num_threads()}",
+              f"w={w}, align={'stream' if al else 'none'}, "
+              f"adabn={ab['prior'] if ab else 'off'}, torch threads={torch.get_num_threads()}",
               flush=True)
         if not al:
             return EnsembleModel(x4f, nets, w)
         return AlignedEnsembleModel(x4f, nets, w, al["Cg"].numpy(),
-                                    int(al["buffer"]), float(al["prior"]))
+                                    int(al["buffer"]), float(al["prior"]),
+                                    float(ab["prior"]) if ab else None)
