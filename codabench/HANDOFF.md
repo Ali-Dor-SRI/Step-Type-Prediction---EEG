@@ -1,5 +1,24 @@
 # HANDOFF
 
+## 000000. CURRENT — 2026-11-10: slot 2 scored 0.736; next = board study plan (new session)
+
+- **Sealed slot 2** (X4f + 5× Shallow ensemble, `1f6589b8`, uploaded Mon Nov 9 17:11 EST, id 1044956) = **0.736**,
+  +2.3 vs slot 1 X4f 0.713. Local Δ was +1.69 lopo / +2.78 later → **local gains transfer ≈ 1:1** (Δsealed sits
+  between them). ≈ rank 78 / 166 on the 11-09 snapshot (`logs/lb_30483_1109_all.json`, git-ignored; median 0.723, top 0.838).
+- **Uploads:** 3 left (best of the last five counts; 1/day; phase closes **Sat Nov 21 17:59 EST**). Planned slots:
+  3 ~Sat Nov 14, 4 ~Tue Nov 17, 5 Thu Nov 19 (Fri Nov 20 latest). The user should re-check the counter on the
+  Codabench page (docs mention both a 5-upload rule and a yaml cap of 10).
+- **Next (user's choice, another session):** write a plan to **find out what the top of the board does**. Gap
+  ≈ 7–10 points (top 12: 0.806–0.838); an entry named "LDA" scores 0.808, so the gap is unlikely to be a net
+  family (11-10 sprint: FBCNet / Deep4 / ATCNet no gain). Suggested inputs: fact-sheet names, public code / forum
+  posts, score vs submission date, the rules on adaptation (`RELEASE_DAY.md`), our sealed − local offset
+  (sealed − lopo ≈ +8.5 for X4f). Output: testable hypotheses, each checkable on the local lopo / later setup
+  before slots 4–5. Read-only GETs of the leaderboard API are fine; no posts or uploads.
+- **Slot-3 candidate on the shelf (not baked):** aligned-Shallow ensemble, w 0.5: +3.37 vs X4f locally (later
+  +2.62), +1.68 vs slot 2 but later −0.16 → predicted ≈ 0.740–0.745 sealed. ≈ 2 h to bake + gate
+  (`sprint1109_bake.py`, aligned weights need the `cg_*.npy` stream refs; DIRECTIONS decision 17).
+- Nothing running. Branch `feat/codabench-track2`, pushed to `personal` and `org`.
+
 ## 00000. DONE — 2026-11-09/10 mid-week sprint (Mon 17:15 – Tue 02:20)
 
 Brief `prompts/2026-11-09_midweek_explore.md`; results `logs/sprint_1110/RESULTS.md`. FBCNet / Deep4 /
