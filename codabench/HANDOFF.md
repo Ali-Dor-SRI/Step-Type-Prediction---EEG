@@ -1,5 +1,12 @@
 # HANDOFF
 
+## 0000000. NEXT — 2026-11-10 15:15: run `prompts/2026-11-10_to_the_top.md` (unattended, to Thu Nov 12 12:00 EST)
+
+Brief written, **not started**. Start line for a new session:
+`/loop Run the sprint in codabench/prompts/2026-11-10_to_the_top.md; if codabench/logs/sprint_1112/STATE.md exists, resume from it. Unattended until Thu Nov 12 12:00 EST.`
+Gated slot-3 zip + upload note due Thu 10:00 (user uploads before 12:00); work continues to 12:00.
+The section below is the state it starts from.
+
 ## 000000. CURRENT — 2026-11-10: slot 2 scored 0.736; next = board study plan (new session)
 
 - **Sealed slot 2** (X4f + 5× Shallow ensemble, `1f6589b8`, uploaded Mon Nov 9 17:11 EST, id 1044956) = **0.736**,
