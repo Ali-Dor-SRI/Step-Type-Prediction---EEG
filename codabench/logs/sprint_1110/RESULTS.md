@@ -31,3 +31,13 @@ ETA (60 ep × 11 splits × 5 seeds): Deep4 ≈ 4 h (~21:30), FBCNet ≈ 9 h (~02
 
 Deep4 adds nothing to X4f and dilutes Shallow when mixed in. Files `cmp_deep4.txt`, `cmp_shallow_deep4.txt`.
 FBCNet 27/55, ATCNet 13/55 at 20:05.
+
+### W2b FBCNet — done 22:34 (est ~02:30 → 5 h 13 min, under) — **no gain over slot-2 ens**
+
+| arm (5 seeds, w grid 0.1–0.5 nested) | nested lopo | vs X4f | vs slot-2 ens | later vs slot-2 ens | rule |
+|---|---|---|---|---|---|
+| X4f + FBCNet (w 0.4) | 0.6395 | +1.20 [+0.05, +2.46] | −0.49 [−1.65, +0.85] | −0.40 | not adopted |
+| X4f + (Shallow+FBCNet averaged) | 0.6442 | +1.67 [+0.83, +2.46] | −0.02 [−0.49, +0.70] | −0.44 | not adopted |
+
+FBCNet helps X4f (a lean second-family option vs X4f, slightly weaker than Shallow) but adds nothing on top of Shallow.
+ATCNet 27/55 at 22:34.
