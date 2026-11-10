@@ -72,7 +72,7 @@ aligned-Shallow w 0.5 0.6612 / 0.6997 (+1.68 [+0.02, +3.28] vs slot 2, later −
   (person spread 0.53–0.82 locally; the later half has 10 people, locally only P04 / P10, and P04
   is our worst person).
 
-## P4 — arms (count so far: 30 + 2 flagged)
+## P4 — arms (count so far: 40 + 2 flagged)
 
 | # | arm | alone lopo / later | nested Δ lopo vs slot 2 [95 % CI] (up) | Δ later | verdict |
 |---|---|---|---|---|---|
@@ -94,7 +94,16 @@ aligned-Shallow w 0.5 0.6612 / 0.6997 (+1.68 [+0.02, +3.28] vs slot 2, later −
 | 25 | Q5 q 0.7, weight 10, every 40, f16 | — | +1.51 [+0.99, +2.38] (10) | +1.78 | ADOPT |
 | 26 | **nested re-selection over the 7 Q5 configs × w** (selection-optimism check) | — | **+1.70 [+1.05, +2.76] (10)**; lopo 0.6785; all-ten pick q 0.7 / w 5 / every 20, w 0.6 | **+2.31** | **ADOPT → base B2 = B1 + Q5 self-training** |
 | 27 | nested re-selection over the 3 every-40 configs | — | +1.25 [+0.87, +1.80] (10); pick q 0.7 / w 5, w 0.5 | +0.86 | ADOPT (the cheaper deployable form) |
-| 28–30 | Q5b causal Sinkhorn class balancing of the B1 ensemble over the last N = 20 / 40 / 80 windows (N, w nested) — vs B1 | — | −0.92 / −0.15 / −0.05; nested −0.05 [−1.49, +1.01] (5) | +0.80 / +0.18 / +1.37 | no gain |
+| 28 | Q5 (q 0.7 / w 5 / every 20) with pseudo-labels from the ADAPTED ensemble (self-reinforcing) | — | +1.89 [+0.92, +3.46] (9) | +2.29 | ADOPT vs B1 but below the original-source arm (+2.04): not used |
+| 29–30 | Q5-net: final-layer pseudo-label fine-tuning of the AdaBN nets in-stream (q 0.7, every 20, 30 Adam steps, lr 1e-2, L2-to-init mu 1 / 0.1) — vs B1 | — | +0.15 [−0.52, +0.79] / +0.34 [−0.46, +1.29] | +0.65 / +2.20 | lean / lean |
+| 31–32 | the same Q5-net nets **on top of B2** (X4f = Q5 adapted) — vs B2 | — | −0.22 [−0.69, +0.27] / −0.21 [−0.80, +0.40] | +0.27 / −0.03 | no gain (closed) |
+| 33 | Q5 q 0.7 / w 5 / **start 20** / every 20 | — | +2.15 [+1.36, +3.45] (10) | +2.44 | ADOPT |
+| 34 | Q5 **q 0.85** / w 5 / start 40 / every 20 | — | +2.37 [+1.61, +3.64] (10) | +2.14 | ADOPT |
+| 35 | Q5 q 0.85 / w 5 / start 20 / every 20 | — | +2.00 [+1.10, +3.31] (9) | +2.27 | ADOPT |
+| 36 | Q5 q 1.0 / w 5 / start 20 / every 20 | — | +1.74 [+0.72, +3.18] (9) | +1.61 | ADOPT |
+| 37 | **nested re-selection over 11 Q5 configs × w** | — | **+1.96 [+1.09, +3.22] (9)**; lopo 0.6811; all-ten pick q 0.85 / w 5 / start 20 / every 20, w 0.6 | **+2.27** (0.7292) | ADOPT (B2 estimate; Q5 is a plateau of +1.7 to +2.4 across settings) |
+| 38–39 | Q5 + soft person weighting of training rows (τ 1.0 / 0.3) | — | +2.00 / +2.00 — **identical to the unweighted run: suspected no-op, unverified** | +2.27 | inconclusive |
+| 40–42 | Q5b causal Sinkhorn class balancing of the B1 ensemble over the last N = 20 / 40 / 80 windows (N, w nested) — vs B1 | — | −0.92 / −0.15 / −0.05; nested −0.05 [−1.49, +1.01] (5) | +0.80 / +0.18 / +1.37 | no gain |
 
 ### Flagged track (QF; uses run boundaries / per-run counts that predict() never sees — never in a main candidate)
 
@@ -127,3 +136,20 @@ budget (default 1,500 s) after which it stops refitting (later streams then = B1
 cap cannot be breached; quiet timing decides every 20 vs every 40.
 X4f training features for the all-trained model: refit on `all` reproduces the sealed classifier
 to 2e-14 (`sprint1112_x4f_trainfeats.py`); stored float16, 50.5 MB (`x4f_all_trainZ.npz`).
+
+### Quiet timing (17:20; training lanes paused with SIGSTOP for ≈ 3 min, then resumed; 1 thread)
+
+`sprint1112_timing.py <folder> 170` (one official stream, 20 warm-up + 170 timed windows):
+
+| zip | X4f | nets | full predict |
+|---|---|---|---|
+| B1 `ab_cand_all` (`73e38638`) | 12.8 | 10.0 | **23.0 ms/window** |
+| B2 every 40 `st40_cand_all` (`c4b0967a`, q 0.7, w 0.5) | 13.0 | 10.5 | **33.6** |
+| B2 every 20 `st20_cand_all` (`914f97de`, q 0.7, w 0.6) | 12.8 | 10.2 | **43.1** |
+
+→ a refit costs ≈ 0.5 s quiet at 1 thread (the 3–6 s seen before were CPU contention). Every 20
+passes the ≤ 60 ms/window gate; at the 2.1× server factor ≈ 90 ms/window → ≈ 19 min for
+≈ 12.5 k windows (≈ 32 min at the gate's 21 k worst case); the 1,500 s refit budget bounds it in
+any case. Gate iii's own "4" (timing projection) fails for both B2 zips only because it ran with
+all 20 cores busy (273 / 332 ms/window); 1–3 PASS, vi PASS, CLI rc 0 (self-training loaded) for both.
+Zips are 53 MB (training features float16); Codabench allows 15 GB per profile (`participate.md`).

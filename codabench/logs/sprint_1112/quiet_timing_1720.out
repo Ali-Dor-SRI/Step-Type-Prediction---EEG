@@ -1,0 +1,9 @@
+pausing: 1306 8801 8830 
+ 17:20:37 up  2:05,  1 user,  load average: 8.31, 10.43, 11.90
+== ab_cand_all
+AlignedEnsembleModel: x4f 12.8 ms, nets 10.0 ms, full predict 23.0 ms/window (torch threads 1)
+== st40_cand_all
+SelfTrainEnsembleModel: x4f 13.0 ms, nets 10.5 ms, full predict 33.6 ms/window (torch threads 1)
+== st20_cand_all
+SelfTrainEnsembleModel: x4f 12.8 ms, nets 10.2 ms, full predict 43.1 ms/window (torch threads 1)
+resumed: 1306 8801 8830 

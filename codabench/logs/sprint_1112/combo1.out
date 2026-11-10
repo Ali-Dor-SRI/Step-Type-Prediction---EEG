@@ -1,0 +1,4 @@
+B2 + q5net mu1: base lopo 0.6819 later 0.7296 (w 0.6) | arm lopo 0.6797 later 0.7323 (w 0.6; picks [0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6])
+  arm - base: lopo -0.22 [-0.69, +0.27] up 5; later +0.27 -> no gain
+B2 + q5net mu0.1: base lopo 0.6819 later 0.7296 (w 0.6) | arm lopo 0.6798 later 0.7293 (w 0.5; picks [0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5])
+  arm - base: lopo -0.21 [-0.80, +0.40] up 5; later -0.03 -> no gain

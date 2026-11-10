@@ -44,7 +44,7 @@ def lg(P):
     return np.log(np.clip(P, 1e-12, 1))
 
 
-def adapt_split(s, nets_dir, seeds, q, lam, start, step, w_pl, rows, maxit=200, ntrain=0, chain=False, zdtype="f64"):
+def adapt_split(s, nets_dir, seeds, q, lam, start, step, w_pl, rows, maxit=200, ntrain=0, chain=False, zdtype="f64", plsrc="orig", pw=0.0):
     proto, fold = ("lopo", s[4:]) if s.startswith("lopo") else ("later", "None")
     d = np.load(DUMP / f"X4f__{proto}__{fold}.npz")
     clf = joblib.load(DUMP / f"X4f__{proto}__{fold}.clf.joblib")
@@ -56,6 +56,9 @@ def adapt_split(s, nets_dir, seeds, q, lam, start, step, w_pl, rows, maxit=200, 
     Ppl /= Ppl.sum(1, keepdims=True)
     Ztr = sc.transform(d["F_train"])
     ytr = d["y_train"]
+    from proteus_splits import split as _split
+    ptr = rows.person.iloc[np.asarray(_split(proto, None if fold == "None" else int(fold), rows).train)].to_numpy()
+    assert len(ptr) == len(ytr)
     if ntrain and ntrain < len(ytr):                 # fixed class-stratified subsample of training rows
         rng = np.random.default_rng(0)
         sub = np.concatenate([rng.choice(np.where(ytr == c)[0], ntrain // 3, replace=False) for c in range(3)])
@@ -85,7 +88,15 @@ def adapt_split(s, nets_dir, seeds, q, lam, start, step, w_pl, rows, maxit=200, 
             lr.set_params(warm_start=True, max_iter=maxit)
             Xf = np.vstack([Ztr, Zte[past[keep]]])
             yf = np.concatenate([ytr, yp[keep]])
-            sw = np.concatenate([np.ones(len(ytr)), np.full(len(keep), lam)])
+            wtr = np.ones(len(ytr))
+            if pw > 0:                               # soft person weighting by feature-mean distance
+                mu_s = Zte[past].mean(0)
+                pp = np.unique(ptr)
+                d2 = np.array([((Ztr[ptr == q_].mean(0) - mu_s) ** 2).sum() for q_ in pp])
+                wp = np.exp(-d2 / (pw * np.median(d2)))
+                wp = wp / wp.mean()
+                wtr = wp[np.searchsorted(pp, ptr)]
+            sw = np.concatenate([wtr, np.full(len(keep), lam)])
             t0 = time.perf_counter()
             lr.fit(Xf, yf, sample_weight=sw)
             tfit += time.perf_counter() - t0
@@ -93,6 +104,10 @@ def adapt_split(s, nets_dir, seeds, q, lam, start, step, w_pl, rows, maxit=200, 
             prev = lr
             nxt = idx[b:b + step]
             Pa[nxt] = lr.predict_proba(Zte[nxt])
+            if plsrc == "adapted":                   # later refits learn from the adapted ensemble
+                L2 = (1 - w_pl) * lg(Pa[nxt]) + w_pl * lg(Pn[nxt])
+                P2 = np.exp(L2 - L2.max(1, keepdims=True))
+                Ppl[nxt] = P2 / P2.sum(1, keepdims=True)
     return te, d["y_test"], Px, Pa, Pn, (nfit, tfit)
 
 
@@ -110,12 +125,14 @@ def main():
     ap.add_argument("--maxit", type=int, default=200)
     ap.add_argument("--ntrain", type=int, default=0, help="training rows kept (0 = all)")
     ap.add_argument("--chain", action="store_true", help="warm start from the stream's previous refit")
+    ap.add_argument("--pw", type=float, default=0.0, help="soft person weighting temperature (0 = off)")
+    ap.add_argument("--plsrc", default="orig", choices=["orig", "adapted"])
     ap.add_argument("--zdtype", default="f64", choices=["f64", "f32", "f16"],
                     help="training features stored as (f16 -> computed in f32)")
     a = ap.parse_args()
     name = a.name or (f"q5_q{a.q}_l{a.lam}_s{a.start}_t{a.step}"
                        + (f"_m{a.maxit}" if a.maxit != 200 else "") + (f"_n{a.ntrain}" if a.ntrain else "")
-                       + ("_c" if a.chain else "") + (f"_{a.zdtype}" if a.zdtype != "f64" else ""))
+                       + ("_c" if a.chain else "") + (f"_{a.zdtype}" if a.zdtype != "f64" else "") + ("_pa" if a.plsrc == "adapted" else "") + (f"_pw{a.pw}" if a.pw else ""))
     grid = tuple(float(g) for g in a.grid.split("_"))
     seeds = a.seeds.split("_")
     rows = PC.load().rows
@@ -128,7 +145,7 @@ def main():
             te, y, Px, Pa, Pn = z["test_idx"], z["y"], z["Px"], z["probas"], z["Pn"]
         else:
             te, y, Px, Pa, Pn, (nfit, tfit) = adapt_split(s, a.nets, seeds, a.q, a.lam, a.start, a.step, a.wpl,
-                                                          rows, a.maxit, a.ntrain, a.chain, a.zdtype)
+                                                          rows, a.maxit, a.ntrain, a.chain, a.zdtype, a.plsrc, a.pw)
             np.savez_compressed(f, probas=Pa, Px=Px, Pn=Pn, y=y, test_idx=te)
             log(f"{name} {s}: {nfit} refits, {tfit / max(nfit, 1):.2f} s each; X4f alone {cells(rows, te, y, Px.argmax(1)).score.mean():.4f} "
                 f"-> adapted {cells(rows, te, y, Pa.argmax(1)).score.mean():.4f}")

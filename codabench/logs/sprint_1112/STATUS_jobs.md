@@ -40,3 +40,24 @@
 16:33:28 END q5_q7l5t40 rc=0
 16:34:23 END q5_q7l10t40 rc=0
 16:38:14 END q5_q10l10t20 rc=0
+16:48:23 START p1b st20_cand_all w=0.6 adabn=32
+16:48:40 START q5_pa
+16:55:26 END q5_pa rc=0
+16:56:10 END nets shallow none s33 rc=0
+16:56:10 START nets shallow none s34 (rows_pl)
+16:56:48 END nets shallow stream s38 rc=0
+16:56:48 START nets shallow stream s39 (rows_al2)
+16:58:09 START q5_q85
+16:58:09 START q5_s20
+17:05:08 END q5_q85 rc=0
+17:05:26 END q5_s20 rc=0
+17:05:44 START q5_s20q10
+17:08:35 END p1b st20_cand_all gate_iii=1 gate_vi=0 cli=0
+17:08:36 START p1b st40_cand_all w=0.5 adabn=32
+17:13:19 END q5_s20q85 rc=0
+17:13:32 END q5_s20q10 rc=0
+17:20:21 END p1b st40_cand_all gate_iii=1 gate_vi=0 cli=0
+17:21:55 START b2_stgates
+17:22:32 START q5_pw03
+17:27:19 END q5_pw1 rc=0
+17:27:19 END q5_pw03 rc=0

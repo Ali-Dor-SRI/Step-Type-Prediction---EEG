@@ -1,0 +1,12 @@
+16:49:48 lopo0 done (0 s)
+q5net iters0 vs adabn p32 max|d| 5.960464477539062e-07
+16:56:38 later done (400 s)
+16:56:39 later done (401 s)
+== q7_lr1e-2_mu1
+arm (/home/ali_d/codabench/logs/sprint_1112/q5net/q7_lr1e-2_mu1): nested lopo 0.6630 vs X4f +3.55 [+2.05, +4.99] up 10; picks [0.6, 0.6, 0.6, 0.6, 0.6, 0.7, 0.6, 0.7, 0.6, 0.6]; later w=0.6 0.7130 (+3.94)
+arm - base: lopo +0.15 [-0.52, +0.79] up 5; later +0.65
+rule (Δ ≥ +1.0, CI lo > 0, later ≥ 0): not adopted
+== q7_lr1e-2_mu0.1
+arm (/home/ali_d/codabench/logs/sprint_1112/q5net/q7_lr1e-2_mu0.1): nested lopo 0.6650 vs X4f +3.75 [+2.30, +5.14] up 10; picks [0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6]; later w=0.6 0.7285 (+5.49)
+arm - base: lopo +0.34 [-0.46, +1.29] up 4; later +2.20
+rule (Δ ≥ +1.0, CI lo > 0, later ≥ 0): not adopted
