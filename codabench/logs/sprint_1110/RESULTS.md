@@ -21,3 +21,13 @@ w is now interior (0.5, not the grid edge). Two of three bars passed; later is a
 
 Smoke (2 epochs lopo0, 3 jobs × 4 threads): Deep4 4.1 s/epoch, FBCNet 9.9, ATCNet 14.3.
 ETA (60 ep × 11 splits × 5 seeds): Deep4 ≈ 4 h (~21:30), FBCNet ≈ 9 h (~02:30), ATCNet ≈ 13 h (~06:30 Tue).
+
+### W2a Deep4 — done 20:05 (est ≈ 3.2–4 h from 17:21 → 2 h 44 min, under) — **no gain**
+
+| arm (5 seeds, w grid 0.1–0.5 nested) | nested lopo | vs X4f | vs slot-2 ens | later vs slot-2 ens | rule |
+|---|---|---|---|---|---|
+| X4f + Deep4 (w 0.1, grid floor) | 0.6263 | −0.12 [−0.61, +0.41] | −1.81 [−2.43, −1.09] | −2.25 | not adopted |
+| X4f + (Shallow+Deep4 averaged) | 0.6329 | +0.54 [−0.05, +1.40] | −1.15 [−2.14, −0.04] | −1.21 | not adopted |
+
+Deep4 adds nothing to X4f and dilutes Shallow when mixed in. Files `cmp_deep4.txt`, `cmp_shallow_deep4.txt`.
+FBCNet 27/55, ATCNet 13/55 at 20:05.
