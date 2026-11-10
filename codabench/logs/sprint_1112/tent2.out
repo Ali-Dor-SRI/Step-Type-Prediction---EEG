@@ -1,0 +1,4 @@
+16:15:51 shallow later done; 30.2 ms/window
+arm (/home/ali_d/codabench/logs/sprint_1112/tent/im_lr1e-4): nested lopo 0.6639 vs X4f +3.64 [+1.97, +5.22] up 10; picks [0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5]; later w=0.5 0.7038 (+3.03)
+arm - base: lopo +0.23 [-0.20, +0.81] up 7; later -0.27
+rule (Δ ≥ +1.0, CI lo > 0, later ≥ 0): not adopted

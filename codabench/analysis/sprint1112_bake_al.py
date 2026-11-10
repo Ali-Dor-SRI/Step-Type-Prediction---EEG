@@ -38,6 +38,7 @@ def main():
     ap.add_argument("--out", default="al_cand_all")
     ap.add_argument("--name", default="ens_x4f_shallow_al_all")
     ap.add_argument("--adabn", type=float, default=None, help="AdaBN prior (opt-in)")
+    ap.add_argument("--st", default=None, help="self-training q,lam,start,step,wpl,budget_s (opt-in), e.g. 0.7,5,40,20,0.5,1500")
     a = ap.parse_args()
     assert sha256(X4F_ZIP).startswith(X4F_SHA), "sealed X4f zip is not 60a0148c"
     out = CB / "logs/sprint_1112" / a.out
@@ -50,9 +51,18 @@ def main():
         jl_sha = hashlib.sha256(z.read("riemann_sealed.joblib")).hexdigest()
     make_folder_al(sub, sub / "riemann_sealed.joblib", a.rows, a.seeds.split("_"), a.w, "all", adabn=a.adabn)
     assert sha256(sub / "riemann_sealed.joblib") == jl_sha
+    files = ["submission.py", "riemann_sealed.joblib", "shallow_nets.pt"]
+    if a.st:
+        import torch
+        q, lam, start, step, wpl, bud = (float(v) for v in a.st.split(","))
+        d = torch.load(sub / "shallow_nets.pt", map_location="cpu", weights_only=True)
+        d["selftrain"] = {"q": q, "lam": lam, "start": int(start), "step": int(step), "wpl": wpl, "budget_s": bud}
+        torch.save(d, sub / "shallow_nets.pt")
+        shutil.copyfile(CB / "logs/sprint_1112/x4f_all_trainZ.npz", sub / "x4f_trainZ.npz")
+        files.append("x4f_trainZ.npz")
     zp = out / f"{a.name}_{time.strftime('%Y-%m-%d')}.zip"
     with zipfile.ZipFile(zp, "w", zipfile.ZIP_DEFLATED) as z:
-        for f in ("submission.py", "riemann_sealed.joblib", "shallow_nets.pt"):
+        for f in files:
             z.write(sub / f, f)
     h = sha256(zp)
     (out / "SHA256.txt").write_text(f"{h}  {zp.name}\n")
@@ -62,7 +72,7 @@ def main():
     with zipfile.ZipFile(zp) as z:
         z.extractall(unz)
         names = z.namelist()
-    print(f"zip {zp} {zp.stat().st_size} bytes, files {names}, w {a.w}, seeds {a.seeds}, adabn {a.adabn}")
+    print(f"zip {zp} {zp.stat().st_size} bytes, files {names}, w {a.w}, seeds {a.seeds}, adabn {a.adabn}, selftrain {a.st}")
     print(f"sha256 {h}")
     print(f"joblib sha256 {jl_sha} (byte-identical to the sealed X4f all zip's)")
 

@@ -64,4 +64,10 @@ stream position (1–35: 0.642, 36–70: 0.657, 71+: 0.640); the spread is by **
 | arm | vs | rule | result |
 |---|---|---|---|
 | TD1 td_dm_all / td_raw_all / td_dm_front / td_dm_b15: time-domain bin means (0.25 / 0.125 s), running feature centring, LR C 0.01; stacked on slot 2, w nested in {0.1..0.5} | slot 2 | § 3 | no gain ×4 (best raw +0.66 [−1.02, +2.27], later −0.15) |
-| AB1 aligned Shallow (5 seeds) with causal per-stream BN statistics, prior 8 / 32; X4f + nets, w nested {0.2..0.6} | slot 2 | § 3 | running |
+| AB1 aligned Shallow (5 seeds) with causal per-stream BN statistics, prior 8 / 32; X4f + nets, w nested {0.2..0.6} | slot 2 | § 3 | **ADOPT** (p8 +1.97, p32 +1.71) |
+| AB2 priors 2 / 4 / 16, wide w grid 0.3–0.9; then (prior, w) chosen nested together | slot 2 | § 3 | **ADOPT**, nested +1.52 [+0.16, +2.86], later +0.52 → **base B1** = p32 w 0.5 |
+| Q5a X4f logistic layer refit causally per stream on train + past windows pseudo-labelled by B1 (top 50 % per class, weight 3, from window 40, every 20); X4f' + AdaBN nets, w nested | B1 (X4f + same nets, w nested) | § 3 | running |
+| TT1 online Tent / IM (one Adam step per window on BN affine, after predicting; AdaBN p32 stats): IM lr 1e-3, Tent lr 1e-3, IM lr 1e-2 | B1 | § 3; note CPU cost ≈ 105 ms/window/net | running |
+| H2 aligned FBCNet ×5 (weights saved), then AdaBN on it (generic `sprint1112_adabn_gen.py`), stacked on B1 | B1 | § 3 | training (lane 1) |
+| N1 plain Shallow ×5 with weights (same seeds as slot 2) → AdaBN on plain nets, stack aligned + plain | B1 | § 3 | training (lane 2) |
+| N2 aligned Shallow seeds 38–42 → 10-seed B1 | B1 | § 3 | training (lane 3) |

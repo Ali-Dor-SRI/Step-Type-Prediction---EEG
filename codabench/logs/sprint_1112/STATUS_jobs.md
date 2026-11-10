@@ -20,3 +20,23 @@
 15:53:12 END p1b ab_cand_all gate_iii=0 gate_vi=0 cli=0
 15:53:53 START nets shallow none s33 (rows_pl)
 15:53:53 START nets shallow stream s38 (rows_al2)
+15:55:00 START q5_a
+16:06:12 END q5_a rc=0
+16:06:48 START q5_cheap
+16:06:49 START q5_strong
+16:12:16 END q5_cheap rc=0
+16:12:35 START q5_m30
+16:12:35 START q5_t40
+16:19:55 END q5_t40 rc=0
+16:21:30 START q5_t40_f16
+16:21:53 START x4f_trainfeats
+16:22:02 END q5_strong rc=0
+16:25:17 END q5_m30 rc=0
+16:25:21 END q5_t40_f16 rc=0
+16:28:15 END x4f_trainfeats rc=0
+16:28:33 START q5_q10l10t20
+16:28:33 START q5_q7l10t40
+16:28:33 START q5_q7l5t40
+16:33:28 END q5_q7l5t40 rc=0
+16:34:23 END q5_q7l10t40 rc=0
+16:38:14 END q5_q10l10t20 rc=0

@@ -2170,6 +2170,109 @@ class Solver(_EnsSolver):
               flush=True)
         if not al:
             return EnsembleModel(x4f, nets, w)
+        st = d.get("selftrain")
+        if st:
+            z = np.load(meta["submission_dir"] / ST_FILE)
+            print(f"[X4f-Shallow-ens-al] self-training {dict((k, v) for k, v in st.items())}, "
+                  f"training features {z['Z'].shape}", flush=True)
+            return SelfTrainEnsembleModel(x4f, nets, w, al["Cg"].numpy(), int(al["buffer"]),
+                                          float(al["prior"]), float(ab["prior"]) if ab else None,
+                                          z["Z"], z["y"], st)
         return AlignedEnsembleModel(x4f, nets, w, al["Cg"].numpy(),
                                     int(al["buffer"]), float(al["prior"]),
                                     float(ab["prior"]) if ab else None)
+
+
+# ---------------------------------------------------------------------------
+# X4f self-training inside a stream (sprint 2026-11-12 Q5)
+# ---------------------------------------------------------------------------
+import copy  # noqa: E402
+
+ST_FILE = "x4f_trainZ.npz"
+
+
+class _Tap:
+    """Stands in for X4f's pooled classifier: records the features it is asked
+    about (the stream path calls parts["lda"].predict_proba(F) once per call)."""
+
+    def __init__(self, clf):
+        self.clf, self.last = clf, None
+
+    def predict_proba(self, F):
+        self.last = np.array(F, copy=True)
+        return self.clf.predict_proba(F)
+
+    def __getattr__(self, k):
+        if k in ("clf", "last"):
+            raise AttributeError(k)
+        return getattr(self.clf, k)
+
+
+class SelfTrainEnsembleModel(AlignedEnsembleModel):
+    """AlignedEnsembleModel whose X4f logistic layer is refit inside each stream on the
+    training features + the stream's PAST windows pseudo-labelled by the ensemble
+    (X4f's original probabilities mixed with the nets', weight wpl), keeping per
+    predicted class the q most confident, sample weight lam; refits before window
+    start, start + step, ... (0-based count), warm start from X4f's coefficients,
+    X4f's scaler kept, float32. Label-free and causal. A cumulative refit-time
+    budget (seconds since load) stops further refits (sprint1112_q5.py replays this)."""
+
+    def __init__(self, x4f, nets, w, Cg, buffer, prior, adabn_prior, Z, y, st):
+        super().__init__(x4f, nets, w, Cg, buffer, prior, adabn_prior)
+        clf = x4f.parts["lda"]
+        self.tap = clf if isinstance(clf, _Tap) else _Tap(clf)
+        x4f.parts["lda"] = self.tap
+        self.sc, self.lr0 = self.tap.clf.steps[0][1], self.tap.clf.steps[-1][1]
+        self.Ztr = np.asarray(Z, dtype=np.float32)
+        self.ytr = np.asarray(y, dtype=np.int64)
+        self.q, self.lam = float(st["q"]), float(st["lam"])
+        self.start, self.step = int(st["start"]), int(st["step"])
+        self.wpl, self.budget = float(st["wpl"]), float(st.get("budget_s", 1500.0))
+        self.spent, self.nrefit = 0.0, 0
+        self._st_reset()
+
+    def _st_reset(self):
+        self._Z, self._Ppl, self._lr = [], [], None
+
+    def reset_state(self):
+        super().reset_state()
+        self._st_reset()
+
+    def _refit(self):
+        Ppl = np.asarray(self._Ppl)
+        yp, conf = Ppl.argmax(1), Ppl.max(1)
+        keep = []
+        for c in range(Ppl.shape[1]):
+            m = np.where(yp == c)[0]
+            if len(m):
+                keep.extend(m[np.argsort(-conf[m])][:max(1, int(round(self.q * len(m))))])
+        keep = np.asarray(sorted(keep))
+        Zp = np.asarray(self._Z, dtype=np.float32)[keep]
+        lr = copy.deepcopy(self.lr0)
+        lr.set_params(warm_start=True, max_iter=200)
+        t0 = time.perf_counter()
+        lr.fit(np.vstack([self.Ztr, Zp]), np.concatenate([self.ytr, yp[keep]]),
+               sample_weight=np.concatenate([np.ones(len(self.ytr)), np.full(len(keep), self.lam)]))
+        self.spent += time.perf_counter() - t0
+        self.nrefit += 1
+        self._lr = lr
+
+    def predict_proba_parts(self, X):
+        Px0 = np.asarray(self.x4f.predict_proba(X))
+        F = self.tap.last
+        Pn = self.net_proba(X)
+        Z = self.sc.transform(F).astype(np.float32)
+        Px = Px0.copy()
+        for i in range(len(Px0)):           # windows in stream order
+            n = len(self._Z)
+            if (n >= self.start and (n - self.start) % self.step == 0
+                    and self.spent < self.budget):
+                self._refit()
+            if self._lr is not None:
+                Px[i] = self._lr.predict_proba(Z[i:i + 1])[0]
+            L = ((1 - self.wpl) * np.log(np.clip(Px0[i], 1e-12, 1))
+                 + self.wpl * np.log(np.clip(Pn[i], 1e-12, 1)))
+            p = np.exp(L - L.max())
+            self._Z.append(Z[i])
+            self._Ppl.append(p / p.sum())
+        return Px, Pn

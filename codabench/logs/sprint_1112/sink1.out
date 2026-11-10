@@ -1,0 +1,4 @@
+sink N=20: lopo 0.6524 later 0.7144 vs base 0.6615 / 0.7065: -0.92 [-2.26, +0.39] up 5; later +0.80
+sink N=40: lopo 0.6600 later 0.7083 vs base 0.6615 / 0.7065: -0.15 [-1.31, +0.99] up 7; later +0.18
+sink N=80: lopo 0.6611 later 0.7202 vs base 0.6615 / 0.7065: -0.05 [-1.49, +1.01] up 5; later +1.37
+sink nested over N and w: lopo 0.6611 later 0.7202 (all-ten pick (80, 0.6)): -0.05 [-1.49, +1.01] up 5; later +1.37

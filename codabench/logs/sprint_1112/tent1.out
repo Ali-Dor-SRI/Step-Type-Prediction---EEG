@@ -1,0 +1,17 @@
+15:57:48 shallow lopo0 done; 62.7 ms/window
+tent lr0 vs adabn p32 max|d| 5.960464477539062e-07
+16:06:10 shallow later done; 28.8 ms/window
+16:06:10 shallow later done; 28.9 ms/window
+16:06:17 shallow later done; 29.2 ms/window
+== im_lr1e-3
+arm (/home/ali_d/codabench/logs/sprint_1112/tent/im_lr1e-3): nested lopo 0.6145 vs X4f -1.30 [-2.70, +0.85] up 5; picks [0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3]; later w=0.3 0.6484 (-2.51)
+arm - base: lopo -4.70 [-6.59, -2.56] up 1; later -5.81
+rule (Δ ≥ +1.0, CI lo > 0, later ≥ 0): not adopted
+== tent_lr1e-3
+arm (/home/ali_d/codabench/logs/sprint_1112/tent/tent_lr1e-3): nested lopo 0.6108 vs X4f -1.67 [-3.11, +0.45] up 4; picks [0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3]; later w=0.3 0.6557 (-1.79)
+arm - base: lopo -5.07 [-7.06, -3.07] up 1; later -5.08
+rule (Δ ≥ +1.0, CI lo > 0, later ≥ 0): not adopted
+== im_lr1e-2
+arm (/home/ali_d/codabench/logs/sprint_1112/tent/im_lr1e-2): nested lopo 0.5120 vs X4f -11.55 [-15.92, -6.47] up 0; picks [0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3]; later w=0.3 0.4579 (-21.56)
+arm - base: lopo -14.95 [-20.64, -9.45] up 0; later -24.86
+rule (Δ ≥ +1.0, CI lo > 0, later ≥ 0): not adopted

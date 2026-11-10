@@ -1,0 +1,13 @@
+16:13:14 q5_q0.5_l3.0_s40_t40 lopo0: 4 refits, 6.59 s each; X4f alone 0.6954 -> adapted 0.6902
+16:13:49 q5_q0.5_l3.0_s40_t40 lopo1: 4 refits, 6.50 s each; X4f alone 0.7195 -> adapted 0.7511
+16:14:17 q5_q0.5_l3.0_s40_t40 lopo2: 4 refits, 5.18 s each; X4f alone 0.5235 -> adapted 0.5339
+16:15:22 q5_q0.5_l3.0_s40_t40 lopo3: 12 refits, 4.48 s each; X4f alone 0.5240 -> adapted 0.5312
+16:15:52 q5_q0.5_l3.0_s40_t40 lopo4: 4 refits, 5.39 s each; X4f alone 0.5481 -> adapted 0.5477
+16:16:20 q5_q0.5_l3.0_s40_t40 lopo5: 4 refits, 5.02 s each; X4f alone 0.6952 -> adapted 0.7277
+16:16:50 q5_q0.5_l3.0_s40_t40 lopo6: 4 refits, 5.20 s each; X4f alone 0.7553 -> adapted 0.7714
+16:17:21 q5_q0.5_l3.0_s40_t40 lopo7: 4 refits, 5.70 s each; X4f alone 0.7877 -> adapted 0.7878
+16:17:48 q5_q0.5_l3.0_s40_t40 lopo8: 4 refits, 4.76 s each; X4f alone 0.7144 -> adapted 0.7791
+16:18:47 q5_q0.5_l3.0_s40_t40 lopo9: 12 refits, 4.06 s each; X4f alone 0.5912 -> adapted 0.6098
+16:19:53 q5_q0.5_l3.0_s40_t40 later: 16 refits, 3.49 s each; X4f alone 0.6735 -> adapted 0.6798
+q5_q0.5_l3.0_s40_t40: base (X4f + nets) lopo 0.6615 later 0.7065 picks [0.6, 0.6, 0.6, 0.5, 0.5, 0.5, 0.5, 0.6, 0.6, 0.6] | arm lopo 0.6698 later 0.7193 picks [0.6, 0.6, 0.4, 0.6, 0.4, 0.6, 0.6, 0.6, 0.6, 0.4]
+  arm - base: lopo +0.83 [+0.07, +1.59] up 8; later +1.29 -> lean

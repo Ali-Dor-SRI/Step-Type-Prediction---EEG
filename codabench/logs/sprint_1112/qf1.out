@@ -1,0 +1,2 @@
+FLAGGED (a) per-run Hungarian, non-causal: lopo 0.6706 vs base 0.6660: +0.45 [-0.67, +1.88] up 5; later 0.7295 vs 0.7065
+FLAGGED (b) causal per-run quota: lopo 0.5986 vs base 0.6660: -6.74 [-8.04, -5.48] up 0; later 0.6347 vs 0.7065

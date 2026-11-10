@@ -72,7 +72,7 @@ aligned-Shallow w 0.5 0.6612 / 0.6997 (+1.68 [+0.02, +3.28] vs slot 2, later −
   (person spread 0.53–0.82 locally; the later half has 10 people, locally only P04 / P10, and P04
   is our worst person).
 
-## P4 — arms (count so far: 12)
+## P4 — arms (count so far: 30 + 2 flagged)
 
 | # | arm | alone lopo / later | nested Δ lopo vs slot 2 [95 % CI] (up) | Δ later | verdict |
 |---|---|---|---|---|---|
@@ -81,6 +81,27 @@ aligned-Shallow w 0.5 0.6612 / 0.6997 (+1.68 [+0.02, +3.28] vs slot 2, later −
 | 6 | Q4 person-expert LR mix (uniform) | 0.595 / 0.611 | −0.38 [−1.20, +0.34] (4) | −0.37 | no gain |
 | 7–11 | **AdaBN: aligned Shallow ×5, causal per-stream BN statistics, prior 2 / 4 / 8 / 16 / 32**, X4f + nets w nested | — | +2.15 / +2.12 / +1.97 / +1.86 / +1.71 (all CI lo > 0; 8–9 up) | +1.93 / +1.15 / +1.29 / +0.38 / +0.52 | **ADOPT** (each) |
 | 12 | **AdaBN, prior and w chosen nested together** (5 priors × w 0.3–0.9) | — | **+1.52 [+0.16, +2.86] (8)**; lopo 0.6596 | **+0.52** (later 0.7065) | **ADOPT → new base B1** |
+| 13 | **Q5a self-training of X4f's logistic layer per stream** (train + the stream's past windows pseudo-labelled by B1, top 50 % per class, weight 3, refit from window 40 every 20, warm start from X4f) + AdaBN nets, w nested — **vs B1** | X4f part alone: +1.7 on average (e.g. lopo8 0.714 → 0.779) | **+1.02 [+0.52, +1.62] (9)**; lopo 0.6717 | **+0.73** (0.7138) | **ADOPT vs B1** (cost: ≈ 5 s per refit at full training size — see the cost variants) |
+| 14–16 | Tent / IM online (one Adam step per window on BN affine, AdaBN stats): IM lr 1e-3 / Tent lr 1e-3 / IM lr 1e-2 — vs B1 | — | −4.70 / −5.07 / −14.95 (0–1 up) | −5.8 / −5.1 / −24.9 | no gain (harmful); CPU ≈ 29–63 ms/window/net |
+| 17 | IM online, lr 1e-4 (step-size check of 14–16) — vs B1 | — | +0.23 [−0.20, +0.81] (7) | −0.27 | lean (tiny; not worth ≈ 30 ms/window/net) → **gradient TTA closed** |
+| 18 | Q5 cost variant: 900 training rows, chained warm start, ≤ 50 iterations (1.7 s / refit) — vs B1 | — | −0.47 [−1.58, +0.63] (4) | +1.24 | no gain (the shortcut loses Q5a's gain) |
+| 19 | Q5 every 40 windows (q 0.5, w 3) | — | +0.83 [+0.07, +1.59] (8) | +1.29 | lean |
+| 20 | Q5 ≤ 30 L-BFGS iterations | — | +1.02 (identical to Q5a: L-BFGS stops at ≈ 13 iterations anyway) | +0.73 | = Q5a |
+| 21 | Q5 every 40, training features stored float16 / fitted float32 | — | +0.83 (identical to 19, to the 4th decimal) | +1.29 | f16 storage is exact enough |
+| 22 | **Q5 q 0.7, weight 5, every 20** | — | **+2.04 [+1.36, +3.20] (10)**; lopo 0.6819 | **+2.31** (0.7296) | **ADOPT** |
+| 23 | Q5 q 0.7, weight 5, every 40, f16 | — | +1.63 [+1.05, +2.66] (10) | +0.86 | ADOPT |
+| 24 | Q5 q 1.0, weight 10, every 20, f16 | — | +1.97 [+1.17, +3.24] (10) | +2.27 | ADOPT |
+| 25 | Q5 q 0.7, weight 10, every 40, f16 | — | +1.51 [+0.99, +2.38] (10) | +1.78 | ADOPT |
+| 26 | **nested re-selection over the 7 Q5 configs × w** (selection-optimism check) | — | **+1.70 [+1.05, +2.76] (10)**; lopo 0.6785; all-ten pick q 0.7 / w 5 / every 20, w 0.6 | **+2.31** | **ADOPT → base B2 = B1 + Q5 self-training** |
+| 27 | nested re-selection over the 3 every-40 configs | — | +1.25 [+0.87, +1.80] (10); pick q 0.7 / w 5, w 0.5 | +0.86 | ADOPT (the cheaper deployable form) |
+| 28–30 | Q5b causal Sinkhorn class balancing of the B1 ensemble over the last N = 20 / 40 / 80 windows (N, w nested) — vs B1 | — | −0.92 / −0.15 / −0.05; nested −0.05 [−1.49, +1.01] (5) | +0.80 / +0.18 / +1.37 | no gain |
+
+### Flagged track (QF; uses run boundaries / per-run counts that predict() never sees — never in a main candidate)
+
+| arm | lopo vs B1 (w 0.5) | later | verdict |
+|---|---|---|---|
+| (a) per-run balanced (Hungarian) assignment, non-causal | +0.45 [−0.67, +1.88] (5 up) | 0.7295 vs 0.7065 | worthless (< +3): no flagged zip |
+| (b) causal per-run quota decoding | −6.74 [−8.04, −5.48] (0 up) | 0.6347 | harmful |
 
 AdaBN rows (w grid 0.3–0.9, `adabn2.out`): p2 lopo 0.6659 / later 0.7206; p4 0.6656 / 0.7128;
 p8 0.6641 / 0.7142; p16 0.6630 / 0.7051; p32 0.6615 / 0.7065 (w 0.5–0.6 in every fold). The
@@ -96,3 +117,13 @@ ms/window with ≈ 12 busy threads)** — the per-component profile under the sa
 45.4 ms vs slot-2 43.5 ms, i.e. the aligned net path costs the same as slot 2 (21.4 ms quiet); a
 quiet re-run is pending. Gate vi PASS. CLI: failed on staging (weights expected in
 `tracks/bci_decoding/outputs/X4f-Shallow-ens-al/`), re-run pending.
+
+### Q5 cost (1 thread = the solver's setting)
+
+One refit (X4f logistic layer, ≈ 2,000–2,750 training rows × 10,304 features + pseudo rows): 6.0 s
+float64 / **3.1 s float32** at 1 thread on a fully loaded machine (13 L-BFGS iterations). Sealed
+test ≈ 66 streams × (8 refits every 20 / 4 every 40). The solver keeps a cumulative refit-time
+budget (default 1,500 s) after which it stops refitting (later streams then = B1), so the 60-min
+cap cannot be breached; quiet timing decides every 20 vs every 40.
+X4f training features for the all-trained model: refit on `all` reproduces the sealed classifier
+to 2e-14 (`sprint1112_x4f_trainfeats.py`); stored float16, 50.5 MB (`x4f_all_trainZ.npz`).
