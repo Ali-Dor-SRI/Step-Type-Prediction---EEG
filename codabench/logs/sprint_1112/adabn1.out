@@ -1,0 +1,9 @@
+15:30:54 lopo0 done (frozen max|dP| vs saved 0.0e+00)
+15:35:31 later done
+15:35:31 later done
+arm (/home/ali_d/codabench/logs/sprint_1112/adabn/al_p8): nested lopo 0.6641 vs X4f +3.66 [+2.04, +5.29] up 10; picks [0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6]; later w=0.6 0.7142 (+4.07)
+arm - base: lopo +1.97 [+0.78, +3.28] up 9; later +1.29
+rule (Δ ≥ +1.0, CI lo > 0, later ≥ 0): ADOPTED
+arm (/home/ali_d/codabench/logs/sprint_1112/adabn/al_p32): nested lopo 0.6615 vs X4f +3.41 [+1.63, +5.10] up 10; picks [0.6, 0.6, 0.6, 0.5, 0.5, 0.5, 0.5, 0.6, 0.6, 0.6]; later w=0.5 0.7065 (+3.29)
+arm - base: lopo +1.71 [+0.34, +3.05] up 9; later +0.52
+rule (Δ ≥ +1.0, CI lo > 0, later ≥ 0): ADOPTED

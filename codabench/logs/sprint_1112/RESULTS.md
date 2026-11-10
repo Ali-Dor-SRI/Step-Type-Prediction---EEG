@@ -21,3 +21,78 @@ aligned-Shallow w 0.5 0.6612 / 0.6997 (+1.68 [+0.02, +3.28] vs slot 2, later −
   w 0.5): **ALL PASS** — streamed classes = post-hoc ensemble (0 / 190 lopo0, 0 / 762 later);
   X4f probabilities = dump to 1.2e-9; aligned-net probabilities = saved batch ones to 1.5e-5;
   w = 0 = X4f. Streamed later cell mean 0.6997 (= the arm's later number).
+
+## P3 — board, Tue 11-10 15:25 (read-only, in-app browser; curl gets a bot check, not retried)
+
+- 172 entries (166 on 11-09; 31 created since 11-09 22:00). Top 0.830 (sungjunwang "ANCHOR-13-v1"),
+  #12 0.807, median 0.729. **Ours (slot 2): rank 82, 0.736, server duration 549.91 s.** The board
+  shows each team's latest entry (bryanyahir03's 0.838 of 11-09 is no longer listed; their 0.824
+  is).
+- **Score tracks server time:** corr(log duration, score) = **0.71** over 172 entries. Median
+  duration by band: ≥ 0.80: 1,451 s (n 19); 0.78–0.80: 1,305 s; 0.75–0.78: 724 s; 0.72–0.75:
+  734 s; 0.68–0.72: 402 s; < 0.68: 147 s. Best entries under 600 s: navattack 0.807 (556 s),
+  then 0.777 / 0.775 / 0.772. → the top spends ≈ 2.5–5× our per-window compute (bigger / more
+  nets, test-time training, or pretrained models); a cheap entry can still reach 0.807.
+- Server timing factor re-derived from slot 2: 549.9 s / ≈ 12.5 k windows ≈ 44 ms/window vs 21.4
+  local quiet → **≈ 2.1×** (brief assumed 2.3×). The 60 ms/window local gate ≈ 26 min server.
+- Fact-sheet names that hint at a method: "Causal-Covariance-Manifold" (0.789),
+  "BioRKHS_MultiFBCSP_REVE_v2_3Scale_SessionBalancedBio" (0.722; REVE = an EEG foundation model),
+  "C25 Riemann IIR-E2 session-centered TD" (0.717), "t2c3: ts+psd LR log-prob average, session
+  recentring + causal debias" (0.696), "Deep4 ensemble 5seed + TTA" (0.503), "proteus_experts_75_25_prelearn" (0.705).
+  Riemann + re-centring entries sit at 0.68–0.79 — the family we are in; the very top names say nothing.
+
+## P2 — diagnostics (`analysis/sprint1112_diag.py`; full tables `diag_d1_d3_d5.md`, `diag_d4_d2.out`)
+
+- **D1 error anatomy (slot-2 ens, lopo pooled balanced acc.):** calibration 0.651 vs online 0.640;
+  Graz 0.641 vs BrainHero 0.646; stream position 1–35 0.642 / 36–70 0.657 / 71+ 0.640; by run
+  0.624–0.657. **No cell type holds the loss; the spread is by person** (P03 0.54, P04 0.53,
+  P05 0.55 … P08 0.82). Confusion is symmetric (diagonal 0.63–0.66). later: BrainHero 0.754 vs
+  Graz 0.648; P04 0.60 vs P10 0.80.
+- **D2 ceilings (X4f features; per-fold cell means, so "now" reads 0.655 not 0.628):**
+
+  | arm | lopo | later |
+  |---|---|---|
+  | now (running re-centring) | 0.6554 | 0.6735 |
+  | (b) final whole-stream mean (label-free, non-causal) | 0.6526 | 0.6693 |
+  | (c) class-balanced session mean (ORACLE, labels) | 0.6510 | 0.6733 |
+  | (a) pooled + the session's own other runs, labelled ×3 (ORACLE) | **0.7815** | **0.7557** |
+
+  → early-stream estimates and re-centring bias cost nothing; **the gap is the person-specific
+  decision boundary (adaptation), +12.6 lopo with labels.** Levers that adapt the classifier /
+  nets to the stream are the ones to try.
+- **D3 label sequences:** 54 / 84 runs exactly 10/10/10, 17 exactly 12/12/12, the rest within ±2;
+  sequences differ in every run (random order); same-class repeat rate 0.29 (iid 0.333), longest
+  repeat median 3, max 7 → balanced-without-replacement design. Feeds QF (flagged) only.
+- **D4 calibration vs online (X4f features, lopo):** train all → calib 0.680 / online 0.642;
+  train calib → 0.619 / 0.588; train online → 0.622 / 0.624. Online runs are harder, not easier;
+  no separate feedback-period signal visible in these features. Pooling both run types is best.
+- **D5:** restricted to calibration / online / windows 71+ the slot-2 cells give 0.653 / 0.640 /
+  0.640 (lopo), 0.720 / 0.690 / 0.691 (later): no restriction reaches 0.736. The sealed − local
+  offset is not a run-type or position mix; most likely the sealed people / sessions are easier
+  (person spread 0.53–0.82 locally; the later half has 10 people, locally only P04 / P10, and P04
+  is our worst person).
+
+## P4 — arms (count so far: 12)
+
+| # | arm | alone lopo / later | nested Δ lopo vs slot 2 [95 % CI] (up) | Δ later | verdict |
+|---|---|---|---|---|---|
+| 1–4 | time-domain bin features (dm / raw / frontal / 0.125 s), LR | 0.44–0.48 / 0.45–0.53 | best raw +0.66 [−1.02, +2.27] (7) | −0.15 | no gain ×4 |
+| 5 | Q4 PCA(256) + shrinkage LDA on X4f features | 0.598 / 0.630 | +0.09 [−0.32, +0.60] (4) | −0.33 | lean (tiny) |
+| 6 | Q4 person-expert LR mix (uniform) | 0.595 / 0.611 | −0.38 [−1.20, +0.34] (4) | −0.37 | no gain |
+| 7–11 | **AdaBN: aligned Shallow ×5, causal per-stream BN statistics, prior 2 / 4 / 8 / 16 / 32**, X4f + nets w nested | — | +2.15 / +2.12 / +1.97 / +1.86 / +1.71 (all CI lo > 0; 8–9 up) | +1.93 / +1.15 / +1.29 / +0.38 / +0.52 | **ADOPT** (each) |
+| 12 | **AdaBN, prior and w chosen nested together** (5 priors × w 0.3–0.9) | — | **+1.52 [+0.16, +2.86] (8)**; lopo 0.6596 | **+0.52** (later 0.7065) | **ADOPT → new base B1** |
+
+AdaBN rows (w grid 0.3–0.9, `adabn2.out`): p2 lopo 0.6659 / later 0.7206; p4 0.6656 / 0.7128;
+p8 0.6641 / 0.7142; p16 0.6630 / 0.7051; p32 0.6615 / 0.7065 (w 0.5–0.6 in every fold). The
+all-ten pick is p32, w 0.5: **B1 = X4f + aligned Shallow ×5 with AdaBN prior 32, w 0.5**
+(deployment config; nested estimate +1.52 vs slot 2). Frozen-mode replay = saved probabilities
+(8.6e-7). Unaligned slot-2 nets have no per-split weights, so AdaBN on them is untested.
+
+## P1 — safety-net bake (15:32–15:39)
+
+Zip `al_cand_all/ens_x4f_shallow_al_all_2026-11-10.zip`, 2,522,339 B, sha256 `e93586d6b43f…`
+(joblib byte-identical to sealed X4f). Gate iii: 1, 2, 3a, 3b PASS; **4 FAIL under load (184
+ms/window with ≈ 12 busy threads)** — the per-component profile under the same load gives aligned
+45.4 ms vs slot-2 43.5 ms, i.e. the aligned net path costs the same as slot 2 (21.4 ms quiet); a
+quiet re-run is pending. Gate vi PASS. CLI: failed on staging (weights expected in
+`tracks/bci_decoding/outputs/X4f-Shallow-ens-al/`), re-run pending.

@@ -1,0 +1,9 @@
+  0%|          | 0/84 [00:00<?, ?it/s]100%|██████████| 84/84 [00:00<00:00, 1066.09it/s]
+Preparing segments:   0%|          | 0/3 [00:00<?, ?it/s]Preparing segments: 100%|██████████| 3/3 [00:00<00:00, 23.02it/s]Preparing segments: 100%|██████████| 3/3 [00:00<00:00, 22.63it/s]
+[X4f-Shallow-ens-al] 5 ShallowNetT nets (seeds [33, 34, 35, 36, 37]), w=0.5, align=stream, torch threads=1
+/home/ali_d/codabench/analysis/sprint1109_nobd.py:31: UserWarning: The given NumPy array is not writable, and PyTorch does not support non-writable tensors. This means writing to this tensor will result in undefined behavior. You may want to copy the array to protect its data or make it writable before converting it to a tensor. This type of warning will be suppressed for the rest of this program. (Triggered internally at /__w/pytorch/pytorch/torch/csrc/utils/tensor_numpy.cpp:213.)
+  y = [int(np.asarray(m.predict(torch.from_numpy(np.asarray(c.X[i:i + 1])))).reshape(-1)[0]) for i in te]
+[Riemann-Sealed] predict: 20 calls, 20 windows, 1.5 s (76.8 ms/window), maxrss 0.70 GB
+[Riemann-Sealed] predict: 40 calls, 40 windows, 3.4 s (84.3 ms/window), maxrss 0.71 GB
+braindecode in sys.modules: False
+PASS (vi) loaded + predicted 50 windows without braindecode; classes [15, 16, 19]

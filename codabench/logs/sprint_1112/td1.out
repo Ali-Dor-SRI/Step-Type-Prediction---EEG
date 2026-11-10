@@ -1,0 +1,11 @@
+15:29:04 [row] td_raw_all alone: lopo 0.4965 later 0.5275 | per fold 0.473 0.626 0.608 0.327 0.390 0.496 0.418 0.528 0.556 0.542
+15:29:08 [row] td_dm_front alone: lopo 0.4144 later 0.4489 | per fold 0.384 0.482 0.404 0.278 0.421 0.473 0.423 0.449 0.369 0.460
+15:29:35 [row] td_dm_b15 alone: lopo 0.4350 later 0.4622 | per fold 0.452 0.468 0.429 0.312 0.385 0.484 0.417 0.471 0.433 0.498
+td_dm_all: base lopo 0.6444 later 0.7013 | new alone lopo 0.4364 later 0.4691 | nested lopo 0.6418 later 0.6972 (w later 0.3); picks [0.3, 0.1, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.1]
+  arm - base: lopo -0.26 [-1.20, +0.74] up 4/10; later -0.41 -> no gain
+td_raw_all: base lopo 0.6444 later 0.7013 | new alone lopo 0.4788 later 0.5275 | nested lopo 0.6510 later 0.6998 (w later 0.2); picks [0.2, 0.2, 0.2, 0.3, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2]
+  arm - base: lopo +0.66 [-1.02, +2.27] up 7/10; later -0.15 -> no gain
+td_dm_front: base lopo 0.6444 later 0.7013 | new alone lopo 0.4014 later 0.4489 | nested lopo 0.6433 later 0.6931 (w later 0.2); picks [0.2, 0.2, 0.2, 0.3, 0.3, 0.2, 0.2, 0.2, 0.2, 0.2]
+  arm - base: lopo -0.11 [-1.18, +0.85] up 7/10; later -0.82 -> no gain
+td_dm_b15: base lopo 0.6444 later 0.7013 | new alone lopo 0.4264 later 0.4622 | nested lopo 0.6479 later 0.7079 (w later 0.2); picks [0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2]
+  arm - base: lopo +0.35 [-0.52, +1.19] up 6/10; later +0.66 -> no gain

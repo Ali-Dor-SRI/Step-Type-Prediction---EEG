@@ -1,0 +1,20 @@
+## D4 — calibration vs online as two tasks (X4f features, lopo folds, X4f's classifier settings)
+
+|                      |   n_train |   bacc |
+|:---------------------|----------:|-------:|
+| ('all', 'calib')     |    2389.5 | 0.6804 |
+| ('all', 'online')    |    2389.5 | 0.6417 |
+| ('calib', 'calib')   |     866.7 | 0.6189 |
+| ('calib', 'online')  |     866.7 | 0.5882 |
+| ('online', 'calib')  |    1522.8 | 0.6219 |
+| ('online', 'online') |    1522.8 | 0.6243 | 
+
+## D2 — ceilings (ORACLES unless stated; X4f features, X4f's own classifier)
+
+| arm                                   |   lopo |   later |
+|:--------------------------------------|-------:|--------:|
+| a pooled + own other runs ×3 (labels) | 0.7815 |  0.7557 |
+| b final-mean (label-free, non-causal) | 0.6526 |  0.6693 |
+| c class-balanced mean (labels)        | 0.651  |  0.6733 |
+| now (running)                         | 0.6554 |  0.6735 | 
+

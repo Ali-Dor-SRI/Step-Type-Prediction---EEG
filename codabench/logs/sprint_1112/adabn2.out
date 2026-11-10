@@ -1,0 +1,23 @@
+15:41:19 later done
+15:41:20 later done
+15:41:25 later done
+== prior 2
+arm (/home/ali_d/codabench/logs/sprint_1112/adabn/al_p2): nested lopo 0.6659 vs X4f +3.84 [+2.03, +5.61] up 9; picks [0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6]; later w=0.6 0.7206 (+4.71)
+arm - base: lopo +2.15 [+0.83, +3.56] up 8; later +1.93
+rule (Δ ≥ +1.0, CI lo > 0, later ≥ 0): ADOPTED
+== prior 4
+arm (/home/ali_d/codabench/logs/sprint_1112/adabn/al_p4): nested lopo 0.6656 vs X4f +3.81 [+2.04, +5.53] up 10; picks [0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6]; later w=0.6 0.7128 (+3.93)
+arm - base: lopo +2.12 [+0.81, +3.47] up 9; later +1.15
+rule (Δ ≥ +1.0, CI lo > 0, later ≥ 0): ADOPTED
+== prior 8
+arm (/home/ali_d/codabench/logs/sprint_1112/adabn/al_p8): nested lopo 0.6641 vs X4f +3.66 [+2.04, +5.29] up 10; picks [0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6]; later w=0.6 0.7142 (+4.07)
+arm - base: lopo +1.97 [+0.78, +3.28] up 9; later +1.29
+rule (Δ ≥ +1.0, CI lo > 0, later ≥ 0): ADOPTED
+== prior 16
+arm (/home/ali_d/codabench/logs/sprint_1112/adabn/al_p16): nested lopo 0.6630 vs X4f +3.55 [+1.89, +5.20] up 10; picks [0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.6, 0.6]; later w=0.5 0.7051 (+3.16)
+arm - base: lopo +1.86 [+0.63, +3.13] up 9; later +0.38
+rule (Δ ≥ +1.0, CI lo > 0, later ≥ 0): ADOPTED
+== prior 32
+arm (/home/ali_d/codabench/logs/sprint_1112/adabn/al_p32): nested lopo 0.6615 vs X4f +3.41 [+1.63, +5.10] up 10; picks [0.6, 0.6, 0.6, 0.5, 0.5, 0.5, 0.5, 0.6, 0.6, 0.6]; later w=0.5 0.7065 (+3.29)
+arm - base: lopo +1.71 [+0.34, +3.05] up 9; later +0.52
+rule (Δ ≥ +1.0, CI lo > 0, later ≥ 0): ADOPTED

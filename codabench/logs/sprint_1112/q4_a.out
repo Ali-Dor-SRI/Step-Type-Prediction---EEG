@@ -1,0 +1,28 @@
+15:32:00 plda lopo0: 0.6428 (X4f 0.6954)
+15:32:13 plda lopo1: 0.7362 (X4f 0.7195)
+15:32:26 plda lopo2: 0.4921 (X4f 0.5235)
+15:32:38 plda lopo3: 0.4772 (X4f 0.5240)
+15:32:52 plda lopo4: 0.5272 (X4f 0.5481)
+15:33:06 plda lopo5: 0.6407 (X4f 0.6952)
+15:33:21 plda lopo6: 0.7508 (X4f 0.7553)
+15:33:33 plda lopo7: 0.7665 (X4f 0.7877)
+15:33:49 plda lopo8: 0.6920 (X4f 0.7144)
+15:34:04 plda lopo9: 0.5617 (X4f 0.5912)
+15:34:19 plda later: 0.6299 (X4f 0.6735)
+15:34:19 [row] q4 plda alone: lopo 0.6287 later 0.6299
+q4_plda: base lopo 0.6444 later 0.7013 | new alone lopo 0.5975 later 0.6299 | nested lopo 0.6454 later 0.6980 (w later 0.3); picks [0.2, 0.2, 0.2, 0.2, 0.3, 0.3, 0.3, 0.2, 0.3, 0.3]
+  arm - base: lopo +0.09 [-0.32, +0.60] up 4/10; later -0.33 -> lean
+15:34:52 pens lopo0: 0.6322 (X4f 0.6954)
+15:35:11 pens lopo1: 0.7417 (X4f 0.7195)
+15:35:30 pens lopo2: 0.5027 (X4f 0.5235)
+15:35:44 pens lopo3: 0.5200 (X4f 0.5240)
+15:35:59 pens lopo4: 0.4587 (X4f 0.5481)
+15:36:13 pens lopo5: 0.6563 (X4f 0.6952)
+15:36:24 pens lopo6: 0.7023 (X4f 0.7553)
+15:36:34 pens lopo7: 0.7620 (X4f 0.7877)
+15:36:46 pens lopo8: 0.7410 (X4f 0.7144)
+15:36:57 pens lopo9: 0.5229 (X4f 0.5912)
+15:37:10 pens later: 0.6113 (X4f 0.6735)
+15:37:10 [row] q4 pens alone: lopo 0.6240 later 0.6113
+q4_pens: base lopo 0.6444 later 0.7013 | new alone lopo 0.5947 later 0.6113 | nested lopo 0.6406 later 0.6976 (w later 0.2); picks [0.2, 0.2, 0.5, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.5]
+  arm - base: lopo -0.38 [-1.20, +0.34] up 4/10; later -0.37 -> no gain
