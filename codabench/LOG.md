@@ -2421,3 +2421,29 @@ Brief `prompts/2026-11-09_midweek_explore.md`; results `logs/sprint_1110/RESULTS
 - W3 aligned Shallow, grid {0.3–0.6}: w 0.5 interior; +1.68 [+0.02, +3.28] vs slot-2 ens, later −0.16 → not adopted.
 - W2 families, 5 seeds × 11 splits, 60 ep, 3 lanes × 4 threads (smoke 4.1 / 9.9 / 14.3 s/epoch): Deep4 17:21–20:05 (est 3–4 h, under), FBCNet –22:34 (est 9 h, under), ATCNet –02:14 (est 13 h, under). vs slot-2 ens: Deep4 −1.81, FBCNet −0.49, ATCNet −1.50; stacked with Shallow −1.15 / −0.02 / −0.89 → **no gain**.
 - Decision: slot 3 = hold (slot-2 ensemble remains best); optional draw = aligned-Shallow ensemble (needs bake). No incidents.
+
+## 2026-11-10/12 — unattended sprint "to the top" (Tue 15:14 – Thu 12:00; paused 17:28–19:31 and 20:11–00:31 Wed by usage limits)
+
+Brief `prompts/2026-11-10_to_the_top.md`; results / state / queue `logs/sprint_1112/{RESULTS,STATE,QUEUE}.md`.
+- P0 (15:14): base row reproduced from files (0.6444 / 0.7013). Keep-awake held; sleep timeouts 0.
+- P1 (15:16–15:53, est 2–2.5 h, under): solver `ens_x4f_shallow_al.py` (generated, slot-2 code verbatim + aligned nets);
+  safety-net zip `e93586d6` (aligned Shallow w 0.5).
+- P2 diagnostics (`sprint1112_diag.py`, minutes): no cell type / position / interface holds the loss, the spread is by
+  person; **D2 oracle: the session's own labelled runs lift lopo 0.655 → 0.782** → the gap is per-person adaptation.
+  D3: runs class-balanced, random order. D4: calibration / online are one task. D5: sealed − local not a run-type mix.
+- P3 board (in-app browser; curl hits a bot check): 172 entries, top 0.830, ours 0.736 rank 82; score ∝ log server
+  time (r 0.71); desk agent: A100 + in-session gradient updates allowed, no public methods, PROTEUS paper unpublished.
+- P4: **AdaBN** (causal per-stream BatchNorm statistics) on aligned Shallow → B1 (nested +1.52 vs slot 2). **In-stream
+  self-training of X4f's logistic layer** (past windows pseudo-labelled by the ensemble) → B2 → B3 (nested over 16
+  configs +2.04 [+1.26, +3.34] vs B1, ≈ +3.8 vs slot 2; later 0.7346). No gain: time-domain features, Q4 classifiers,
+  Tent / IM (harmful), Sinkhorn balancing (also on B3), Q5-net, more / plain / FBCNet nets, window halves (Q3),
+  sliding past (Q2), person weighting (Q6), robust covariances (Q8); flagged per-run balance ≤ +0.45 (no zip).
+  62 arms + 2 flagged; selection checked by nested re-selection over configs.
+- Zip for slot 3: `submissions/ens_x4f_shallow_al_stC_all_2026-11-10.zip` sha256 `14541a30…` (53 MB), all gates PASS,
+  quiet 47.4 ms/window (refit ≈ 0.5 s quiet at 1 thread; contention made it 3–6 s). Server factor re-derived 2.1×.
+- Estimates vs actuals: diagnostics est 2–3 h, actual 30 min (dumps reused); nets 1 seed × 12 splits est 25–30 min,
+  actual 30–63 min under 3-lane load; dumps est 2.5 h, actual 35 min–1.9 h (Tyler 30 min, Huber 1.9 h).
+- Incidents: (1) `wsl.exe bash -lc '…$VAR…'` expands variables in an outer shell → empty paths; fix: script files.
+  (2) Python on Windows rewrote a .sh with CRLF → bash syntax error; fix: `sed -i 's/\r$//'`. (3) `nohup … &` inside a
+  short wsl.exe died; fix: run_in_background. (4) gate iii's timing check fails under full load (184–332 ms) — only
+  quiet re-times count; done by SIGSTOP / SIGCONT of the training lanes (`sprint1112_quiet_timing.sh`).

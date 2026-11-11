@@ -142,3 +142,19 @@
 00:35:02 END q5_c02 rc=0
 00:36:14 START q8_dump_hub
 00:36:19 START nets shallow stream s48 (rows_al4)
+01:04:30 END q8_dump_tyl rc=0
+01:09:03 END nets shallow stream s48 rc=0
+01:09:03 START nets shallow stream s49 (rows_al4)
+01:34:24 END nets shallow stream s49 rc=0
+01:34:24 START nets shallow stream s50 (rows_al4)
+01:59:34 END nets shallow stream s50 rc=0
+01:59:34 START nets shallow stream s51 (rows_al4)
+02:24:51 END nets shallow stream s51 rc=0
+02:24:51 START nets shallow stream s52 (rows_al4)
+02:27:03 END q8_dump_hub rc=0
+02:27:03 START q5_hub
+02:29:48 END q5_tyl rc=0
+02:29:48 END q5_hub rc=0
+02:48:45 END nets shallow stream s52 rc=0
+02:48:45 ALL DONE nets rows_al4
+05:32:22 START nets shallow none s43 (rows_pl3)

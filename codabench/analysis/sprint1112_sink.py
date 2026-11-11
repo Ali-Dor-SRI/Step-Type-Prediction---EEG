@@ -54,6 +54,7 @@ def main():
     ap.add_argument("--seeds", default="33_34_35_36_37")
     ap.add_argument("--Ns", default="20_40_80")
     ap.add_argument("--grid", default="0.3_0.4_0.5_0.6_0.7")
+    ap.add_argument("--x4f", default=None, help="sprint1112_q5 run name: use its adapted X4f probabilities")
     a = ap.parse_args()
     rows = PC.load().rows
     Ns = [int(n) for n in a.Ns.split("_")]
@@ -68,7 +69,8 @@ def main():
         r = rows.iloc[te]
         keys = (r.person.astype(str) + "_" + r.session.astype(str)).to_numpy()
         for w in grid:
-            L = (1 - w) * lg(d["P_test"]) + w * lg(Pn)
+            Px = (np.load(CB / f"logs/sprint_1112/q5/{a.x4f}_{s}.npz")["probas"] if a.x4f else d["P_test"])
+            L = (1 - w) * lg(Px) + w * lg(Pn)
             P = np.exp(L - L.max(1, keepdims=True))
             P /= P.sum(1, keepdims=True)
             cell[(s, 0, w)] = cells(rows, te, y, P.argmax(1))

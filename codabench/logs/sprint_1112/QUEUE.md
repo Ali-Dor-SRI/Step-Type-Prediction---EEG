@@ -71,3 +71,18 @@ stream position (1–35: 0.642, 36–70: 0.657, 71+: 0.640); the spread is by **
 | H2 aligned FBCNet ×5 (weights saved), then AdaBN on it (generic `sprint1112_adabn_gen.py`), stacked on B1 | B1 | § 3 | training (lane 1) |
 | N1 plain Shallow ×5 with weights (same seeds as slot 2) → AdaBN on plain nets, stack aligned + plain | B1 | § 3 | training (lane 2) |
 | N2 aligned Shallow seeds 38–42 → 10-seed B1 | B1 | § 3 | training (lane 3) |
+
+## Status after the first night (Wed 00:50)
+
+| item | status |
+|---|---|
+| Q1 position experts | **closed by D4** (one-run-type experts lose on both run types: calib-trained 0.619 / 0.588, online-trained 0.622 / 0.624 vs pooled 0.680 / 0.642; D1 shows no position effect) |
+| Q2 run / interface re-centring | closed in the self-training form (sliding past windows no better) |
+| Q3 split-window blocks | closed (halves as self-trained members −1.2 / −1.3 / −0.07 on B3) |
+| Q4 classifier stack | closed (plda / pens no gain) |
+| Q5 self-training | **adopted** → B2 → B3 (nested over 16 configs +2.04 vs B1) |
+| Q6 soft person experts | closed (feature-mean weights void; covariance weights = unweighted) |
+| Q7 net side | AdaBN **adopted** (B1); more seeds / plain nets / FBCNet / Q5-net / Tent: no gain on B2/B3 |
+| Q8 robust covariance | running (Huber / Tyler, `q8.out`) |
+| Q9 frontal slow / time-domain | closed (TD ×4 no gain) |
+| QF flagged | closed (≤ +0.45) |

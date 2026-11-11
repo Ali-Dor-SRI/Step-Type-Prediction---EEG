@@ -5,6 +5,21 @@ unseen people) and later (8 cells, later sessions); every choice nested inside t
 people; paired bootstrap over people vs the slot-2 ensemble (lopo 0.6444 / later 0.7013).
 Arms tried so far: 0.
 
+## Summary (Wed 11-11 06:00; final check Thu 10:00)
+
+- **Slot-3 zip: B3** `submissions/ens_x4f_shallow_al_stC_all_2026-11-10.zip`, sha256 `14541a30…`, ALL gates PASS
+  (quiet 47.4 ms/window). Nested lopo 0.6819, later 0.7346 → **≈ +3.8 / +3.3 points over slot 2** (0.6444 / 0.7013);
+  predicted sealed ≈ 0.77 if gains transfer ≈ 1:1 as for slot 2.
+- **What the gap is made of:** per-person decision boundaries. With the session's own labels the same features reach
+  0.78 lopo (D2); no run type, position, interface or class holds the loss (D1).
+- **What worked:** (1) AdaBN — causal per-stream BatchNorm statistics in the aligned ShallowNets; (2) in-stream
+  self-training of X4f's logistic layer on the stream's past windows pseudo-labelled by the ensemble. Both label-free
+  and causal. Gains are broad: every run type, position bin and interface, 10 / 10 people (P04 ≈ 0).
+- **What did not:** gradient TTA, balancing, other features / classifiers / net families / more nets, window halves,
+  robust covariances, person weighting; flagged per-run balance ≤ +0.45 (no flagged zip).
+- **Arms tried: 62 (+ 2 flagged).** Selection optimism checked by nested re-selection: over 5 AdaBN priors (+1.52 vs
+  slot 2) and over 16 self-training configs (+2.04 vs B1, vs +2.53 for the best single config).
+
 ## P0 — start-up
 
 Base row reproduced from files: slot-2 ens nested lopo 0.6444 (+1.69 vs X4f), later 0.7013;
@@ -72,7 +87,7 @@ aligned-Shallow w 0.5 0.6612 / 0.6997 (+1.68 [+0.02, +3.28] vs slot 2, later −
   (person spread 0.53–0.82 locally; the later half has 10 people, locally only P04 / P10, and P04
   is our worst person).
 
-## P4 — arms (count so far: 58 + 2 flagged)
+## P4 — arms (count: 62 + 2 flagged)
 
 | # | arm | alone lopo / later | nested Δ lopo vs slot 2 [95 % CI] (up) | Δ later | verdict |
 |---|---|---|---|---|---|
@@ -113,7 +128,9 @@ aligned-Shallow w 0.5 0.6612 / 0.6997 (+1.68 [+0.02, +3.28] vs slot 2, later −
 | 52 | B3 + aligned FBCNet ×5 (AdaBN p32) in the net mix — vs B3 | — | −0.16 [−0.89, +0.93] (5) | −0.67 | no gain |
 | 53–54 | Q3 window halves as self-trained X4f members (crop 0–2 s / 2–4 s of the window; alone lopo 0.54 / 0.58; Q5 at B3's config), each added to B3's X4f part | — | −1.16 [−3.29, +0.52] / −1.33 [−2.19, −0.41] | +0.67 / −2.09 | no gain |
 | 55 | both halves added | — | −0.07 [−1.21, +0.86] (6) | +0.02 | no gain → **Q3 closed** |
-| 56–58 | Q5b causal Sinkhorn class balancing of the B1 ensemble over the last N = 20 / 40 / 80 windows (N, w nested) — vs B1 | — | −0.92 / −0.15 / −0.05; nested −0.05 [−1.49, +1.01] (5) | +0.80 / +0.18 / +1.37 | no gain |
+| 56–57 | Q8 robust covariances: X4f with Huber / Tyler M-estimators (alone later 0.662 / 0.654), self-trained at B3's config, **replacing** B3's X4f — vs B3 | — | −0.86 [−2.11, +0.19] / −0.60 [−1.71, +0.28] | −2.20 / −2.21 | no gain |
+| 58–59 | the same **added** to B3's X4f part | — | +0.07 [−0.70, +0.73] / −0.03 [−0.61, +0.42] | −0.89 / −0.76 | no gain → **Q8 closed** |
+| 60–62 | Q5b causal Sinkhorn (and on B3, 05:35: N 40 / 80 / 160 nested −0.98 [−2.72, +0.12], later +1.04 → no gain) class balancing of the B1 ensemble over the last N = 20 / 40 / 80 windows (N, w nested) — vs B1 | — | −0.92 / −0.15 / −0.05; nested −0.05 [−1.49, +1.01] (5) | +0.80 / +0.18 / +1.37 | no gain |
 
 ### Flagged track (QF; uses run boundaries / per-run counts that predict() never sees — never in a main candidate)
 

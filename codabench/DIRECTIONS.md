@@ -121,6 +121,11 @@ re-centring does to the features).
 | Other net families in the ensemble (11-10): FBCNet / Deep4 / ATCNet, 5 seeds; stacked with Shallow | vs slot-2 ens −0.49 / −1.81 / −1.50; stacked −0.02 / −1.15 / −0.89; aligned Shallow w 0.5 +1.68, later −0.16 | no gain |
 | Stronger net in the ensemble (11-06 weekend): 120 epochs / input re-centring per stream | +0.40 [−0.10, +0.87] / +1.11 [+0.09, +2.35] lopo vs the 60-epoch ensemble; later +0.47 / −0.26 | not adopted (rule); alignment pushes w to 0.4 = grid edge |
 
+| **Diagnosis (sprint 11-12, D2)**: the session's own labelled runs (oracle) lift lopo 0.655 → 0.782; final-mean / class-balanced re-centring nothing | the gap is per-person adaptation, not features or early estimates | drives the levers below |
+| **AdaBN**: the aligned nets' BatchNorm statistics re-estimated causally per stream (11-12) | +1.52 [+0.16, +2.86] vs slot 2 (nested) | **in B1 / B3** |
+| **In-stream self-training of X4f's classifier** (past windows pseudo-labelled by the ensemble, refit every 20) (11-12) | +2.04 [+1.26, +3.34] vs B1 (nested over 16 configs, 10/10 people); later 0.7346 | **in B3 = slot-3 candidate** |
+| No gain on B1–B3 (11-12) | Tent / IM gradient TTA (−5 to −15), Sinkhorn balancing, time-domain features, other classifiers, more / plain / FBCNet nets, net last-layer self-training, window halves, robust covariances, person weighting, flagged per-run balance (≤ +0.45) | dropped |
+
 The 1–3 s crop loses also in the calibration runs (no feedback): the window's last two
 seconds carry task signal, not only feedback.
 
@@ -133,23 +138,22 @@ seconds carry task signal, not only feedback.
 3. **Timing under load:** 8 ms/window quiet, up to ~190 ms/window when the CPU is
    oversubscribed (≈ 66 min projected). The server's CPU is unknown; the warm-up
    upload reports the real time.
-4. **Rules: settled** (FAQ 10-13): within-session, label-free adaptation is allowed.
+4. **Rules: settled** (FAQ 10-13): within-session, label-free adaptation is allowed (FAQ: "including gradient updates").
+5. **In-stream refitting on the server (B3):** first upload of sklearn refits at predict time; quiet 47 ms/window
+   locally (≈ 21 min server at the 2.1× factor); a 1,500 s refit budget makes a slow server degrade to B1, not time out.
 
-## 6. Next steps worth exploring (ranked)
+## 6. Next steps worth exploring (ranked; for slots 4 Tue Nov 17 and 5 Thu Nov 19)
 
 | # | Step | Expected gain | Effort | Needs |
 |---|---|---|---|---|
-| 0 | ~~Weekend ensemble zip~~ **done 11-06: `1f6589b8`, gated** | — | — | upload slot 2 (you) |
-| 0a | ~~Mid-week exploration~~ **done 11-10 02:20: no gain** (families); left: slot-2 Δsealed vs Δlocal once scored | — | 15 min | slot 2 score |
-| 0b | ~~Offset-augmented training windows; label-free classifier adaptation~~ **11-06: no gain** | — | — | — |
-| 1 | ~~Nested check of X4f~~ **done 10-28: holds** | — | — | — |
-| 2 | ~~Update MODEL_ARCHITECTURE.md for F64~~ done 10-26 | — | — | — |
-| 3 | Frontal signal: no EOG in the raw BIDS; delta + finer bins tried 10-27 (dbpt8 / bpt8: no gain; delta in the filter bank: part of C2f). Left: ICA on resting runs for the write-up | honesty, not score | ~2–3 h | — |
-| 3b | Sealed phase: use uploads 2–10 (1/day); a different model family is the only untried lever, the single-model tweaks are exhausted | uncertain | open | your call after the first sealed score |
-| 4 | Thesis: XGB on the 0.5–2 s window | — | ~3–4 h | decision 6 |
+| 1 | Read slot 3's sealed score; record Δsealed vs Δlocal (+3.8 lopo / +3.3 later predicted) | calibrates everything below | 5 min | your upload |
+| 2 | If B3 transfers: use the A100 — the refit (and possibly more nets) on GPU allows refits every window and bigger self-training (the CPU budget is the limit now) | +0.5–1 (plateau seen locally) | ½ day | a GPU path test on the warm-up |
+| 3 | Better pseudo-labels: the remaining gap to the label oracle is ≈ 10 points; ideas left: co-training X4f / nets on each other's confident windows, a second X4f-type model with different blocks self-trained jointly | uncertain | 1 day | — |
+| 4 | P04 (worst person, 3 sessions) gains nothing from any lever: a look at its data quality / artefacts | diagnosis | 2 h | — |
+| 5 | If B3 fails on the server (time / error): re-upload B1 `73e38638` (AdaBN only) | +1.5 vs slot 2 | upload | — |
 
-Not worth it now: EEGNet variants (no gain alone or in the ensemble), REVE/LaBraM on
-this CPU, the personal-LDA path (−4.9).
+Not worth it now: gradient TTA (Tent / IM), more nets of any family, time-domain or window-half
+features, robust covariances, balancing tricks — all measured 11-12 on B1–B3 with no gain.
 
 ## 7. Where to read more
 
