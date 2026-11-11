@@ -56,6 +56,13 @@ aligned-Shallow w 0.5 0.6612 / 0.6997 (+1.68 [+0.02, +3.28] vs slot 2, later −
   recentring + causal debias" (0.696), "Deep4 ensemble 5seed + TTA" (0.503), "proteus_experts_75_25_prelearn" (0.705).
   Riemann + re-centring entries sit at 0.68–0.79 — the family we are in; the very top names say nothing.
 
+### P3 re-check, Wed 11-11 18:05 (read-only, in-app browser JS fetch)
+
+- 194 entries (was 172). Top 0.846 (2,930 s), #2 0.830, #3 0.826; #12 0.814 (was 0.807); median 0.735 (was 0.729).
+- Several of the top 12 run 500–1,500 s, so long server time is not a requirement for the top.
+- Our slot-2 row (0.736, 549.9 s) was not found by score and time: either it is listed under a rounded score or it was moved. A 0.736 now ranks about #98 (0.738 is at #96, 0.735 at #98).
+- B3's predicted ≈ 0.77 would rank about #45–55 on this board. That does not change the Thursday choice: B3 stays the candidate.
+
 ## P2 — diagnostics (`analysis/sprint1112_diag.py`; full tables `diag_d1_d3_d5.md`, `diag_d4_d2.out`)
 
 - **D1 error anatomy (slot-2 ens, lopo pooled balanced acc.):** calibration 0.651 vs online 0.640;

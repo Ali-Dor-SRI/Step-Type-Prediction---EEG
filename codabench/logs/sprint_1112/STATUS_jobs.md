@@ -158,3 +158,54 @@
 02:48:45 END nets shallow stream s52 rc=0
 02:48:45 ALL DONE nets rows_al4
 05:32:22 START nets shallow none s43 (rows_pl3)
+05:52:49 END nets shallow none s43 rc=0
+05:52:49 START nets shallow none s44 (rows_pl3)
+06:13:17 END nets shallow none s44 rc=0
+06:13:17 START nets shallow none s45 (rows_pl3)
+06:33:42 END nets shallow none s45 rc=0
+06:33:42 START nets shallow none s46 (rows_pl3)
+06:53:53 END nets shallow none s46 rc=0
+06:53:53 START nets shallow none s47 (rows_pl3)
+07:14:18 END nets shallow none s47 rc=0
+07:14:18 ALL DONE nets rows_pl3
+10:31:56 START nets shallow stream s48 (rows_al5)
+10:55:17 END nets shallow stream s48 rc=0
+10:55:17 START nets shallow stream s49 (rows_al5)
+11:18:23 END nets shallow stream s49 rc=0
+11:18:23 START nets shallow stream s50 (rows_al5)
+11:41:55 END nets shallow stream s50 rc=0
+11:41:55 START nets shallow stream s51 (rows_al5)
+12:04:51 END nets shallow stream s51 rc=0
+12:04:51 START nets shallow stream s52 (rows_al5)
+12:28:26 END nets shallow stream s52 rc=0
+12:28:26 START nets shallow stream s53 (rows_al5)
+12:51:51 END nets shallow stream s53 rc=0
+12:51:51 START nets shallow stream s54 (rows_al5)
+13:15:13 END nets shallow stream s54 rc=0
+13:15:13 START nets shallow stream s55 (rows_al5)
+13:38:21 END nets shallow stream s55 rc=0
+13:38:21 ALL DONE nets rows_al5
+13:38:30 START nets shallow stream s56 (rows_al5)
+14:01:06 END nets shallow stream s56 rc=0
+14:01:06 START nets shallow stream s57 (rows_al5)
+14:23:47 END nets shallow stream s57 rc=0
+14:23:47 START nets shallow stream s58 (rows_al5)
+14:46:28 END nets shallow stream s58 rc=0
+14:46:28 START nets shallow stream s59 (rows_al5)
+15:08:58 END nets shallow stream s59 rc=0
+15:08:58 START nets shallow stream s60 (rows_al5)
+15:31:26 END nets shallow stream s60 rc=0
+15:31:26 START nets shallow stream s61 (rows_al5)
+15:54:12 END nets shallow stream s61 rc=0
+15:54:12 START nets shallow stream s62 (rows_al5)
+16:17:07 END nets shallow stream s62 rc=0
+16:17:07 START nets shallow stream s63 (rows_al5)
+16:40:17 END nets shallow stream s63 rc=0
+16:40:17 ALL DONE nets rows_al5
+16:40:26 START nets shallow stream s64 (rows_al5)
+17:01:01 END nets shallow stream s64 rc=0
+17:01:01 START nets shallow stream s65 (rows_al5)
+17:21:27 END nets shallow stream s65 rc=0
+17:21:27 START nets shallow stream s66 (rows_al5)
+17:42:05 END nets shallow stream s66 rc=0
+17:42:05 START nets shallow stream s67 (rows_al5)

@@ -21,9 +21,8 @@ with variables in a script under `scripts/sprint1112_*.sh` and run that.
   PASS (quiet 47.4 ms/window). DIRECTIONS top note + §2/§4/§5/§6, SUBMISSIONS, HANDOFF, LOG entry, RESULTS
   summary are written (Wed 06:00) — Thursday only re-checks them.
 - **Queue: all of P4 done** (QUEUE.md status table); 62 arms + 2 flagged.
-- **Running:** filler plain Shallow 43–47 (`rows_pl3`); a timer for the 18:00 board re-check.
-- **Left:** (1) Wed 18:00 board re-check (in-app browser JS fetch of `/api/phases/30483/get_leaderboard/?format=json&page_size=200`;
-  note new top entries / names; append to RESULTS P3); (2) Thu 07:00 freeze = B3 (nothing beat it);
+- **Running:** filler aligned Shallow 64–71 (`rows_al5`, started Wed 16:41; 48–63 done 16:40); a timer for Thu 07:00 (freeze).
+- **Left:** (1) board re-check done 18:05 (RESULTS P3); (2) Thu 07:00 freeze = B3 (nothing beat it);
   re-run `sha256sum` on the submissions copy, glance at gates; (3) Thu 11:30: final LOG line (time
   totals), DIRECTIONS change-log line, HANDOFF ("done"), memory note in the codabench project (not
   the ALS_AI one), commit, push.
@@ -54,3 +53,7 @@ with variables in a script under `scripts/sprint1112_*.sh` and run that.
 | 19:31–20:11 | resumed; B2 gated → candidate + upload note; Q2 sliding / Q6 cov weighting / extra nets no gain; C sweep → B3 (nested +2.04); Q3 dumps done; stopped 20:11 (usage limit) |
 | 00:31–00:45 | resumed; B3 quiet 47.4 ms → candidate (14541a30); FBCNet / Q3 closed; Q8 chain + filler lane started |
 | 05:31–06:05 | Q8 / Sinkhorn-on-B3 no gain → queue done; LOG, DIRECTIONS, RESULTS summary written; filler lane; 18:00 timer |
+| 07:15 | filler rows_pl3 done; filler aligned Shallow 48–55 (rows_al5) started |
+| 13:39 | rows_al5 48–55 done; filler 56–63 started |
+| 16:41 | rows_al5 56–63 done; filler 64–71 started |
+| 18:05 | board re-check done (194 entries, #12 0.814, median 0.735); B3 stays |
