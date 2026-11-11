@@ -7,9 +7,7 @@ with variables in a script under `scripts/sprint1112_*.sh` and run that.
 
 ## Needs you
 
-- **Session stopped 17:28 Tue (usage limit).** Restart with the HANDOFF start line; read this file first.
-  Jobs left running in WSL (they finish on their own): lanes 1–3 (fbcnet aligned, shallow plain,
-  shallow aligned 38–42, ETA ≈ 21:00) and `sprint1112_b2.sh` (B2 gates + bake → `b2_cand_all/`).
+- (none) — session resumed 19:31 after a usage-limit pause (17:28–19:31); all jobs survived.
 
 ## Machine (P0, 15:14)
 
@@ -17,30 +15,22 @@ with variables in a script under `scripts/sprint1112_*.sh` and run that.
 - `powercfg` SUB_SLEEP: idle sleep 0 (never) on AC and DC. Nothing to flag.
 - WSL: 20 cores, 31 GB, 903 GB free.
 
-## Now (updated 16:52)
+## Now (updated 19:40)
 
-- **Base B2 (adopted 16:40):** B1 + Q5 in-stream self-training of X4f's logistic layer
-  (train + stream's past windows pseudo-labelled by B1; q 0.7, weight 5, from window 40,
-  every 20; w 0.6). Nested over 7 Q5 configs: lopo 0.6785, **+1.70 [+1.05, +2.76] vs B1**
-  (10/10), later +2.31. vs slot 2 ≈ +3.4 lopo. Every-40 form: +1.25 vs B1 (nested over 3).
-  Probe outputs `q5/<name>_<split>.npz`; nested tool `sprint1112_q5_nested.py`.
-- **B1** = X4f + aligned Shallow ×5, AdaBN p32, w 0.5 (zip `ab_cand_all`, `73e38638`, ALL gates PASS).
-- **Thursday candidate:** a B2 zip (`st20_cand_all` every 20, w 0.6 / `st40_cand_all`
-  every 40, w 0.5; both with a 1,500 s refit budget) — baking now; pick by quiet timing.
-  Fallbacks: B1 zip, then the safety net `al_cand_all`.
-- **Running:**
-  - lane 1 fbcnet aligned 33–37 → `rows_fbc_al/` (ETA ≈ 21:00)
-  - lane 2 shallow plain 33–37 (+ all) → `rows_pl/` (ETA ≈ 18:30)
-  - lane 3 shallow aligned 38–42 (+ all) → `rows_al2/` (ETA ≈ 18:30)
-  - bakes st20 / st40 (p1b, ≈ 17:15); q5_pa (adapted pseudo-label source); Q5-net ×2
-- **On resume:** (1) read `st_gates_b2.log` + `b2_cand_all/{bake.log,gate_iii.log,gate_vi.log,cli/}`;
-  if ALL PASS (gate 4 only valid quiet: re-time with `sprint1112_quiet_timing.sh b2_cand_all`, must be ≤ 60 ms),
-  the B2 zip is the Thursday candidate → SUBMISSIONS row + DIRECTIONS top. Else fall back to `st20_cand_all`
-  (`914f97de`), then B1 `ab_cand_all` (`73e38638`).
-  (2) q5_pw1 / q5_pw03 gave output IDENTICAL to the unweighted run (+2.00) — suspected no-op bug in
-  the `--pw` path of `sprint1112_q5.py`; check before trusting.
-  (3) when lanes land: AdaBN on `rows_pl` / `rows_al2` / `rows_fbc_al` (`sprint1112_adabn_gen.py`), then
-  `sprint1112_combo.py --x4f q5_q0.85_l5.0_s20_t20_f16 --arm …` vs B2.
+- **Thursday candidate = B2 zip `b2_cand_all` (`1ae19a3b…`), ALL gates PASS** (quiet 50.1 ms/window).
+  X4f + 5 aligned Shallow (AdaBN p32), w 0.6, self-training q 0.85 / weight 5 / start 20 / every 20.
+  Nested: +1.96 [+1.09, +3.22] vs B1, ≈ +3.7 lopo vs slot 2; later ≈ 0.729. SUBMISSIONS row written.
+  Fallbacks: B1 `ab_cand_all` (`73e38638`), safety net `al_cand_all` (`e93586d6`).
+- **Running:** fbcnet aligned 33–37 (`rows_fbc_al`, s35 of 5, ETA ≈ 22:00); filler aligned Shallow
+  43–47 (`rows_al3`) and plain 38–42 (`rows_pl2`), started 19:38, ETA ≈ 22:30; `nets2` (AdaBN on
+  rows_pl / rows_al2 + stacks on B2, `nets2.out`).
+- **Next:** (1) nets2 results → if a net stack is adopt/lean on B2, rebake B2 with more nets (the
+  solver takes any K aligned nets; plain nets need a second net group — solver work);
+  (2) FBCNet aligned + AdaBN when it lands; (3) § 6 items: tighten the leader (per-run-type
+  breakdown of B2, nested check done), Q2 change-point re-centring, Q3 split-window.
+- **WSL gotchas:** `$VAR`/`~` inside `wsl.exe bash -lc '…'` get expanded by an outer shell → use
+  script files; `nohup … &` inside wsl.exe dies → use run_in_background; Python on Windows writes CRLF →
+  `sed -i 's/$//'` on edited .sh files.
 
 ## Log of state changes
 
@@ -62,3 +52,6 @@ with variables in a script under `scripts/sprint1112_*.sh` and run that.
 | 16:50 | bakes st20 / st40 relaunched (CRLF fix in p1b.sh); q5_pa and Q5-net probes started |
 | 17:20 | quiet timing: B1 23.0, st40 33.6, st20 43.1 ms/window → every 20 OK; nested over 11 Q5 configs +1.96 → B2 config q 0.85 / w 5 / s20 / t20, w 0.6 |
 | 17:28 | session stopped (usage limit); B2 gates + bake running |
+| 17:37 | B2 zip `1ae19a3b` baked; gates (i) ALL PASS |
+| 19:31 | resumed; B2 quiet timing 50.1 ms PASS → Thursday candidate; lanes 2/3 done; pw lever void (features session-centred) |
+| 19:38 | filler lanes rows_al3 / rows_pl2 started; nets2 (AdaBN on new nets) running |

@@ -1,0 +1,3 @@
+zip /home/ali_d/codabench/logs/sprint_1112/b2_cand_all/ens_x4f_shallow_al_all_2026-11-10.zip 53019273 bytes, files ['submission.py', 'riemann_sealed.joblib', 'shallow_nets.pt', 'x4f_trainZ.npz'], w 0.6, seeds 33_34_35_36_37, adabn 32.0, selftrain 0.85,5,20,20,0.5,1500
+sha256 1ae19a3b3b8899c65158ecec5bcfdfd1083cbc2cab3a5832b65013e5539467f7
+joblib sha256 2c85739f1543ff712312cb10b7347febb0644f69e26c4b0234f54051e49b8dee (byte-identical to the sealed X4f all zip's)

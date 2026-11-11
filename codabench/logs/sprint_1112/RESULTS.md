@@ -102,7 +102,7 @@ aligned-Shallow w 0.5 0.6612 / 0.6997 (+1.68 [+0.02, +3.28] vs slot 2, later −
 | 35 | Q5 q 0.85 / w 5 / start 20 / every 20 | — | +2.00 [+1.10, +3.31] (9) | +2.27 | ADOPT |
 | 36 | Q5 q 1.0 / w 5 / start 20 / every 20 | — | +1.74 [+0.72, +3.18] (9) | +1.61 | ADOPT |
 | 37 | **nested re-selection over 11 Q5 configs × w** | — | **+1.96 [+1.09, +3.22] (9)**; lopo 0.6811; all-ten pick q 0.85 / w 5 / start 20 / every 20, w 0.6 | **+2.27** (0.7292) | ADOPT (B2 estimate; Q5 is a plateau of +1.7 to +2.4 across settings) |
-| 38–39 | Q5 + soft person weighting of training rows (τ 1.0 / 0.3) | — | +2.00 / +2.00 — **identical to the unweighted run: suspected no-op, unverified** | +2.27 | inconclusive |
+| 38–39 | Q5 + soft person weighting of training rows (τ 1.0 / 0.3) | — | +2.00 / +2.00 (probabilities differ by ≤ 1e-3, 0 classes change) | +2.27 | no effect: X4f features are per-session re-centred, so every training person's mean ≈ 0 and the distance weights are flat — the lever is void in this space |
 | 40–42 | Q5b causal Sinkhorn class balancing of the B1 ensemble over the last N = 20 / 40 / 80 windows (N, w nested) — vs B1 | — | −0.92 / −0.15 / −0.05; nested −0.05 [−1.49, +1.01] (5) | +0.80 / +0.18 / +1.37 | no gain |
 
 ### Flagged track (QF; uses run boundaries / per-run counts that predict() never sees — never in a main candidate)
@@ -153,3 +153,14 @@ passes the ≤ 60 ms/window gate; at the 2.1× server factor ≈ 90 ms/window �
 any case. Gate iii's own "4" (timing projection) fails for both B2 zips only because it ran with
 all 20 cores busy (273 / 332 ms/window); 1–3 PASS, vi PASS, CLI rc 0 (self-training loaded) for both.
 Zips are 53 MB (training features float16); Codabench allows 15 GB per profile (`participate.md`).
+
+### B2 deployment zip (17:30 bake; quiet timing 19:31)
+
+`b2_cand_all/ens_x4f_shallow_al_all_2026-11-10.zip`, 53,019,273 B, **sha256 `1ae19a3b3b8899c65158ecec5bcfdfd1083cbc2cab3a5832b65013e5539467f7`**:
+X4f (joblib byte-identical to `60a0148c`) + 5 aligned Shallow (all-trained, seeds 33–37) with AdaBN p32,
+w 0.6, self-training q 0.85 / weight 5 / start 20 / every 20 / pseudo-label w 0.5 / budget 1,500 s.
+Gates: solver (i-a/b/c) vs its probe ALL PASS (lopo0 0 / 190, later 0 / 762 classes differ; adapted X4f
+probabilities to 5e-5); stateful 1, 2, 3a, 3b PASS; **4 PASS quiet: 50.1 ms/window** (FBCNet lane
+paused; B1 23.9 in the same run) → ≈ 22 min server for ≈ 12.5 k windows (≈ 37 min at the 21 k worst
+case; refit budget caps it); vi PASS; benchopt CLI rc 0 (self-training config loaded).
+Nested estimate: lopo ≈ 0.681 (+1.96 [+1.09, +3.22] vs B1; ≈ +3.7 vs slot 2), later ≈ 0.729 (+2.8 vs slot 2).

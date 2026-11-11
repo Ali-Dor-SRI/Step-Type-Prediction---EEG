@@ -61,3 +61,28 @@
 17:22:32 START q5_pw03
 17:27:19 END q5_pw1 rc=0
 17:27:19 END q5_pw03 rc=0
+17:30:00 END b2_stgates rc=0
+17:30:00 START p1b b2_cand_all w=0.6 adabn=32
+17:37:26 END p1b b2_cand_all gate_iii=1 gate_vi=0 cli=0
+17:41:58 END nets shallow none s34 rc=0
+17:41:58 START nets shallow none s35 (rows_pl)
+17:42:40 END nets shallow stream s39 rc=0
+17:42:40 START nets shallow stream s40 (rows_al2)
+17:47:09 END fam_al fbcnet s33 rc=0
+17:47:09 START fam_al fbcnet s34 (rows_fbc_al)
+18:12:32 END nets shallow none s35 rc=0
+18:12:32 START nets shallow none s36 (rows_pl)
+18:13:26 END nets shallow stream s40 rc=0
+18:13:26 START nets shallow stream s41 (rows_al2)
+18:42:49 END nets shallow none s36 rc=0
+18:42:49 START nets shallow none s37 (rows_pl)
+18:44:07 END nets shallow stream s41 rc=0
+18:44:07 START nets shallow stream s42 (rows_al2)
+18:56:55 END fam_al fbcnet s34 rc=0
+18:56:55 START fam_al fbcnet s35 (rows_fbc_al)
+19:13:39 END nets shallow none s37 rc=0
+19:13:39 ALL DONE nets rows_pl
+19:14:42 END nets shallow stream s42 rc=0
+19:14:42 ALL DONE nets rows_al2
+19:33:38 START nets shallow stream s43 (rows_al3)
+19:33:39 START nets shallow none s38 (rows_pl2)
