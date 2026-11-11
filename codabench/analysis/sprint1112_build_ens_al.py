@@ -186,6 +186,7 @@ class SelfTrainEnsembleModel(AlignedEnsembleModel):
         self.q, self.lam = float(st["q"]), float(st["lam"])
         self.start, self.step = int(st["start"]), int(st["step"])
         self.wpl, self.budget = float(st["wpl"]), float(st.get("budget_s", 1500.0))
+        self.C = float(st["C"]) if st.get("C") else None      # refit C (default: X4f's own)
         self.spent, self.nrefit = 0.0, 0
         self._st_reset()
 
@@ -207,7 +208,7 @@ class SelfTrainEnsembleModel(AlignedEnsembleModel):
         keep = np.asarray(sorted(keep))
         Zp = np.asarray(self._Z, dtype=np.float32)[keep]
         lr = copy.deepcopy(self.lr0)
-        lr.set_params(warm_start=True, max_iter=200)
+        lr.set_params(warm_start=True, max_iter=200, **({"C": self.C} if self.C else {}))
         t0 = time.perf_counter()
         lr.fit(np.vstack([self.Ztr, Zp]), np.concatenate([self.ytr, yp[keep]]),
                sample_weight=np.concatenate([np.ones(len(self.ytr)), np.full(len(keep), self.lam)]))

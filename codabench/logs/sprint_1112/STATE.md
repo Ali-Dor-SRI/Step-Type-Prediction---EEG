@@ -7,7 +7,7 @@ with variables in a script under `scripts/sprint1112_*.sh` and run that.
 
 ## Needs you
 
-- (none) — session resumed 19:31 after a usage-limit pause (17:28–19:31); all jobs survived.
+- (none) — session stopped again 20:11 Tue (usage limit). Resume with the HANDOFF start line.
 
 ## Machine (P0, 15:14)
 
@@ -15,22 +15,23 @@ with variables in a script under `scripts/sprint1112_*.sh` and run that.
 - `powercfg` SUB_SLEEP: idle sleep 0 (never) on AC and DC. Nothing to flag.
 - WSL: 20 cores, 31 GB, 903 GB free.
 
-## Now (updated 19:40)
+## Now (updated 20:11)
 
-- **Thursday candidate = B2 zip `b2_cand_all` (`1ae19a3b…`), ALL gates PASS** (quiet 50.1 ms/window).
-  X4f + 5 aligned Shallow (AdaBN p32), w 0.6, self-training q 0.85 / weight 5 / start 20 / every 20.
-  Nested: +1.96 [+1.09, +3.22] vs B1, ≈ +3.7 lopo vs slot 2; later ≈ 0.729. SUBMISSIONS row written.
-  Fallbacks: B1 `ab_cand_all` (`73e38638`), safety net `al_cand_all` (`e93586d6`).
-- **Running:** fbcnet aligned 33–37 (`rows_fbc_al`, s35 of 5, ETA ≈ 22:00); filler aligned Shallow
-  43–47 (`rows_al3`) and plain 38–42 (`rows_pl2`), started 19:38, ETA ≈ 22:30; `nets2` (AdaBN on
-  rows_pl / rows_al2 + stacks on B2, `nets2.out`).
-- **Next:** (1) nets2 results → if a net stack is adopt/lean on B2, rebake B2 with more nets (the
-  solver takes any K aligned nets; plain nets need a second net group — solver work);
-  (2) FBCNet aligned + AdaBN when it lands; (3) § 6 items: tighten the leader (per-run-type
-  breakdown of B2, nested check done), Q2 change-point re-centring, Q3 split-window.
-- **WSL gotchas:** `$VAR`/`~` inside `wsl.exe bash -lc '…'` get expanded by an outer shell → use
-  script files; `nohup … &` inside wsl.exe dies → use run_in_background; Python on Windows writes CRLF →
-  `sed -i 's/$//'` on edited .sh files.
+- **Thursday candidate (gated, in DIRECTIONS top):** B2 `submissions/ens_x4f_shallow_al_st_all_2026-11-10.zip`
+  `1ae19a3b…` (quiet 50.1 ms/window). Nested +1.96 vs B1 / later +2.27.
+- **B3 = B2 with refit C 0.03** (nested over 16 configs +2.04 [+1.26, +3.34] vs B1, later +2.81): gate + bake
+  running (`scripts/sprint1112_b3.sh` → `st_gates_b3.log`, `b3_cand_all/`). **On resume:** if st_gates_b3 ALL
+  PASS and gate iii 1–3 / vi / CLI pass, re-time quietly (`sprint1112_quiet_timing.sh b3_cand_all`, ≤ 60 ms) →
+  B3 replaces B2 as candidate: copy zip to `submissions/`, update SUBMISSIONS row + DIRECTIONS top note
+  (sha256, predicted ≈ 0.77).
+- **Q3 dumps done** (`logs/sprint_1106/dump/X4fc02__*`, `X4fc24__*`; crop 0–2 s / 2–4 s of the window): alone
+  lopo ≈ 0.54 / 0.58. Next: `sprint1112_q5.py --model X4fc02` / `X4fc24` (deployment config, C 0.03), then a
+  3-member stack (X4f + halves, each self-trained, + nets) vs B3 — needs a small extension of
+  `sprint1112_combo.py` (several X4f-like members).
+- **Running lanes:** fbcnet aligned (rows_fbc_al, ETA ≈ 22:00 → AdaBN via adabn_gen, stack on B3); filler
+  Shallow aligned 43–47 / plain 38–42 (ETA ≈ 22:30; net side saturated, filler only).
+- Still to do per brief: Wed 18:00 board re-check; Thu 07:00 freeze; Thu 09:15–10:00 final upload note;
+  Thu 11:30 wrap-up (LOG entry, DIRECTIONS §2/§4/§6, HANDOFF, memory).
 
 ## Log of state changes
 
@@ -55,3 +56,4 @@ with variables in a script under `scripts/sprint1112_*.sh` and run that.
 | 17:37 | B2 zip `1ae19a3b` baked; gates (i) ALL PASS |
 | 19:31 | resumed; B2 quiet timing 50.1 ms PASS → Thursday candidate; lanes 2/3 done; pw lever void (features session-centred) |
 | 19:38 | filler lanes rows_al3 / rows_pl2 started; nets2 (AdaBN on new nets) running |
+| 19:31–20:11 | resumed; B2 gated → candidate + upload note; Q2 sliding / Q6 cov weighting / extra nets no gain; C sweep → B3 (nested +2.04); Q3 dumps done; stopped 20:11 (usage limit) |

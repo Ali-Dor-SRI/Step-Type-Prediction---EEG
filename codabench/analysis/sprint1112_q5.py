@@ -44,7 +44,7 @@ def lg(P):
     return np.log(np.clip(P, 1e-12, 1))
 
 
-def adapt_split(s, nets_dir, seeds, q, lam, start, step, w_pl, rows, maxit=200, ntrain=0, chain=False, zdtype="f64", plsrc="orig", pw=0.0, model="X4f", maxpast=0, pwcov=0.0):
+def adapt_split(s, nets_dir, seeds, q, lam, start, step, w_pl, rows, maxit=200, ntrain=0, chain=False, zdtype="f64", plsrc="orig", pw=0.0, model="X4f", maxpast=0, pwcov=0.0, C=None):
     proto, fold = ("lopo", s[4:]) if s.startswith("lopo") else ("later", "None")
     d = np.load(DUMP / f"{model}__{proto}__{fold}.npz")
     clf = joblib.load(DUMP / f"{model}__{proto}__{fold}.clf.joblib")
@@ -98,7 +98,7 @@ def adapt_split(s, nets_dir, seeds, q, lam, start, step, w_pl, rows, maxit=200, 
                     keep.extend(m[np.argsort(-conf[m])][:max(1, int(round(q * len(m))))])
             keep = np.asarray(sorted(keep))
             lr = copy.deepcopy(prev if chain else lr0)
-            lr.set_params(warm_start=True, max_iter=maxit)
+            lr.set_params(warm_start=True, max_iter=maxit, **({'C': C} if C else {}))
             Xf = np.vstack([Ztr, Zte[past[keep]]])
             yf = np.concatenate([ytr, yp[keep]])
             wtr = np.ones(len(ytr))
@@ -144,6 +144,7 @@ def main():
     ap.add_argument("--maxit", type=int, default=200)
     ap.add_argument("--ntrain", type=int, default=0, help="training rows kept (0 = all)")
     ap.add_argument("--chain", action="store_true", help="warm start from the stream's previous refit")
+    ap.add_argument("--C", type=float, default=None, help="refit C (default: X4f's own)")
     ap.add_argument("--pwcov", type=float, default=0.0, help="raw-covariance person weighting temperature (0 = off)")
     ap.add_argument("--maxpast", type=int, default=0, help="only the last N past windows as pseudo rows (0 = all)")
     ap.add_argument("--model", default="X4f", help="dump prefix (X4f, X4fc02, ...)")
@@ -154,7 +155,7 @@ def main():
     a = ap.parse_args()
     name = a.name or (f"q5_q{a.q}_l{a.lam}_s{a.start}_t{a.step}"
                        + (f"_m{a.maxit}" if a.maxit != 200 else "") + (f"_n{a.ntrain}" if a.ntrain else "")
-                       + ("_c" if a.chain else "") + (f"_{a.zdtype}" if a.zdtype != "f64" else "") + ("_pa" if a.plsrc == "adapted" else "") + (f"_pw{a.pw}" if a.pw else "") + (f"_{a.model}" if a.model != "X4f" else "") + (f"_mp{a.maxpast}" if a.maxpast else "") + (f"_pc{a.pwcov}" if a.pwcov else ""))
+                       + ("_c" if a.chain else "") + (f"_{a.zdtype}" if a.zdtype != "f64" else "") + ("_pa" if a.plsrc == "adapted" else "") + (f"_pw{a.pw}" if a.pw else "") + (f"_{a.model}" if a.model != "X4f" else "") + (f"_mp{a.maxpast}" if a.maxpast else "") + (f"_pc{a.pwcov}" if a.pwcov else "") + (f"_C{a.C}" if a.C else ""))
     grid = tuple(float(g) for g in a.grid.split("_"))
     seeds = a.seeds.split("_")
     rows = PC.load().rows
@@ -167,7 +168,7 @@ def main():
             te, y, Px, Pa, Pn = z["test_idx"], z["y"], z["Px"], z["probas"], z["Pn"]
         else:
             te, y, Px, Pa, Pn, (nfit, tfit) = adapt_split(s, a.nets, seeds, a.q, a.lam, a.start, a.step, a.wpl,
-                                                          rows, a.maxit, a.ntrain, a.chain, a.zdtype, a.plsrc, a.pw, a.model, a.maxpast, a.pwcov)
+                                                          rows, a.maxit, a.ntrain, a.chain, a.zdtype, a.plsrc, a.pw, a.model, a.maxpast, a.pwcov, a.C)
             np.savez_compressed(f, probas=Pa, Px=Px, Pn=Pn, y=y, test_idx=te)
             log(f"{name} {s}: {nfit} refits, {tfit / max(nfit, 1):.2f} s each; X4f alone {cells(rows, te, y, Px.argmax(1)).score.mean():.4f} "
                 f"-> adapted {cells(rows, te, y, Pa.argmax(1)).score.mean():.4f}")

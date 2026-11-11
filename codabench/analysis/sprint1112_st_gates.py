@@ -52,6 +52,7 @@ def main():
     ap.add_argument("--wpl", type=float, default=0.5)
     ap.add_argument("--w", type=float, default=0.5)
     ap.add_argument("--adabn", type=float, default=32.0)
+    ap.add_argument("--C", type=float, default=None)
     ap.add_argument("--rows", default=str(CB / "logs/sprint_1109/rows_align"))
     ap.add_argument("--splits", nargs="+", default=["lopo0", "later"])
     ap.add_argument("--out", default=str(CB / "logs/sprint_1112/st_gates"))
@@ -60,7 +61,7 @@ def main():
     c = PC.load()
     meta = PE.official_meta()
     seeds = "33_34_35_36_37".split("_")
-    st = {"q": a.q, "lam": a.lam, "start": a.start, "step": a.step, "wpl": a.wpl, "budget_s": 1e9}
+    st = {"q": a.q, "lam": a.lam, "start": a.start, "step": a.step, "wpl": a.wpl, "budget_s": 1e9, **({"C": a.C} if a.C else {})}
     fails = 0
 
     def check(name, ok, detail=""):

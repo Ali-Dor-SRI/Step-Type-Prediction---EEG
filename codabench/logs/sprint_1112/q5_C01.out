@@ -1,0 +1,13 @@
+19:58:26 q5_q0.85_l5.0_s20_t20_f16_C0.1 lopo0: 9 refits, 1.54 s each; X4f alone 0.6954 -> adapted 0.7008
+19:58:53 q5_q0.85_l5.0_s20_t20_f16_C0.1 lopo1: 9 refits, 2.26 s each; X4f alone 0.7195 -> adapted 0.7457
+19:59:15 q5_q0.85_l5.0_s20_t20_f16_C0.1 lopo2: 9 refits, 1.77 s each; X4f alone 0.5235 -> adapted 0.5492
+19:59:50 q5_q0.85_l5.0_s20_t20_f16_C0.1 lopo3: 27 refits, 1.07 s each; X4f alone 0.5240 -> adapted 0.5276
+20:00:10 q5_q0.85_l5.0_s20_t20_f16_C0.1 lopo4: 9 refits, 1.76 s each; X4f alone 0.5481 -> adapted 0.5370
+20:00:25 q5_q0.85_l5.0_s20_t20_f16_C0.1 lopo5: 9 refits, 1.11 s each; X4f alone 0.6952 -> adapted 0.7330
+20:00:40 q5_q0.85_l5.0_s20_t20_f16_C0.1 lopo6: 9 refits, 1.13 s each; X4f alone 0.7553 -> adapted 0.7499
+20:00:57 q5_q0.85_l5.0_s20_t20_f16_C0.1 lopo7: 9 refits, 1.35 s each; X4f alone 0.7877 -> adapted 0.7931
+20:01:16 q5_q0.85_l5.0_s20_t20_f16_C0.1 lopo8: 9 refits, 1.50 s each; X4f alone 0.7144 -> adapted 0.7953
+20:02:11 q5_q0.85_l5.0_s20_t20_f16_C0.1 lopo9: 27 refits, 1.82 s each; X4f alone 0.5912 -> adapted 0.6252
+20:02:51 q5_q0.85_l5.0_s20_t20_f16_C0.1 later: 36 refits, 0.90 s each; X4f alone 0.6735 -> adapted 0.6941
+q5_q0.85_l5.0_s20_t20_f16_C0.1: base (X4f + nets) lopo 0.6615 later 0.7065 picks [0.6, 0.6, 0.6, 0.5, 0.5, 0.5, 0.5, 0.6, 0.6, 0.6] | arm lopo 0.6824 later 0.7295 picks [0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6]
+  arm - base: lopo +2.08 [+1.02, +3.76] up 9; later +2.30 -> ADOPT

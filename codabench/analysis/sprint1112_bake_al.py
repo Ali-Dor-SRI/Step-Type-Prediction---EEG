@@ -54,9 +54,11 @@ def main():
     files = ["submission.py", "riemann_sealed.joblib", "shallow_nets.pt"]
     if a.st:
         import torch
-        q, lam, start, step, wpl, bud = (float(v) for v in a.st.split(","))
+        vals = [float(v) for v in a.st.split(",")]
+        q, lam, start, step, wpl, bud = vals[:6]
         d = torch.load(sub / "shallow_nets.pt", map_location="cpu", weights_only=True)
-        d["selftrain"] = {"q": q, "lam": lam, "start": int(start), "step": int(step), "wpl": wpl, "budget_s": bud}
+        d["selftrain"] = {"q": q, "lam": lam, "start": int(start), "step": int(step), "wpl": wpl, "budget_s": bud,
+                         **({"C": vals[6]} if len(vals) > 6 else {})}
         torch.save(d, sub / "shallow_nets.pt")
         shutil.copyfile(CB / "logs/sprint_1112/x4f_all_trainZ.npz", sub / "x4f_trainZ.npz")
         files.append("x4f_trainZ.npz")

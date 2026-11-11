@@ -72,7 +72,7 @@ aligned-Shallow w 0.5 0.6612 / 0.6997 (+1.68 [+0.02, +3.28] vs slot 2, later −
   (person spread 0.53–0.82 locally; the later half has 10 people, locally only P04 / P10, and P04
   is our worst person).
 
-## P4 — arms (count so far: 49 + 2 flagged)
+## P4 — arms (count so far: 54 + 2 flagged)
 
 | # | arm | alone lopo / later | nested Δ lopo vs slot 2 [95 % CI] (up) | Δ later | verdict |
 |---|---|---|---|---|---|
@@ -108,7 +108,9 @@ aligned-Shallow w 0.5 0.6612 / 0.6997 (+1.68 [+0.02, +3.28] vs slot 2, later −
 | 42 | B2 + both | — | +0.14 [−1.17, +1.37] (6) | +0.35 | no gain → **net side saturated**; B2 stays as baked |
 | 43–44 | Q5 deployment config with only the last 60 / 100 past windows as pseudo rows (staleness / Q2 test) — vs B1 | — | +1.11 [+0.42, +2.08] / +2.04 [+1.18, +3.37] | +1.40 / +1.65 | ADOPT vs B1 but ≤ all-past (+2.00 / +2.27): no staleness; Q2 in this form closed |
 | 45–46 | Q6 form: Q5 deployment config + training rows weighted by raw-covariance (log-Euclidean) similarity of each training person to the stream so far, τ 1.0 / 0.3 — vs B1 | — | +1.89 [+1.18, +2.93] / +1.41 [+0.26, +2.79] | +2.43 / +1.52 | ADOPT vs B1 but not above unweighted B2 (+2.00 / +2.27): Q6 closed |
-| 47–49 | Q5b causal Sinkhorn class balancing of the B1 ensemble over the last N = 20 / 40 / 80 windows (N, w nested) — vs B1 | — | −0.92 / −0.15 / −0.05; nested −0.05 [−1.49, +1.01] (5) | +0.80 / +0.18 / +1.37 | no gain |
+| 47–50 | Q5 deployment config with refit C 0.003 / 0.03 / 0.1 / 0.3 (X4f's own: 0.01) — vs B1 | — | +2.46 / **+2.53 [+1.49, +4.25]** / +2.08 / +2.01 (8–10 up) | +1.90 / **+2.81** / +2.30 / +2.27 | ADOPT each (plateau; refits 1–3 s under load) |
+| 51 | **nested re-selection over 16 deployable Q5 configs × w** | — | **+2.04 [+1.26, +3.34] (10)**; lopo 0.6819; all-ten pick q 0.85 / w 5 / start 20 / every 20 / **C 0.03**, w 0.6 | **+2.81** (0.7346) | ADOPT → **B3** (= B2 with refit C 0.03; rebake running 20:05) |
+| 52–54 | Q5b causal Sinkhorn class balancing of the B1 ensemble over the last N = 20 / 40 / 80 windows (N, w nested) — vs B1 | — | −0.92 / −0.15 / −0.05; nested −0.05 [−1.49, +1.01] (5) | +0.80 / +0.18 / +1.37 | no gain |
 
 ### Flagged track (QF; uses run boundaries / per-run counts that predict() never sees — never in a main candidate)
 
