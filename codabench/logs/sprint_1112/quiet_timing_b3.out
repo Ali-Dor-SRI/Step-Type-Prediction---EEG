@@ -1,0 +1,8 @@
+ 00:31:52 up 0 min,  1 user,  load average: 0.00, 0.00, 0.00
+pausing: 
+ 00:31:57 up 0 min,  1 user,  load average: 0.00, 0.00, 0.00
+== b3_cand_all
+SelfTrainEnsembleModel: x4f 12.6 ms, nets 10.3 ms, full predict 47.4 ms/window (torch threads 1)
+== b2_cand_all
+SelfTrainEnsembleModel: x4f 12.7 ms, nets 10.2 ms, full predict 48.7 ms/window (torch threads 1)
+resumed: 

@@ -107,3 +107,34 @@
 20:04:03 START b3_stgates
 20:10:35 END q3_dump_c02 rc=0
 20:10:35 END q3_dump_c24 rc=0
+20:11:07 END b3_stgates rc=0
+20:11:07 START p1b b3_cand_all w=0.6 adabn=32
+20:16:30 END fam_al fbcnet s35 rc=0
+20:16:30 START fam_al fbcnet s36 (rows_fbc_al)
+20:17:39 END p1b b3_cand_all gate_iii=1 gate_vi=0 cli=0
+20:19:18 END nets shallow none s38 rc=0
+20:19:18 START nets shallow none s39 (rows_pl2)
+20:20:16 END nets shallow stream s43 rc=0
+20:20:16 START nets shallow stream s44 (rows_al3)
+20:49:46 END nets shallow none s39 rc=0
+20:49:46 START nets shallow none s40 (rows_pl2)
+20:50:59 END nets shallow stream s44 rc=0
+20:50:59 START nets shallow stream s45 (rows_al3)
+21:20:10 END nets shallow none s40 rc=0
+21:20:10 START nets shallow none s41 (rows_pl2)
+21:21:40 END nets shallow stream s45 rc=0
+21:21:40 START nets shallow stream s46 (rows_al3)
+21:26:53 END fam_al fbcnet s36 rc=0
+21:26:53 START fam_al fbcnet s37 (rows_fbc_al)
+21:50:36 END nets shallow none s41 rc=0
+21:50:36 START nets shallow none s42 (rows_pl2)
+21:52:29 END nets shallow stream s46 rc=0
+21:52:29 START nets shallow stream s47 (rows_al3)
+22:21:06 END nets shallow none s42 rc=0
+22:21:06 ALL DONE nets rows_pl2
+22:22:51 END nets shallow stream s47 rc=0
+22:22:51 ALL DONE nets rows_al3
+22:32:00 END fam_al fbcnet s37 rc=0
+22:32:00 ALL DONE fam_al fbcnet rows_fbc_al
+00:33:19 START q5_c02
+00:33:19 START q5_c24

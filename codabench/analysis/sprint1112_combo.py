@@ -43,6 +43,8 @@ def nets(spec, s):
 
 
 def x4f(name, s):
+    if "+" in name:                                  # several X4f-type members: mean of log-probabilities
+        return np.exp(np.mean([lg(x4f(n, s)) for n in name.split("+")], axis=0))
     if name == "orig":
         proto, fold = ("lopo", s[4:]) if s.startswith("lopo") else ("later", "None")
         return np.load(DUMP / f"X4f__{proto}__{fold}.npz")["P_test"]

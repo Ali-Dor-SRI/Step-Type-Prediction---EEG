@@ -3,9 +3,9 @@
 ## 00000000. RUNNING — 2026-11-10 19:50: sprint 11-12 "to the top" (unattended to Thu Nov 12 12:00)
 
 - State / resume file: `logs/sprint_1112/STATE.md` (read first), queue `QUEUE.md`, results `RESULTS.md`.
-- **Slot-3 candidate (gated):** `submissions/ens_x4f_shallow_al_st_all_2026-11-10.zip`, sha256 `1ae19a3b…`
-  (B2 = X4f + aligned Shallow ×5 with AdaBN + in-stream self-training of X4f; nested lopo ≈ 0.681, +3.7 vs
-  slot 2). Upload note at the top of DIRECTIONS. Fallback B1 `73e38638`.
+- **Slot-3 candidate (gated, Wed 00:35):** `submissions/ens_x4f_shallow_al_stC_all_2026-11-10.zip`, sha256
+  `14541a30…` (B3 = X4f + aligned Shallow ×5 with AdaBN + in-stream self-training of X4f, refit C 0.03; nested
+  lopo 0.682, +3.8 vs slot 2). Upload note at the top of DIRECTIONS. Fallbacks B2 `1ae19a3b`, B1 `73e38638`.
 - Found: the gap is per-person adaptation (D2 oracle +12.6); AdaBN and self-training are the levers;
   features / nets / gradient TTA / balance tricks gave nothing on top.
 
