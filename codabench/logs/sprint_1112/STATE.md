@@ -15,18 +15,18 @@ with variables in a script under `scripts/sprint1112_*.sh` and run that.
 - `powercfg` SUB_SLEEP: idle sleep 0 (never) on AC and DC. Nothing to flag.
 - WSL: 20 cores, 31 GB, 903 GB free.
 
-## Now (updated Wed 00:45)
+## Now (updated Wed 06:05)
 
-- **Thursday candidate = B3** `submissions/ens_x4f_shallow_al_stC_all_2026-11-10.zip`, sha256 `14541a30…`,
-  ALL gates PASS (quiet 47.4 ms/window). Nested +2.04 [+1.26, +3.34] vs B1 (≈ +3.8 vs slot 2), later 0.7346.
-  DIRECTIONS top note, SUBMISSIONS row, HANDOFF written. Fallbacks B2 `1ae19a3b`, B1 `73e38638`.
-- **Closed since 20:11:** FBCNet aligned + AdaBN on B3 (−0.16); Q3 window halves as members (−1.2 / −1.3 /
-  −0.07); extra nets (saturated).
-- **Running:** Q8 chain (`scripts/sprint1112_q8.sh` → `q8.out`: Huber / Tyler estimator dumps → self-train →
-  compare as replacement / addition to B3's X4f), ETA ≈ 02:15; filler aligned Shallow 48–52 (`rows_al4`).
-- **Next:** Q8 result; then § 6: Wed 18:00 board re-check (in-app browser, `/api/phases/30483/get_leaderboard/`),
-  remaining queue Q1 (D1 says no position effect — cheap dump test), Thu 07:00 freeze (B3 unless an adopt beats
-  it and can be gated by 09:15), Thu 11:30 wrap-up (LOG entry, DIRECTIONS §2/§4/§6, HANDOFF, memory).
+- **Thursday candidate = B3** `submissions/ens_x4f_shallow_al_stC_all_2026-11-10.zip`, sha256 `14541a30…`, ALL gates
+  PASS (quiet 47.4 ms/window). DIRECTIONS top note + §2/§4/§5/§6, SUBMISSIONS, HANDOFF, LOG entry, RESULTS
+  summary are written (Wed 06:00) — Thursday only re-checks them.
+- **Queue: all of P4 done** (QUEUE.md status table); 62 arms + 2 flagged.
+- **Running:** filler plain Shallow 43–47 (`rows_pl3`); a timer for the 18:00 board re-check.
+- **Left:** (1) Wed 18:00 board re-check (in-app browser JS fetch of `/api/phases/30483/get_leaderboard/?format=json&page_size=200`;
+  note new top entries / names; append to RESULTS P3); (2) Thu 07:00 freeze = B3 (nothing beat it);
+  re-run `sha256sum` on the submissions copy, glance at gates; (3) Thu 11:30: final LOG line (time
+  totals), DIRECTIONS change-log line, HANDOFF ("done"), memory note in the codabench project (not
+  the ALS_AI one), commit, push.
 
 ## Log of state changes
 
@@ -53,3 +53,4 @@ with variables in a script under `scripts/sprint1112_*.sh` and run that.
 | 19:38 | filler lanes rows_al3 / rows_pl2 started; nets2 (AdaBN on new nets) running |
 | 19:31–20:11 | resumed; B2 gated → candidate + upload note; Q2 sliding / Q6 cov weighting / extra nets no gain; C sweep → B3 (nested +2.04); Q3 dumps done; stopped 20:11 (usage limit) |
 | 00:31–00:45 | resumed; B3 quiet 47.4 ms → candidate (14541a30); FBCNet / Q3 closed; Q8 chain + filler lane started |
+| 05:31–06:05 | Q8 / Sinkhorn-on-B3 no gain → queue done; LOG, DIRECTIONS, RESULTS summary written; filler lane; 18:00 timer |
