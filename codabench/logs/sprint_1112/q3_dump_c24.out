@@ -1,0 +1,148 @@
+[ProteusProtocols] protocol=lopo fold=0 train X=(2465, 41, 480) test X=(190, 41, 480) seed=0
+19:36:03 [data] protocol=lopo fold=0 train=2465 test=190 chans=41 times=480 sfreq=120.0 classes=3
+[Riemann-Sealed] [19:36:55] router done in 52 s; maxrss 1.69 GB
+[Riemann-Sealed] align=stream: 13 training groups (subject x session), buffer=64, stream_k=8
+[Riemann-Sealed] [19:37:26] align done in 31 s; maxrss 1.69 GB
+[Riemann-Sealed] [19:38:45] features done in 79 s; maxrss 2.23 GB
+[Riemann-Sealed] fitting on X=(2465, 41, 240), subjects=9, classes=[0, 1, 2], features=10304, align=stream/riemann, personal=pooled, router_thr=0.500, session_ids=yes, chans=eeg (41 kept)
+[Riemann-Sealed] fit seconds: collect 0.5, router 51.7, align 31.4, features 79.0, lda 6.7, wcv 0.0, total 169.3; chunk=2465/2465 windows; maxrss 2.23 GB
+[compet] submission ready in /home/ali_d/neuralbench/tmpwfxi02dc — zip its contents to upload on the competition's 'My Submissions' tab.
+[Riemann-Sealed] predict: 20 calls, 20 windows, 1.1 s (54.3 ms/window), maxrss 2.23 GB
+[Riemann-Sealed] predict: 40 calls, 40 windows, 2.1 s (51.4 ms/window), maxrss 2.23 GB
+[Riemann-Sealed] predict: 60 calls, 60 windows, 2.9 s (47.9 ms/window), maxrss 2.23 GB
+[Riemann-Sealed] predict: 80 calls, 80 windows, 3.6 s (45.6 ms/window), maxrss 2.23 GB
+[Riemann-Sealed] predict: 100 calls, 100 windows, 4.5 s (44.9 ms/window), maxrss 2.23 GB
+[Riemann-Sealed] predict: 120 calls, 120 windows, 5.4 s (44.6 ms/window), maxrss 2.23 GB
+[Riemann-Sealed] predict: 140 calls, 140 windows, 6.3 s (45.2 ms/window), maxrss 2.23 GB
+[Riemann-Sealed] predict: 160 calls, 160 windows, 7.3 s (45.5 ms/window), maxrss 2.23 GB
+[Riemann-Sealed] predict: 180 calls, 180 windows, 8.3 s (46.3 ms/window), maxrss 2.23 GB
+[Riemann-Sealed] predict: 20 calls, 20 windows, 1.0 s (50.1 ms/window), maxrss 2.23 GB
+[Riemann-Sealed] predict: 40 calls, 40 windows, 1.9 s (47.5 ms/window), maxrss 2.23 GB
+[Riemann-Sealed] predict: 60 calls, 60 windows, 2.8 s (46.2 ms/window), maxrss 2.23 GB
+[Riemann-Sealed] predict: 80 calls, 80 windows, 3.6 s (45.3 ms/window), maxrss 2.23 GB
+[Riemann-Sealed] predict: 100 calls, 100 windows, 4.4 s (44.4 ms/window), maxrss 2.23 GB
+[Riemann-Sealed] predict: 120 calls, 120 windows, 5.3 s (44.0 ms/window), maxrss 2.23 GB
+[Riemann-Sealed] predict: 140 calls, 140 windows, 6.1 s (43.8 ms/window), maxrss 2.23 GB
+[Riemann-Sealed] predict: 160 calls, 160 windows, 7.0 s (43.8 ms/window), maxrss 2.23 GB
+[Riemann-Sealed] predict: 180 calls, 180 windows, 7.8 s (43.6 ms/window), maxrss 2.23 GB
+19:39:19 [dump] X4fc24__lopo__0.npz: cell_mean=0.574093 F_test (190, 10304) F_train (2465, 10304) fit=169s
+[ProteusProtocols] protocol=lopo fold=1 train X=(2466, 41, 480) test X=(189, 41, 480) seed=0
+19:39:19 [data] protocol=lopo fold=1 train=2466 test=189 chans=41 times=480 sfreq=120.0 classes=3
+[Riemann-Sealed] [19:40:10] router done in 51 s; maxrss 2.23 GB
+[Riemann-Sealed] align=stream: 13 training groups (subject x session), buffer=64, stream_k=8
+[Riemann-Sealed] [19:40:41] align done in 30 s; maxrss 2.23 GB
+[Riemann-Sealed] [19:42:00] features done in 79 s; maxrss 2.32 GB
+[Riemann-Sealed] fitting on X=(2466, 41, 240), subjects=9, classes=[0, 1, 2], features=10304, align=stream/riemann, personal=pooled, router_thr=0.500, session_ids=yes, chans=eeg (41 kept)
+[Riemann-Sealed] fit seconds: collect 0.5, router 50.9, align 30.5, features 79.4, lda 5.0, wcv 0.0, total 166.4; chunk=2466/2466 windows; maxrss 2.32 GB
+[compet] submission ready in /home/ali_d/neuralbench/tmpkuxnfo1i — zip its contents to upload on the competition's 'My Submissions' tab.
+[Riemann-Sealed] predict: 20 calls, 20 windows, 0.8 s (40.7 ms/window), maxrss 2.32 GB
+[Riemann-Sealed] predict: 40 calls, 40 windows, 1.4 s (36.1 ms/window), maxrss 2.32 GB
+[Riemann-Sealed] predict: 60 calls, 60 windows, 2.1 s (34.4 ms/window), maxrss 2.32 GB
+[Riemann-Sealed] predict: 80 calls, 80 windows, 2.8 s (35.5 ms/window), maxrss 2.32 GB
+[Riemann-Sealed] predict: 100 calls, 100 windows, 3.5 s (34.8 ms/window), maxrss 2.32 GB
+[Riemann-Sealed] predict: 120 calls, 120 windows, 4.2 s (34.7 ms/window), maxrss 2.32 GB
+[Riemann-Sealed] predict: 140 calls, 140 windows, 5.2 s (37.0 ms/window), maxrss 2.32 GB
+[Riemann-Sealed] predict: 160 calls, 160 windows, 6.1 s (38.1 ms/window), maxrss 2.32 GB
+[Riemann-Sealed] predict: 180 calls, 180 windows, 7.0 s (38.9 ms/window), maxrss 2.32 GB
+[Riemann-Sealed] predict: 20 calls, 20 windows, 0.5 s (27.4 ms/window), maxrss 2.32 GB
+[Riemann-Sealed] predict: 40 calls, 40 windows, 1.0 s (26.0 ms/window), maxrss 2.32 GB
+[Riemann-Sealed] predict: 60 calls, 60 windows, 1.6 s (26.5 ms/window), maxrss 2.32 GB
+[Riemann-Sealed] predict: 80 calls, 80 windows, 2.2 s (27.9 ms/window), maxrss 2.32 GB
+[Riemann-Sealed] predict: 100 calls, 100 windows, 3.0 s (29.7 ms/window), maxrss 2.32 GB
+[Riemann-Sealed] predict: 120 calls, 120 windows, 3.6 s (29.8 ms/window), maxrss 2.32 GB
+[Riemann-Sealed] predict: 140 calls, 140 windows, 4.2 s (29.8 ms/window), maxrss 2.32 GB
+[Riemann-Sealed] predict: 160 calls, 160 windows, 4.8 s (29.8 ms/window), maxrss 2.32 GB
+[Riemann-Sealed] predict: 180 calls, 180 windows, 5.4 s (30.0 ms/window), maxrss 2.32 GB
+19:42:28 [dump] X4fc24__lopo__1.npz: cell_mean=0.708389 F_test (189, 10304) F_train (2466, 10304) fit=166s
+[ProteusProtocols] protocol=lopo fold=2 train X=(2466, 41, 480) test X=(189, 41, 480) seed=0
+19:42:28 [data] protocol=lopo fold=2 train=2466 test=189 chans=41 times=480 sfreq=120.0 classes=3
+[Riemann-Sealed] [19:43:18] router done in 50 s; maxrss 2.32 GB
+[Riemann-Sealed] align=stream: 13 training groups (subject x session), buffer=64, stream_k=8
+[Riemann-Sealed] [19:43:49] align done in 31 s; maxrss 2.32 GB
+[Riemann-Sealed] [19:45:09] features done in 80 s; maxrss 2.35 GB
+[Riemann-Sealed] fitting on X=(2466, 41, 240), subjects=9, classes=[0, 1, 2], features=10304, align=stream/riemann, personal=pooled, router_thr=0.500, session_ids=yes, chans=eeg (41 kept)
+[Riemann-Sealed] fit seconds: collect 0.4, router 49.7, align 31.2, features 80.3, lda 5.0, wcv 0.0, total 166.6; chunk=2466/2466 windows; maxrss 2.35 GB
+[compet] submission ready in /home/ali_d/neuralbench/tmpo8r3lnj3 — zip its contents to upload on the competition's 'My Submissions' tab.
+[Riemann-Sealed] predict: 20 calls, 20 windows, 0.8 s (41.7 ms/window), maxrss 2.35 GB
+[Riemann-Sealed] predict: 40 calls, 40 windows, 1.7 s (43.1 ms/window), maxrss 2.35 GB
+[Riemann-Sealed] predict: 60 calls, 60 windows, 2.8 s (46.6 ms/window), maxrss 2.35 GB
+[Riemann-Sealed] predict: 80 calls, 80 windows, 3.8 s (47.6 ms/window), maxrss 2.35 GB
+[Riemann-Sealed] predict: 100 calls, 100 windows, 4.8 s (48.5 ms/window), maxrss 2.35 GB
+[Riemann-Sealed] predict: 120 calls, 120 windows, 5.7 s (47.7 ms/window), maxrss 2.35 GB
+[Riemann-Sealed] predict: 140 calls, 140 windows, 6.7 s (48.0 ms/window), maxrss 2.35 GB
+[Riemann-Sealed] predict: 160 calls, 160 windows, 7.6 s (47.8 ms/window), maxrss 2.35 GB
+[Riemann-Sealed] predict: 180 calls, 180 windows, 8.7 s (48.4 ms/window), maxrss 2.35 GB
+[Riemann-Sealed] predict: 20 calls, 20 windows, 0.8 s (40.1 ms/window), maxrss 2.35 GB
+[Riemann-Sealed] predict: 40 calls, 40 windows, 1.6 s (38.8 ms/window), maxrss 2.35 GB
+[Riemann-Sealed] predict: 60 calls, 60 windows, 2.3 s (38.3 ms/window), maxrss 2.35 GB
+[Riemann-Sealed] predict: 80 calls, 80 windows, 3.0 s (38.0 ms/window), maxrss 2.35 GB
+[Riemann-Sealed] predict: 100 calls, 100 windows, 3.9 s (38.6 ms/window), maxrss 2.35 GB
+[Riemann-Sealed] predict: 120 calls, 120 windows, 4.8 s (39.8 ms/window), maxrss 2.35 GB
+[Riemann-Sealed] predict: 140 calls, 140 windows, 5.6 s (40.3 ms/window), maxrss 2.35 GB
+[Riemann-Sealed] predict: 160 calls, 160 windows, 6.6 s (41.1 ms/window), maxrss 2.35 GB
+[Riemann-Sealed] predict: 180 calls, 180 windows, 7.7 s (42.5 ms/window), maxrss 2.35 GB
+19:45:41 [dump] X4fc24__lopo__2.npz: cell_mean=0.493492 F_test (189, 10304) F_train (2466, 10304) fit=167s
+[ProteusProtocols] protocol=lopo fold=3 train X=(2089, 41, 480) test X=(566, 41, 480) seed=0
+19:45:41 [data] protocol=lopo fold=3 train=2089 test=566 chans=41 times=480 sfreq=120.0 classes=3
+[Riemann-Sealed] [19:46:35] router done in 53 s; maxrss 2.35 GB
+[Riemann-Sealed] align=stream: 11 training groups (subject x session), buffer=64, stream_k=8
+[Riemann-Sealed] [19:48:09] features done in 68 s; maxrss 2.35 GB
+[Riemann-Sealed] fitting on X=(2089, 41, 240), subjects=9, classes=[0, 1, 2], features=10304, align=stream/riemann, personal=pooled, router_thr=0.500, session_ids=yes, chans=eeg (41 kept)
+[Riemann-Sealed] fit seconds: collect 0.5, router 53.0, align 25.8, features 68.2, lda 3.7, wcv 0.0, total 151.2; chunk=2089/2089 windows; maxrss 2.35 GB
+[compet] submission ready in /home/ali_d/neuralbench/tmpi6sqfc12 — zip its contents to upload on the competition's 'My Submissions' tab.
+[Riemann-Sealed] predict: 20 calls, 20 windows, 0.8 s (41.5 ms/window), maxrss 2.35 GB
+[Riemann-Sealed] predict: 40 calls, 40 windows, 1.8 s (44.0 ms/window), maxrss 2.35 GB
+[Riemann-Sealed] predict: 60 calls, 60 windows, 2.8 s (46.9 ms/window), maxrss 2.35 GB
+[Riemann-Sealed] predict: 80 calls, 80 windows, 3.7 s (46.4 ms/window), maxrss 2.35 GB
+[Riemann-Sealed] predict: 100 calls, 100 windows, 4.6 s (45.7 ms/window), maxrss 2.35 GB
+[Riemann-Sealed] predict: 120 calls, 120 windows, 5.5 s (45.6 ms/window), maxrss 2.35 GB
+[Riemann-Sealed] predict: 140 calls, 140 windows, 6.4 s (45.6 ms/window), maxrss 2.35 GB
+[Riemann-Sealed] predict: 160 calls, 160 windows, 7.3 s (45.4 ms/window), maxrss 2.35 GB
+[Riemann-Sealed] predict: 180 calls, 180 windows, 8.1 s (45.3 ms/window), maxrss 2.35 GB
+[Riemann-Sealed] predict: 20 calls, 20 windows, 0.9 s (47.1 ms/window), maxrss 2.35 GB
+[Riemann-Sealed] predict: 40 calls, 40 windows, 1.8 s (44.8 ms/window), maxrss 2.35 GB
+[Riemann-Sealed] predict: 60 calls, 60 windows, 2.7 s (45.1 ms/window), maxrss 2.35 GB
+[Riemann-Sealed] predict: 80 calls, 80 windows, 3.7 s (46.3 ms/window), maxrss 2.35 GB
+[Riemann-Sealed] predict: 100 calls, 100 windows, 4.7 s (47.1 ms/window), maxrss 2.35 GB
+[Riemann-Sealed] predict: 120 calls, 120 windows, 5.7 s (47.7 ms/window), maxrss 2.35 GB
+[Riemann-Sealed] predict: 140 calls, 140 windows, 6.6 s (47.1 ms/window), maxrss 2.35 GB
+[Riemann-Sealed] predict: 160 calls, 160 windows, 7.5 s (46.8 ms/window), maxrss 2.35 GB
+[Riemann-Sealed] predict: 180 calls, 180 windows, 8.4 s (46.6 ms/window), maxrss 2.35 GB
+[Riemann-Sealed] predict: 20 calls, 20 windows, 1.0 s (49.6 ms/window), maxrss 2.35 GB
+[Riemann-Sealed] predict: 40 calls, 40 windows, 1.8 s (45.4 ms/window), maxrss 2.35 GB
+[Riemann-Sealed] predict: 60 calls, 60 windows, 2.7 s (44.9 ms/window), maxrss 2.35 GB
+[Riemann-Sealed] predict: 80 calls, 80 windows, 3.6 s (44.5 ms/window), maxrss 2.35 GB
+[Riemann-Sealed] predict: 100 calls, 100 windows, 4.4 s (44.2 ms/window), maxrss 2.35 GB
+[Riemann-Sealed] predict: 120 calls, 120 windows, 5.3 s (44.6 ms/window), maxrss 2.35 GB
+[Riemann-Sealed] predict: 140 calls, 140 windows, 6.2 s (44.3 ms/window), maxrss 2.35 GB
+[Riemann-Sealed] predict: 160 calls, 160 windows, 7.1 s (44.2 ms/window), maxrss 2.35 GB
+[Riemann-Sealed] predict: 180 calls, 180 windows, 7.9 s (44.0 ms/window), maxrss 2.35 GB
+[Riemann-Sealed] predict: 20 calls, 20 windows, 0.9 s (46.5 ms/window), maxrss 2.35 GB
+[Riemann-Sealed] predict: 40 calls, 40 windows, 1.8 s (44.3 ms/window), maxrss 2.35 GB
+[Riemann-Sealed] predict: 60 calls, 60 windows, 2.7 s (44.3 ms/window), maxrss 2.35 GB
+[Riemann-Sealed] predict: 80 calls, 80 windows, 3.6 s (44.5 ms/window), maxrss 2.35 GB
+[Riemann-Sealed] predict: 100 calls, 100 windows, 4.5 s (45.0 ms/window), maxrss 2.35 GB
+[Riemann-Sealed] predict: 120 calls, 120 windows, 5.3 s (44.5 ms/window), maxrss 2.35 GB
+[Riemann-Sealed] predict: 140 calls, 140 windows, 6.2 s (44.4 ms/window), maxrss 2.35 GB
+[Riemann-Sealed] predict: 160 calls, 160 windows, 7.1 s (44.6 ms/window), maxrss 2.35 GB
+[Riemann-Sealed] predict: 180 calls, 180 windows, 8.0 s (44.5 ms/window), maxrss 2.35 GB
+[Riemann-Sealed] predict: 20 calls, 20 windows, 0.9 s (44.8 ms/window), maxrss 2.35 GB
+[Riemann-Sealed] predict: 40 calls, 40 windows, 1.8 s (46.0 ms/window), maxrss 2.35 GB
+[Riemann-Sealed] predict: 60 calls, 60 windows, 2.7 s (44.5 ms/window), maxrss 2.35 GB
+[Riemann-Sealed] predict: 80 calls, 80 windows, 3.6 s (44.7 ms/window), maxrss 2.35 GB
+[Riemann-Sealed] predict: 100 calls, 100 windows, 4.5 s (44.9 ms/window), maxrss 2.35 GB
+[Riemann-Sealed] predict: 120 calls, 120 windows, 5.4 s (44.6 ms/window), maxrss 2.35 GB
+[Riemann-Sealed] predict: 140 calls, 140 windows, 6.2 s (44.4 ms/window), maxrss 2.35 GB
+[Riemann-Sealed] predict: 160 calls, 160 windows, 7.1 s (44.6 ms/window), maxrss 2.35 GB
+[Riemann-Sealed] predict: 180 calls, 180 windows, 8.1 s (44.8 ms/window), maxrss 2.35 GB
+[Riemann-Sealed] predict: 20 calls, 20 windows, 0.8 s (39.5 ms/window), maxrss 2.35 GB
+[Riemann-Sealed] predict: 40 calls, 40 windows, 1.6 s (39.5 ms/window), maxrss 2.35 GB
+[Riemann-Sealed] predict: 60 calls, 60 windows, 2.2 s (37.3 ms/window), maxrss 2.35 GB
+[Riemann-Sealed] predict: 80 calls, 80 windows, 3.0 s (37.2 ms/window), maxrss 2.35 GB
+[Riemann-Sealed] predict: 100 calls, 100 windows, 3.7 s (36.5 ms/window), maxrss 2.35 GB
+[Riemann-Sealed] predict: 120 calls, 120 windows, 4.3 s (36.1 ms/window), maxrss 2.35 GB
+[Riemann-Sealed] predict: 140 calls, 140 windows, 5.0 s (35.9 ms/window), maxrss 2.35 GB
+[Riemann-Sealed] predict: 160 calls, 160 windows, 5.9 s (36.8 ms/window), maxrss 2.35 GB
+[Riemann-Sealed] predict: 180 calls, 180 windows, 6.6 s (36.6 ms/window), maxrss 2.35 GB
+19:49:12 [dump] X4fc24__lopo__3.npz: cell_mean=0.444799 F_test (566, 10304) F_train (2089, 10304) fit=151s
+[ProteusProtocols] protocol=lopo fold=4 train X=(2465, 41, 480) test X=(190, 41, 480) seed=0

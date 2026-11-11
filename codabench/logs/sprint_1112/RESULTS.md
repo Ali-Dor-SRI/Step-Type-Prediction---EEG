@@ -72,7 +72,7 @@ aligned-Shallow w 0.5 0.6612 / 0.6997 (+1.68 [+0.02, +3.28] vs slot 2, later −
   (person spread 0.53–0.82 locally; the later half has 10 people, locally only P04 / P10, and P04
   is our worst person).
 
-## P4 — arms (count so far: 40 + 2 flagged)
+## P4 — arms (count so far: 49 + 2 flagged)
 
 | # | arm | alone lopo / later | nested Δ lopo vs slot 2 [95 % CI] (up) | Δ later | verdict |
 |---|---|---|---|---|---|
@@ -103,7 +103,12 @@ aligned-Shallow w 0.5 0.6612 / 0.6997 (+1.68 [+0.02, +3.28] vs slot 2, later −
 | 36 | Q5 q 1.0 / w 5 / start 20 / every 20 | — | +1.74 [+0.72, +3.18] (9) | +1.61 | ADOPT |
 | 37 | **nested re-selection over 11 Q5 configs × w** | — | **+1.96 [+1.09, +3.22] (9)**; lopo 0.6811; all-ten pick q 0.85 / w 5 / start 20 / every 20, w 0.6 | **+2.27** (0.7292) | ADOPT (B2 estimate; Q5 is a plateau of +1.7 to +2.4 across settings) |
 | 38–39 | Q5 + soft person weighting of training rows (τ 1.0 / 0.3) | — | +2.00 / +2.00 (probabilities differ by ≤ 1e-3, 0 classes change) | +2.27 | no effect: X4f features are per-session re-centred, so every training person's mean ≈ 0 and the distance weights are flat — the lever is void in this space |
-| 40–42 | Q5b causal Sinkhorn class balancing of the B1 ensemble over the last N = 20 / 40 / 80 windows (N, w nested) — vs B1 | — | −0.92 / −0.15 / −0.05; nested −0.05 [−1.49, +1.01] (5) | +0.80 / +0.18 / +1.37 | no gain |
+| 40 | B2 + 5 more aligned Shallow seeds (38–42, AdaBN p32) in the net mix — vs B2 | — | +0.19 [−0.46, +0.85] (6) | −0.39 | lean (tiny) |
+| 41 | B2 + 5 plain Shallow (33–37, AdaBN p32) in the net mix — vs B2 | — | +0.10 [−1.35, +1.34] (8) | +0.62 | no gain |
+| 42 | B2 + both | — | +0.14 [−1.17, +1.37] (6) | +0.35 | no gain → **net side saturated**; B2 stays as baked |
+| 43–44 | Q5 deployment config with only the last 60 / 100 past windows as pseudo rows (staleness / Q2 test) — vs B1 | — | +1.11 [+0.42, +2.08] / +2.04 [+1.18, +3.37] | +1.40 / +1.65 | ADOPT vs B1 but ≤ all-past (+2.00 / +2.27): no staleness; Q2 in this form closed |
+| 45–46 | Q6 form: Q5 deployment config + training rows weighted by raw-covariance (log-Euclidean) similarity of each training person to the stream so far, τ 1.0 / 0.3 — vs B1 | — | +1.89 [+1.18, +2.93] / +1.41 [+0.26, +2.79] | +2.43 / +1.52 | ADOPT vs B1 but not above unweighted B2 (+2.00 / +2.27): Q6 closed |
+| 47–49 | Q5b causal Sinkhorn class balancing of the B1 ensemble over the last N = 20 / 40 / 80 windows (N, w nested) — vs B1 | — | −0.92 / −0.15 / −0.05; nested −0.05 [−1.49, +1.01] (5) | +0.80 / +0.18 / +1.37 | no gain |
 
 ### Flagged track (QF; uses run boundaries / per-run counts that predict() never sees — never in a main candidate)
 
@@ -164,3 +169,10 @@ probabilities to 5e-5); stateful 1, 2, 3a, 3b PASS; **4 PASS quiet: 50.1 ms/wind
 paused; B1 23.9 in the same run) → ≈ 22 min server for ≈ 12.5 k windows (≈ 37 min at the 21 k worst
 case; refit budget caps it); vi PASS; benchopt CLI rc 0 (self-training config loaded).
 Nested estimate: lopo ≈ 0.681 (+1.96 [+1.09, +3.22] vs B1; ≈ +3.7 vs slot 2), later ≈ 0.729 (+2.8 vs slot 2).
+
+### B2 anatomy vs slot 2 (`b2_anatomy.md`; pooled balanced accuracy, deployed weights)
+
+lopo: calibration +4.3, online +4.1; positions 1–20 +4.8, 21–40 +4.9, 41–70 +3.3, 71–120 +3.9,
+121+ +4.4; BrainHero +4.9, Graz +3.4; **10 / 10 people up** (P05 +9.9, P03 +7.4, P09 +6.3 … P04 +0.2).
+later: calibration +4.4, online +2.0; P10 +5.7, P04 ±0. The gain is broad, not one cell; P04 (our
+worst person, 3 sessions) is untouched by every lever so far.

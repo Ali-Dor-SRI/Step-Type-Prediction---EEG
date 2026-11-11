@@ -1,0 +1,8 @@
+19:34:28 shallow later done (1 BN layers)
+19:34:40 shallow later done (1 BN layers)
+B2 + 5 more aligned seeds: base lopo 0.6815 later 0.7292 (w 0.6) | arm lopo 0.6835 later 0.7253 (w 0.5; picks [0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5])
+  arm - base: lopo +0.19 [-0.46, +0.85] up 6; later -0.39 -> lean
+B2 + plain AdaBN nets: base lopo 0.6815 later 0.7292 (w 0.6) | arm lopo 0.6826 later 0.7354 (w 0.6; picks [0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.4])
+  arm - base: lopo +0.10 [-1.35, +1.34] up 8; later +0.62 -> no gain
+B2 + both: base lopo 0.6815 later 0.7292 (w 0.6) | arm lopo 0.6829 later 0.7327 (w 0.6; picks [0.6, 0.6, 0.6, 0.7, 0.6, 0.6, 0.6, 0.6, 0.7, 0.6])
+  arm - base: lopo +0.14 [-1.17, +1.37] up 6; later +0.35 -> no gain

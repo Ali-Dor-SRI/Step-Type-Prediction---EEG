@@ -1,5 +1,14 @@
 # HANDOFF
 
+## 00000000. RUNNING — 2026-11-10 19:50: sprint 11-12 "to the top" (unattended to Thu Nov 12 12:00)
+
+- State / resume file: `logs/sprint_1112/STATE.md` (read first), queue `QUEUE.md`, results `RESULTS.md`.
+- **Slot-3 candidate (gated):** `submissions/ens_x4f_shallow_al_st_all_2026-11-10.zip`, sha256 `1ae19a3b…`
+  (B2 = X4f + aligned Shallow ×5 with AdaBN + in-stream self-training of X4f; nested lopo ≈ 0.681, +3.7 vs
+  slot 2). Upload note at the top of DIRECTIONS. Fallback B1 `73e38638`.
+- Found: the gap is per-person adaptation (D2 oracle +12.6); AdaBN and self-training are the levers;
+  features / nets / gradient TTA / balance tricks gave nothing on top.
+
 ## 0000000. NEXT — 2026-11-10 15:15: run `prompts/2026-11-10_to_the_top.md` (unattended, to Thu Nov 12 12:00 EST)
 
 Brief written, **not started**. Start line for a new session:

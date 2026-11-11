@@ -86,3 +86,13 @@
 19:14:42 ALL DONE nets rows_al2
 19:33:38 START nets shallow stream s43 (rows_al3)
 19:33:39 START nets shallow none s38 (rows_pl2)
+19:35:58 START q3_dump_c02
+19:35:58 START q3_dump_c24
+19:36:39 START q5_mp60
+19:36:39 START q5_mp100
+19:41:54 END q5_mp60 rc=0
+19:42:08 END q5_mp100 rc=0
+19:42:48 START q5_pc1
+19:42:48 START q5_pc03
+19:48:58 END q5_pc1 rc=0
+19:48:59 END q5_pc03 rc=0

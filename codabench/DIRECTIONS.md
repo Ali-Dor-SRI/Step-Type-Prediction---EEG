@@ -1,5 +1,18 @@
 # Directions: Track 2 at a glance
 
+**Slot 3 upload note (draft Tue 11-10 19:50 from the running sprint; final check Thu 10:00):**
+upload **`submissions/ens_x4f_shallow_al_st_all_2026-11-10.zip`** (= `logs/sprint_1112/b2_cand_all/…`,
+53 MB), **sha256 `1ae19a3b3b8899c65158ecec5bcfdfd1083cbc2cab3a5832b65013e5539467f7`**, fact-sheet name
+**`X4f-ShallowAl-AdaBN-ST`**. What it is: X4f + 5 stream-aligned ShallowNets whose BatchNorm statistics
+adapt to each stream (AdaBN) + X4f's classifier refit inside each stream on its own past windows,
+pseudo-labelled by the ensemble (label-free, causal; allowed by the FAQ). Local nested: lopo ≈ 0.681
+(+3.7 vs slot 2), later ≈ 0.729 (+2.8) → **predicted sealed ≈ 0.765–0.77** (local gains transferred
+≈ 1:1 last time). Gates all PASS (quiet 50 ms/window → ≈ 22 min on the server; a refit-time budget
+stops adapting if the server is slower). **Risk in one line:** first upload of in-stream refitting
+(sklearn on the server CPU) — if it ran out of time it would degrade to the B1 model, not fail.
+Fallback if you prefer no refitting: `logs/sprint_1112/ab_cand_all/…zip` (`73e38638`, B1: AdaBN only,
++1.5 lopo vs slot 2). No flagged zip (exact per-run balance is worth ≤ +0.45).
+
 **Updated 2026-11-10 15:15**: **plan written for an unattended sprint to Thu Nov 12 12:00** ([brief](prompts/2026-11-10_to_the_top.md)): diagnostics of where the points are lost, a study of the board top, then structural levers (stream-position experts, run-aware re-centring, split-window blocks, classifier stack, self-training); a gated slot-3 zip ready **Thu 10:00**, you upload before 12:00 (decision 18). Not started. Earlier today: **slot 2 (X4f + Shallow ensemble) scored 0.736** (+2.3 vs 0.713; local predicted +1.7 / +2.8, so local gains transfer); ≈ rank 78 / 166; 3 uploads left. Next: a separate session plans a study of what the top of the board does. Earlier, 02:20: **mid-week sprint done early: no new net family beats the slot-2 ensemble** (FBCNet / Deep4 / ATCNet −0.5 to −1.8; [results](logs/sprint_1110/RESULTS.md)); board 11-09: X4f 0.713 = rank 94 / 166, median 0.723, top 0.838. Slot 3 = hold unless you want the aligned-Shallow draw (decision 17). Earlier, 11-06 18:30: **weekend sprint done early: the X4f + ShallowNet ensemble zip is baked and every gate passes** (`1f6589b8`, 2.5 MB, 7.5 min projected; [results](logs/sprint_1109/RESULTS.md)); recommended for **sealed slot 2 Tue Nov 10**, fact-sheet name `X4f-Shallow-ens`. Stronger-net arms (120 epochs, stream alignment) not adopted. Before that, 11-06 10:50: **first sealed score: X4f all = 0.713** (cell mean / pooled /
 accuracy all 0.713, 362.63 s; uploaded Nov 4 18:01 EST, id 1033809). **Rank 51 of 51** on the
 sealed board (Nov 6 10:20: top 0.828 / 0.825 / 0.825, median 0.775, 50th 0.736). The final rank
@@ -57,7 +70,7 @@ that changes a decision, a number or the plan (§ 8).
 
 | # | Decision | My recommendation | Why it matters | Your effort |
 |---|---|---|---|---|
-| 18 | **Slot 3 = Thu Nov 12 before 12:00** (your plan, 11-10), from the sprint [prompts/2026-11-10_to_the_top.md](prompts/2026-11-10_to_the_top.md) | Start the sprint in a new session (start line in the brief's hand-over note / HANDOFF top); Thursday 10:00 this file's top names the zip. Floor = aligned-Shallow ens (predicted ≈ 0.740–0.745); anything using test-label order comes as a separate, flagged zip for you to choose | 10 points to the top; needs a structural gain, not a tweak | start the session; upload Thu |
+| 18 | **Slot 3 = Thu Nov 12 before 12:00** (your plan, 11-10), from the sprint [prompts/2026-11-10_to_the_top.md](prompts/2026-11-10_to_the_top.md) | **Upload the B2 zip named at the top of this file** (`1ae19a3b…`, sprint running; final check Thu 10:00). Predicted ≈ 0.765–0.77 sealed. Fallback B1 `73e38638` (≈ 0.75) | 10 points to the top; needs a structural gain, not a tweak | start the session; upload Thu |
 | 17 | ~~**Slot 3 (~Sat Nov 14)**~~ superseded by 18 (the aligned-Shallow draw is its safety net) | Hold: re-read after slot 2's sealed score. Optional draw: the stream-aligned ShallowNet ensemble (w 0.5): +3.37 vs X4f, +1.68 [+0.02, +3.28] vs slot 2 but later −0.16 (fails one bar); same family. ≈ 2 h to bake + gate | The only arm close to the bar; the other families lose | say "bake it" or nothing |
 | 16 | ~~**Weekend = develop the X4f + ShallowNet ensemble**~~ **done 11-06 18:30: zip `1f6589b8` baked, gated; lean (+1.69 [+0.94, +2.38])** (11-06 15:00 rule said "explore"; its two screens already ran today: TTA no gain, nets only useful in the ensemble) | Accept; the weekend brief bakes an ensemble zip with a plain-torch net (the server's braindecode is unpinned) and full gates; slot 2 recommended if lean on the nested row, else offered as a model-family draw with the risk stated | The only lever of 11-06 that moved; a family change is what the board gap needs | say go, or nothing (15:00 default) |
 | 15 | **Upload plan for the 4 remaining sealed slots** (final rank = best of the last five, so a worse upload cannot lower it) | Portfolio, not a ladder: **slot 2 Tue Nov 10** = **upload `submissions/ens_x4f_shallow_all_2026-11-06.zip` (sha256 `1f6589b8…`), fact-sheet `X4f-Shallow-ens`** (lean + all gates PASS); **mid-week exploration sprint Tue–Fri Nov 10–13** (desk study of the board, stronger net families judged in the ensemble, wider stacks, slot 2's sealed Δ as a measurement); **slot 3 ~Sat Nov 14** = its best; **slot 4 ~Tue Nov 17** = a different family or stack after its nested check; **slot 5 Thu Nov 19** (Fri Nov 20 18:00 EST latest; Friday kept for a re-upload after a failure). Every slot a family change or stack, none for ≤ 2-point tweaks; record Δsealed next to Δlocal each time. Calendar in `prompts/2026-11-06_weekend_ensemble.md` § 8 | 0.713 is last of 51; the field is 0.736–0.828 | confirm the slot counter; approve each upload |
@@ -156,6 +169,7 @@ this CPU, the personal-LDA path (−4.9).
 - **Size:** under ~150 lines. Detail goes to the documents in § 7, not here.
 - **Numbers:** each one must match its source document.
 - **Change log** (newest first, one line each):
+  - 2026-11-10 19:50: sprint 11-12 running: AdaBN + in-stream self-training (B2) adopted, +3.7 lopo vs slot 2; slot-3 zip `1ae19a3b` gated; upload note at top.
   - 2026-11-10 15:15: brief for the unattended "to the top" sprint written (to Thu Nov 12 12:00; slot 3 upload Thu before noon); decision 18 new, 17 superseded.
   - 2026-11-10: slot 2 = 0.736 (id 1044956, uploaded Nov 9 17:11); 3 uploads left; next = board-top study plan.
   - 2026-11-10 02:20: mid-week sprint done: FBCNet / Deep4 / ATCNet no gain in the ensemble; aligned Shallow w 0.5 misses on later (−0.16); board rank 94/166; decision 17 (slot 3) new; § 4 / § 6 updated.
