@@ -1,0 +1,51 @@
+00:35:18 fbcnet later done (1 BN layers)
+B3 + FBCNet aligned AdaBN: base lopo 0.6868 later 0.7346 (w 0.6) | arm lopo 0.6852 later 0.7279 (w 0.6; picks [0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6])
+  arm - base: lopo -0.16 [-0.89, +0.93] up 5; later -0.67 -> no gain
+Traceback (most recent call last):
+  File "/mnt/c/Users/Ali D/Documents/ML/codabench/analysis/sprint1112_combo.py", line 95, in <module>
+    main()
+  File "/mnt/c/Users/Ali D/Documents/ML/codabench/analysis/sprint1112_combo.py", line 70, in main
+    Xa, Xb = x4f(a.x4f, s), x4f(a.x4f_base or a.x4f, s)
+             ^^^^^^^^^^^^^
+  File "/mnt/c/Users/Ali D/Documents/ML/codabench/analysis/sprint1112_combo.py", line 47, in x4f
+    return np.exp(np.mean([lg(x4f(n, s)) for n in name.split("+")], axis=0))
+                              ^^^^^^^^^
+  File "/mnt/c/Users/Ali D/Documents/ML/codabench/analysis/sprint1112_combo.py", line 51, in x4f
+    return np.load(Q5 / f"{name}_{s}.npz")["probas"]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ali_d/neuralbench/.venv040/lib/python3.12/site-packages/numpy/lib/_npyio_impl.py", line 454, in load
+    fid = stack.enter_context(open(os.fspath(file), "rb"))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/ali_d/codabench/logs/sprint_1112/q5/q5_q0.85_l5.0_s20_t20_f16_C0.03_X4fc02_lopo0.npz'
+Traceback (most recent call last):
+  File "/mnt/c/Users/Ali D/Documents/ML/codabench/analysis/sprint1112_combo.py", line 95, in <module>
+    main()
+  File "/mnt/c/Users/Ali D/Documents/ML/codabench/analysis/sprint1112_combo.py", line 70, in main
+    Xa, Xb = x4f(a.x4f, s), x4f(a.x4f_base or a.x4f, s)
+             ^^^^^^^^^^^^^
+  File "/mnt/c/Users/Ali D/Documents/ML/codabench/analysis/sprint1112_combo.py", line 47, in x4f
+    return np.exp(np.mean([lg(x4f(n, s)) for n in name.split("+")], axis=0))
+                              ^^^^^^^^^
+  File "/mnt/c/Users/Ali D/Documents/ML/codabench/analysis/sprint1112_combo.py", line 51, in x4f
+    return np.load(Q5 / f"{name}_{s}.npz")["probas"]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ali_d/neuralbench/.venv040/lib/python3.12/site-packages/numpy/lib/_npyio_impl.py", line 454, in load
+    fid = stack.enter_context(open(os.fspath(file), "rb"))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/ali_d/codabench/logs/sprint_1112/q5/q5_q0.85_l5.0_s20_t20_f16_C0.03_X4fc24_lopo0.npz'
+Traceback (most recent call last):
+  File "/mnt/c/Users/Ali D/Documents/ML/codabench/analysis/sprint1112_combo.py", line 95, in <module>
+    main()
+  File "/mnt/c/Users/Ali D/Documents/ML/codabench/analysis/sprint1112_combo.py", line 70, in main
+    Xa, Xb = x4f(a.x4f, s), x4f(a.x4f_base or a.x4f, s)
+             ^^^^^^^^^^^^^
+  File "/mnt/c/Users/Ali D/Documents/ML/codabench/analysis/sprint1112_combo.py", line 47, in x4f
+    return np.exp(np.mean([lg(x4f(n, s)) for n in name.split("+")], axis=0))
+                              ^^^^^^^^^
+  File "/mnt/c/Users/Ali D/Documents/ML/codabench/analysis/sprint1112_combo.py", line 51, in x4f
+    return np.load(Q5 / f"{name}_{s}.npz")["probas"]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ali_d/neuralbench/.venv040/lib/python3.12/site-packages/numpy/lib/_npyio_impl.py", line 454, in load
+    fid = stack.enter_context(open(os.fspath(file), "rb"))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/ali_d/codabench/logs/sprint_1112/q5/q5_q0.85_l5.0_s20_t20_f16_C0.03_X4fc02_lopo0.npz'

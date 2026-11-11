@@ -1,0 +1,2 @@
+[ProteusProtocols] protocol=lopo fold=0 train X=(2465, 41, 480) test X=(190, 41, 480) seed=0
+00:36:17 [data] protocol=lopo fold=0 train=2465 test=190 chans=41 times=480 sfreq=120.0 classes=3

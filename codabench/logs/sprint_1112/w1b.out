@@ -1,0 +1,6 @@
+x4f-part = C0.03+X4fc02_C0.03: base lopo 0.6868 later 0.7346 (w 0.6) | arm lopo 0.6752 later 0.7413 (w 0.6; picks [0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6])
+  arm - base: lopo -1.16 [-3.29, +0.52] up 1; later +0.67 -> no gain
+x4f-part = C0.03+X4fc24_C0.03: base lopo 0.6868 later 0.7346 (w 0.6) | arm lopo 0.6735 later 0.7137 (w 0.5; picks [0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5])
+  arm - base: lopo -1.33 [-2.19, -0.41] up 2; later -2.09 -> no gain
+x4f-part = C0.03+X4fc02_C0.03+X4fc24_C0.03: base lopo 0.6868 later 0.7346 (w 0.6) | arm lopo 0.6861 later 0.7348 (w 0.5; picks [0.5, 0.5, 0.4, 0.5, 0.5, 0.5, 0.4, 0.5, 0.5, 0.5])
+  arm - base: lopo -0.07 [-1.21, +0.86] up 6; later +0.02 -> no gain

@@ -138,3 +138,7 @@
 22:32:00 ALL DONE fam_al fbcnet rows_fbc_al
 00:33:19 START q5_c02
 00:33:19 START q5_c24
+00:35:02 END q5_c24 rc=0
+00:35:02 END q5_c02 rc=0
+00:36:14 START q8_dump_hub
+00:36:19 START nets shallow stream s48 (rows_al4)
