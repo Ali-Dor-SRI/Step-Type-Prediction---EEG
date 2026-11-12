@@ -13,7 +13,7 @@ server CPU) — if it ran out of time it would degrade to the B1 model, not fail
 Fallbacks: `submissions/ens_x4f_shallow_al_st_all_2026-11-10.zip` (`1ae19a3b`, same model at C 0.01,
 ≈ 0.2 lower), then `logs/sprint_1112/ab_cand_all/…zip` (`73e38638`, AdaBN only, no refitting). No flagged zip.
 
-**Updated 2026-11-12 10:45 — 5 uploads left (organisers' marking fix gave everyone +2; slots rescored: slot 1 0.710, slot 2 0.735).** New plan with dates and who does what: [prompts/2026-11-12_five_slots_plan.md](prompts/2026-11-12_five_slots_plan.md). Slots: **3 today (B3)**, 4 Sat Nov 14, 5 Mon Nov 16 (a riskier draw), 6 Wed Nov 18, 7 Fri Nov 20; Sat Nov 21 reserve. Opus decides, Sonnet builds and gates, Haiku watches and records. The 11-12 sprint is closed: Windows Update rebooted the machine Wed 21:32 (only a filler lane lost; B3's zip re-checked intact). History of earlier updates: § 8 change log and git. This file is the short version for making decisions; every number links to its source (§ 7).
+**Updated 2026-11-12 10:45 — 5 uploads left (organisers' marking fix gave everyone +2; slots rescored: slot 1 0.710, slot 2 0.735).** New plan with dates and who does what: [prompts/2026-11-12_five_slots_plan.md](prompts/2026-11-12_five_slots_plan.md). Slots: **3 today (B3)**, 4 Sat Nov 14, 5 Mon Nov 16 (a riskier draw), 6 Wed Nov 18, 7 Fri Nov 20; Sat Nov 21 reserve. Opus decides, Sonnet builds and gates, Haiku watches and records. **Sprint A (Thu 10:40–10:55): 15 variants of B3's self-training (label weights, confidence weights, agreement filter, refit every 10 / 5, variance normalisation, bagging) and a P04 check — all no gain vs B3 ([results](logs/sprint_1114/RESULTS.md)); slot 4 held until B3's sealed score.** The 11-12 sprint is closed: Windows Update rebooted the machine Wed 21:32 (only a filler lane lost; B3's zip re-checked intact). History of earlier updates: § 8 change log and git. This file is the short version for making decisions; every number links to its source (§ 7).
 
 ## 1. Where we stand
 
@@ -159,6 +159,7 @@ features, robust covariances, balancing tricks — all measured 11-12 on B1–B3
 - **Size:** under ~150 lines. Detail goes to the documents in § 7, not here.
 - **Numbers:** each one must match its source document.
 - **Change log** (newest first, one line each):
+  - 2026-11-12 10:55: Sprint A: 15 self-training variants + P04 check no gain vs B3; slot 4 held pending B3's score.
   - 2026-11-12 10:45: marking fix: +2 uploads (5 left), slots rescored 0.710 / 0.735; 5-slot plan written (Opus decides / Sonnet builds / Haiku records); decision 19 new; 11-12 sprint closed after a Windows Update reboot.
   - 2026-11-11 00:35: candidate → B3 (self-training refit C 0.03, nested +2.04 vs B1), zip `14541a30`, gates PASS (quiet 47 ms).
   - 2026-11-10 19:50: sprint 11-12 running: AdaBN + in-stream self-training (B2) adopted, +3.7 lopo vs slot 2; slot-3 zip `1ae19a3b` gated; upload note at top.

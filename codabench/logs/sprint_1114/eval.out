@@ -1,0 +1,30 @@
+== a1c1_wpl0.3
+nested over 1 configs x 4 w: lopo 0.6715 later 0.7308 (all-ten pick ('a1c1_wpl0.3', 0.6)) vs B3 0.6868 / 0.7346: -1.54 [-2.68, -0.76] up 0; later -0.38 -> no gain
+== a1c2_wpl0.7
+nested over 1 configs x 4 w: lopo 0.6849 later 0.7386 (all-ten pick ('a1c2_wpl0.7', 0.6)) vs B3 0.6868 / 0.7346: -0.19 [-0.94, +0.48] up 5; later +0.40 -> no gain
+== a1c3_wpl1.0
+nested over 1 configs x 4 w: lopo 0.6782 later 0.7334 (all-ten pick ('a1c3_wpl1.0', 0.6)) vs B3 0.6868 / 0.7346: -0.86 [-1.79, -0.33] up 0; later -0.11 -> no gain
+== a2a_t10
+nested over 1 configs x 4 w: lopo 0.6857 later 0.7200 (all-ten pick ('a2a_t10', 0.6)) vs B3 0.6868 / 0.7346: -0.12 [-0.40, +0.14] up 3; later -1.45 -> no gain
+== A1a1
+nested over 1 configs x 4 w: lopo 0.6853 later 0.7319 (all-ten pick ('A1a1', 0.6)) vs B3 0.6868 / 0.7346: -0.15 [-0.48, +0.10] up 2; later -0.26 -> no gain
+== A1a2
+nested over 1 configs x 4 w: lopo 0.6861 later 0.7306 (all-ten pick ('A1a2', 0.6)) vs B3 0.6868 / 0.7346: -0.08 [-0.41, +0.26] up 4; later -0.40 -> no gain
+== A1a3
+nested over 1 configs x 4 w: lopo 0.6839 later 0.7281 (all-ten pick ('A1a3', 0.6)) vs B3 0.6868 / 0.7346: -0.30 [-0.92, +0.16] up 3; later -0.65 -> no gain
+== A1b1
+nested over 1 configs x 4 w: lopo 0.6751 later 0.7153 (all-ten pick ('A1b1', 0.5)) vs B3 0.6868 / 0.7346: -1.17 [-2.18, -0.50] up 1; later -1.93 -> no gain
+== A1b2
+nested over 1 configs x 4 w: lopo 0.6838 later 0.7358 (all-ten pick ('A1b2', 0.6)) vs B3 0.6868 / 0.7346: -0.31 [-0.99, +0.25] up 4; later +0.13 -> no gain
+== A1d
+nested over 1 configs x 4 w: lopo 0.6843 later 0.7281 (all-ten pick ('A1d', 0.6)) vs B3 0.6868 / 0.7346: -0.25 [-0.64, +0.06] up 4; later -0.65 -> no gain
+== BAGC
+nested over 1 configs x 4 w: lopo 0.6858 later 0.7306 (all-ten pick ('BAGC', 0.6)) vs B3 0.6868 / 0.7346: -0.10 [-0.42, +0.26] up 5; later -0.40 -> no gain
+== BAGQ
+nested over 1 configs x 4 w: lopo 0.6834 later 0.7227 (all-ten pick ('BAGQ', 0.5)) vs B3 0.6868 / 0.7346: -0.34 [-0.97, +0.23] up 2; later -1.19 -> no gain
+== BAGROB
+nested over 1 configs x 4 w: lopo 0.6877 later 0.7221 (all-ten pick ('BAGROB', 0.6)) vs B3 0.6868 / 0.7346: +0.09 [-0.94, +0.78] up 6; later -1.25 -> no gain
+== BAGALL
+nested over 1 configs x 4 w: lopo 0.6866 later 0.7280 (all-ten pick ('BAGALL', 0.6)) vs B3 0.6868 / 0.7346: -0.03 [-0.41, +0.36] up 3; later -0.66 -> no gain
+== a2b_t5
+nested over 1 configs x 4 w: lopo 0.6861 later 0.7177 (all-ten pick ('a2b_t5', 0.6)) vs B3 0.6868 / 0.7346: -0.07 [-0.40, +0.21] up 2; later -1.69 -> no gain

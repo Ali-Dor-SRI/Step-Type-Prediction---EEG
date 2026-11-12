@@ -10,3 +10,8 @@ Base B3 = probe `q5_q0.85_l5.0_s20_t20_f16_C0.03` (logs/sprint_1112/q5). Probe n
 | time | event |
 |---|---|
 | 11:15 | brief written; batch 0 (A1c1-3 wpl, A2a/b cadence) launched on the existing probe |
+| 10:44 | batch 0 running (5 arms; launch fixed: MSYS_NO_PATHCONV=1 + /home/ali_d path); Sonnet builder (probe + vs-B3) and Sonnet A3 (P04) agents running; keep-awake held |
+| 10:45 | A3 P04 done (Sonnet): B3 0.533 on P04; signal quality / covariance normal; pseudo-labels 0.52 and confidence does not separate right from wrong; causal balance bias −0.6 cohort → **A3 closed, no arm** (logs/sprint_1114/A3_P04.md) |
+| 10:46 | probe sprint1114_a.py + sprint1114_vsb3.py built by Sonnet (B3 reproduced exactly on lopo0); batch 1 (A1a1-3, A1b1-2, A1d) launched, ETA 11:00 |
+| 10:52 | batch 0+1 + 4 bags scored vs B3: **all no gain** (best BAGROB +0.09, later −1.25); A1/A3 closed; A2b (every 5) still running |
+| 10:55 | A2b every 5 no gain; **all 15 arms + A3 closed; slot 4 held pending G1**; asked user for the next direction |
