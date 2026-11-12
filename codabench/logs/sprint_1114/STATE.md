@@ -15,3 +15,4 @@ Base B3 = probe `q5_q0.85_l5.0_s20_t20_f16_C0.03` (logs/sprint_1112/q5). Probe n
 | 10:46 | probe sprint1114_a.py + sprint1114_vsb3.py built by Sonnet (B3 reproduced exactly on lopo0); batch 1 (A1a1-3, A1b1-2, A1d) launched, ETA 11:00 |
 | 10:52 | batch 0+1 + 4 bags scored vs B3: **all no gain** (best BAGROB +0.09, later −1.25); A1/A3 closed; A2b (every 5) still running |
 | 10:55 | A2b every 5 no gain; **all 15 arms + A3 closed; slot 4 held pending G1**; asked user for the next direction |
+| 11:32 | **G1: B3 sealed 0.755** (id 1049925, 1,074 s, rank 81/207); budget not hit; transfer ≈ 55 %; band 0.740–0.760 = partial → slot 4 held; next = known-person ceiling check (Sonnet) |
