@@ -29,3 +29,14 @@ feature scale and bagging all land within ±0.3 of it or below. The self-trainin
 **Decision (Opus, Thu 10:55):** by the brief's freeze rule nothing qualifies → **slot 4 held** until B3's sealed
 score (gate G1). Also: cadence gains nothing, so the GPU 'refit every window' idea for Sprint B loses its main
 rationale (Tent / IM were harmful 11-12) — Sprint B needs a new premise.
+
+## Known-person ceiling (Thu 11:35–12:xx; `KP_ceiling.md`, `kp_table.csv`)
+
+`later` (P04, P10; oracle person id). Personal logistic head on the person's session-1 windows, log-blended with B3:
+best grid point +4.2 (P04 +7.3 / P10 +1.1); **picked on the other person +2.25** (P04 +3.9 / P10 +0.6). Up-weighting the
+person's rows in the pooled / self-trained head: 0.0 to +0.3. Controls: pooled head in the same blend −1.4 to −3.6;
+**wrong-person head −5 to −15**.
+
+**Decision (Opus): drop the known-person route.** Honest ceiling ≈ +2 on the known-person half → ≈ +1 on the sealed
+mean with a perfect identifier, × ≈ 0.55 transfer ≈ +0.6; a router that mis-sends an unseen person to a known head
+costs 5–15 points on that stream. Expected value ≈ 0, downside large. Gain rests on P04 alone (2 people).

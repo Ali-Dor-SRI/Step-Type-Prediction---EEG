@@ -133,7 +133,7 @@ seconds carry task signal, not only feedback.
 | # | Step | Expected gain | Effort | Needs |
 |---|---|---|---|---|
 | 1 | ~~Read slot 3's sealed score~~ done: 0.755, Δsealed +2.0 vs Δlocal +3.3–3.8 (self-training transfers ≈ 55 %) | — | — | — |
-| 1b | **Known-person path:** half the sealed test is later sessions of our 10 training people, but our local check of person-specific models rests on 2 people (P04 is the worst). Ceiling check: oracle person + personal head on top of B3; then a causal person identifier with an "unknown" route | ceiling unknown; top teams' 0.82–0.85 suggests the known-person half matters | ½–1 day | — |
+| 1b | **Known-person path:** half the sealed test is later sessions of our 10 training people, but our local check of person-specific models rests on 2 people (P04 is the worst). Ceiling check: oracle person + personal head on top of B3; then a causal person identifier with an "unknown" route | **measured 11-12: dropped.** Oracle ceiling +2.25 on later (picked fairly; P04-driven) ≈ +0.6 sealed; a wrong-person route costs 5–15 | — | — |
 | 2 | If B3 transfers: use the A100 — the refit (and possibly more nets) on GPU allows refits every window and bigger self-training (the CPU budget is the limit now) | +0.5–1 (plateau seen locally) | ½ day | a GPU path test on the warm-up |
 | 3 | Better pseudo-labels: the remaining gap to the label oracle is ≈ 10 points; ideas left: co-training X4f / nets on each other's confident windows, a second X4f-type model with different blocks self-trained jointly | uncertain | 1 day | — |
 | 4 | P04 (worst person, 3 sessions) gains nothing from any lever: a look at its data quality / artefacts | diagnosis | 2 h | — |
@@ -160,6 +160,7 @@ features, robust covariances, balancing tricks — all measured 11-12 on B1–B3
 - **Size:** under ~150 lines. Detail goes to the documents in § 7, not here.
 - **Numbers:** each one must match its source document.
 - **Change log** (newest first, one line each):
+  - 2026-11-12 12:00: known-person ceiling (oracle id) +2.25 on later, wrong-person −5 to −15 → dropped; local levers exhausted.
   - 2026-11-12 11:40: slot 3 B3 sealed 0.755 (id 1049925, 1,074 s), rank 81 / 207; transfer ≈ 55 %; gate G1 = partial → slot 4 held; next = known-person ceiling check.
   - 2026-11-12 10:55: Sprint A: 15 self-training variants + P04 check no gain vs B3; slot 4 held pending B3's score.
   - 2026-11-12 10:45: marking fix: +2 uploads (5 left), slots rescored 0.710 / 0.735; 5-slot plan written (Opus decides / Sonnet builds / Haiku records); decision 19 new; 11-12 sprint closed after a Windows Update reboot.
