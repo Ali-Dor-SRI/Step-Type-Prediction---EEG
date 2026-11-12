@@ -21,7 +21,7 @@ with variables in a script under `scripts/sprint1112_*.sh` and run that.
   PASS (quiet 47.4 ms/window). DIRECTIONS top note + §2/§4/§5/§6, SUBMISSIONS, HANDOFF, LOG entry, RESULTS
   summary are written (Wed 06:00) — Thursday only re-checks them.
 - **Queue: all of P4 done** (QUEUE.md status table); 62 arms + 2 flagged.
-- **Running:** filler aligned Shallow 64–71 (`rows_al5`, started Wed 16:41; 48–63 done 16:40); a timer for Thu 07:00 (freeze).
+- **Running:** overnight filler aligned Shallow 72–95 (`rows_al5`, started Wed evening; 48–71 done); a timer for Thu 07:00 (freeze).
 - **Left:** (1) board re-check done 18:05 (RESULTS P3); (2) Thu 07:00 freeze = B3 (nothing beat it);
   re-run `sha256sum` on the submissions copy, glance at gates; (3) Thu 11:30: final LOG line (time
   totals), DIRECTIONS change-log line, HANDOFF ("done"), memory note in the codabench project (not
@@ -57,3 +57,6 @@ with variables in a script under `scripts/sprint1112_*.sh` and run that.
 | 13:39 | rows_al5 48–55 done; filler 56–63 started |
 | 16:41 | rows_al5 56–63 done; filler 64–71 started |
 | 18:05 | board re-check done (194 entries, #12 0.814, median 0.735); B3 stays |
+| eve | rows_al5 64–71 done; overnight filler 72–95 started |
+| Wed 21:32 | **Windows Update rebooted the machine**: filler rows_al5 died in s78 (72–77 done; filler only, feeds nothing); Thu 07:00 freeze timer lost |
+| Thu 10:31 | resumed (new session): freeze = B3 by the ladder (nothing beat it); sha256 of the submissions copy re-checked = `14541a30…` OK. User: Codabench marking fix → slot 1 rescored 0.710, slot 2 0.735, **+2 uploads → 5 left**. New plan `prompts/2026-11-12_five_slots_plan.md`; sprint closed |

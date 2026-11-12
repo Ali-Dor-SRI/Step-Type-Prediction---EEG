@@ -209,3 +209,27 @@
 17:21:27 START nets shallow stream s66 (rows_al5)
 17:42:05 END nets shallow stream s66 rc=0
 17:42:05 START nets shallow stream s67 (rows_al5)
+18:02:51 END nets shallow stream s67 rc=0
+18:02:51 START nets shallow stream s68 (rows_al5)
+18:23:21 END nets shallow stream s68 rc=0
+18:23:21 START nets shallow stream s69 (rows_al5)
+18:43:49 END nets shallow stream s69 rc=0
+18:43:49 START nets shallow stream s70 (rows_al5)
+19:04:25 END nets shallow stream s70 rc=0
+19:04:25 START nets shallow stream s71 (rows_al5)
+19:24:58 END nets shallow stream s71 rc=0
+19:24:58 ALL DONE nets rows_al5
+19:25:04 START nets shallow stream s72 (rows_al5)
+19:45:43 END nets shallow stream s72 rc=0
+19:45:43 START nets shallow stream s73 (rows_al5)
+20:06:22 END nets shallow stream s73 rc=0
+20:06:22 START nets shallow stream s74 (rows_al5)
+20:26:55 END nets shallow stream s74 rc=0
+20:26:55 START nets shallow stream s75 (rows_al5)
+20:47:37 END nets shallow stream s75 rc=0
+20:47:37 START nets shallow stream s76 (rows_al5)
+21:08:27 END nets shallow stream s76 rc=0
+21:08:27 START nets shallow stream s77 (rows_al5)
+21:28:58 END nets shallow stream s77 rc=0
+21:28:58 START nets shallow stream s78 (rows_al5)
+10:31:00 Thu: machine rebooted Wed 21:32 (Windows Update); rows_al5 s78 lost; sprint closed

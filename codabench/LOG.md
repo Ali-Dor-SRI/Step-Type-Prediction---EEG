@@ -2447,3 +2447,12 @@ Brief `prompts/2026-11-10_to_the_top.md`; results / state / queue `logs/sprint_1
   (2) Python on Windows rewrote a .sh with CRLF → bash syntax error; fix: `sed -i 's/\r$//'`. (3) `nohup … &` inside a
   short wsl.exe died; fix: run_in_background. (4) gate iii's timing check fails under full load (184–332 ms) — only
   quiet re-times count; done by SIGSTOP / SIGCONT of the training lanes (`sprint1112_quiet_timing.sh`).
+- Close (Thu 11-12 10:31): Windows Update rebooted the machine Wed 21:32 → filler lane rows_al5 lost at seed 78 (72–77 done)
+  and the 07:00 freeze timer never fired; freeze = B3 by the ladder; zip sha256 re-verified. Sprint time ≈ 43 h wall, of it
+  ≈ 6.5 h paused (usage limits) and ≈ 13 h after the reboot.
+
+## 2026-11-12 — marking fix: +2 sealed uploads (5 left); five-slot plan
+
+Organisers' email: a marking issue was fixed; everyone gets 2 more uploads. Rescored: slot 1 0.713 → 0.710, slot 2
+0.736 → 0.735. Plan `prompts/2026-11-12_five_slots_plan.md`: slots 3 Thu 12 (B3), 4 Sat 14, 5 Mon 16 (draw), 6 Wed 18,
+7 Fri 20; Opus decides, Sonnet builds / gates, Haiku watches / records. Open: does "best of the last five" still hold?
