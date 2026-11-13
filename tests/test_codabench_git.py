@@ -1,6 +1,7 @@
 """Exercise sync safety against temporary repositories; no network needed."""
 
 import importlib.util
+import shutil
 import subprocess
 import tempfile
 import unittest
@@ -13,6 +14,7 @@ SYNC = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(SYNC)
 
 
+@unittest.skipUnless(shutil.which("git"), "Git sync tests require the git executable")
 class GitSyncTests(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
