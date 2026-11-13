@@ -1,0 +1,35 @@
+name: Codabench source
+
+on:
+  push:
+    paths:
+      - 'codabench/**'
+      - 'scripts/codabench_git.py'
+      - 'tests/test_codabench_git.py'
+      - '.githooks/**'
+      - '.github/workflows/codabench-source.yml'
+  pull_request:
+    paths:
+      - 'codabench/**'
+      - 'scripts/codabench_git.py'
+      - 'tests/test_codabench_git.py'
+      - '.githooks/**'
+      - '.github/workflows/codabench-source.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  source:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Check source tracking, syntax, and artifact exclusions
+        run: python scripts/codabench_git.py check
+      - name: Check safe Git synchronization
+        run: python -m unittest discover -s tests -p test_codabench_git.py -v

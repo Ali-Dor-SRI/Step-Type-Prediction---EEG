@@ -17,6 +17,7 @@ Fallbacks: `submissions/ens_x4f_shallow_al_st_all_2026-11-10.zip` (`1ae19a3b`, s
 
 ## 1. Where we stand
 
+- **Mac + NAS (11-12):** native environment ready; public PROTEUS and both caches on the existing NAS; 349/349 self-test checks pass. Only private B3/checkpoint artifacts still need transfer. [Setup](MAC_SETUP.md).
 - **Calendar:** registration closed **Oct 24**; the warm-up (5 uploads/day, does
   not rank) was **extended to Nov 1** after the host outage; the **sealed phase,
   Nov 4, 18:01 EST – Nov 21, 17:59 EST** (open; it scored our first upload Nov 4), is the only
@@ -162,6 +163,7 @@ features, robust covariances, balancing tricks — all measured 11-12 on B1–B3
 - **Change log** (newest first, one line each):
   - 2026-11-12 12:00: known-person ceiling (oracle id) +2.25 on later, wrong-person −5 to −15 → dropped; local levers exhausted.
   - 2026-11-12 11:40: slot 3 B3 sealed 0.755 (id 1049925, 1,074 s), rank 81 / 207; transfer ≈ 55 %; gate G1 = partial → slot 4 held; next = known-person ceiling check.
+  - 2026-11-12 17:47: native Mac setup complete; public PROTEUS downloaded directly to the established NAS, window cache rebuilt, 349/349 checks PASS; private B3 artifacts still absent.
   - 2026-11-12 10:55: Sprint A: 15 self-training variants + P04 check no gain vs B3; slot 4 held pending B3's score.
   - 2026-11-12 10:45: marking fix: +2 uploads (5 left), slots rescored 0.710 / 0.735; 5-slot plan written (Opus decides / Sonnet builds / Haiku records); decision 19 new; 11-12 sprint closed after a Windows Update reboot.
   - 2026-11-11 00:35: candidate → B3 (self-training refit C 0.03, nested +2.04 vs B1), zip `14541a30`, gates PASS (quiet 47 ms).

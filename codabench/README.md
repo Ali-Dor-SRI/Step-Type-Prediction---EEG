@@ -4,6 +4,15 @@ Everything for the NeurIPS 2026 **EEG/EMG Foundation Challenge** (Codabench),
 **Track 2: BCI decoding (cross-session)**. Separate from the thesis
 pipeline but reusing its models.
 
+## Native Mac + NAS setup
+
+Code updates and publication: [GIT_WORKFLOW.md](GIT_WORKFLOW.md).
+
+On this Mac, use `source ~/codabench/env.mac.sh`. Public PROTEUS data and
+the rebuilt caches live on the existing NAS. See [MAC_SETUP.md](MAC_SETUP.md)
+for paths, validation, and the private B3 artifacts still needing transfer.
+The WSL instructions below describe the original Windows machine.
+
 ## Start here tomorrow
 
 1. Open **Ubuntu** (Start menu) and run `source ~/codabench/env.sh`.
