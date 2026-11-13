@@ -1,0 +1,10 @@
+#!/bin/sh
+# Keep Codabench code retrievable from Git; keep weights and arrays on NAS.
+repo_root=$(git rev-parse --show-toplevel) || exit 1
+if command -v python3 >/dev/null 2>&1; then
+    exec python3 "$repo_root/scripts/codabench_git.py" check
+elif command -v python >/dev/null 2>&1; then
+    exec python "$repo_root/scripts/codabench_git.py" check
+fi
+echo 'Python is required to check Codabench source before pushing.' >&2
+exit 1

@@ -1,6 +1,6 @@
 # Directions: Track 2 at a glance
 
-**Slot 3 upload note (draft Wed 11-11 00:35 from the running sprint; final check Thu 10:00):**
+**Slot 3 = B3 UPLOADED Thu 11-12 10:41 → sealed 0.755 (+2.0 vs slot 2; local predicted +3.3–3.8, so only ≈ 55 % transferred); 1,074 s on the server (refit budget not hit); rank 81 / 207 (median 0.735, #12 0.815, top 0.847). 4 uploads left; B3 stays counted if we use ≤ 4 more.** Upload note as it was:
 upload **`submissions/ens_x4f_shallow_al_stC_all_2026-11-10.zip`** (= `logs/sprint_1112/b3_cand_all/…`,
 53 MB), **sha256 `14541a30357f00c05fff261cbd5bea6839ec031f06189ff077997b9319cfc88b`**, fact-sheet name
 **`X4f-ShallowAl-AdaBN-ST`**. What it is: X4f + 5 stream-aligned ShallowNets whose BatchNorm statistics
@@ -13,29 +13,15 @@ server CPU) — if it ran out of time it would degrade to the B1 model, not fail
 Fallbacks: `submissions/ens_x4f_shallow_al_st_all_2026-11-10.zip` (`1ae19a3b`, same model at C 0.01,
 ≈ 0.2 lower), then `logs/sprint_1112/ab_cand_all/…zip` (`73e38638`, AdaBN only, no refitting). No flagged zip.
 
-**Updated 2026-11-10 15:15**: **plan written for an unattended sprint to Thu Nov 12 12:00** ([brief](prompts/2026-11-10_to_the_top.md)): diagnostics of where the points are lost, a study of the board top, then structural levers (stream-position experts, run-aware re-centring, split-window blocks, classifier stack, self-training); a gated slot-3 zip ready **Thu 10:00**, you upload before 12:00 (decision 18). Not started. Earlier today: **slot 2 (X4f + Shallow ensemble) scored 0.736** (+2.3 vs 0.713; local predicted +1.7 / +2.8, so local gains transfer); ≈ rank 78 / 166; 3 uploads left. Next: a separate session plans a study of what the top of the board does. Earlier, 02:20: **mid-week sprint done early: no new net family beats the slot-2 ensemble** (FBCNet / Deep4 / ATCNet −0.5 to −1.8; [results](logs/sprint_1110/RESULTS.md)); board 11-09: X4f 0.713 = rank 94 / 166, median 0.723, top 0.838. Slot 3 = hold unless you want the aligned-Shallow draw (decision 17). Earlier, 11-06 18:30: **weekend sprint done early: the X4f + ShallowNet ensemble zip is baked and every gate passes** (`1f6589b8`, 2.5 MB, 7.5 min projected; [results](logs/sprint_1109/RESULTS.md)); recommended for **sealed slot 2 Tue Nov 10**, fact-sheet name `X4f-Shallow-ens`. Stronger-net arms (120 epochs, stream alignment) not adopted. Before that, 11-06 10:50: **first sealed score: X4f all = 0.713** (cell mean / pooled /
-accuracy all 0.713, 362.63 s; uploaded Nov 4 18:01 EST, id 1033809). **Rank 51 of 51** on the
-sealed board (Nov 6 10:20: top 0.828 / 0.825 / 0.825, median 0.775, 50th 0.736). The final rank
-is the **best of a team's last five** sealed uploads (site timeline); **4 uploads left** (confirmed on the Codabench page, 11-06).
-**Sprint 11-06 (to 15:00, [results](logs/sprint_1106/RESULTS.md)):** extra training windows at
-other cue offsets (built bit-exactly through the official loader) **no gain** (−1.2 / −0.5);
-label-free adaptation of the classifier **no gain** (best +0.1); deep nets alone 10–20 points
-under X4f, **but X4f + a ShallowNet ensemble moves: lopo 0.644, +1.69 [+0.94, +2.38] (9/10
-people), later 0.701 (+2.8)** (5 net seeds, weight 0.3 chosen nested: "lean"). Weekend sprint (to Mon Nov 9 12:00)
-developed it into the gated slot-2 zip above.
-
-Earlier: 11-04 train-as-streamed sprint **no gain**; 10-29 X4f official exact on the warm-up
-server (22.6 s); 10-28 X4f nested check passed (0.621 vs 0.628): **lopo 0.628 / later 0.674**,
-C2f 0.608 / 0.642 the fallback. Nothing running (11-06 18:30). This is the short version for making
-decisions; every number links to where it comes from (§ 7). Kept current by every session
-that changes a decision, a number or the plan (§ 8).
+**Updated 2026-11-12 10:45 — 5 uploads left (organisers' marking fix gave everyone +2; slots rescored: slot 1 0.710, slot 2 0.735).** New plan with dates and who does what: [prompts/2026-11-12_five_slots_plan.md](prompts/2026-11-12_five_slots_plan.md). Slots: **3 today (B3)**, 4 Sat Nov 14, 5 Mon Nov 16 (a riskier draw), 6 Wed Nov 18, 7 Fri Nov 20; Sat Nov 21 reserve. Opus decides, Sonnet builds and gates, Haiku watches and records. **Sprint A (Thu 10:40–10:55): 15 variants of B3's self-training (label weights, confidence weights, agreement filter, refit every 10 / 5, variance normalisation, bagging) and a P04 check — all no gain vs B3 ([results](logs/sprint_1114/RESULTS.md)); slot 4 held until B3's sealed score.** The 11-12 sprint is closed: Windows Update rebooted the machine Wed 21:32 (only a filler lane lost; B3's zip re-checked intact). History of earlier updates: § 8 change log and git. This file is the short version for making decisions; every number links to its source (§ 7).
 
 ## 1. Where we stand
 
+- **Mac + NAS (11-13):** B3 and 4,582 experiment files restored on NAS; hash, 952-window replay, state gates and original selection results PASS. Ready for new research from B3. [Resume status](RESUME_STATUS.md).
 - **Calendar:** registration closed **Oct 24**; the warm-up (5 uploads/day, does
   not rank) was **extended to Nov 1** after the host outage; the **sealed phase,
   Nov 4, 18:01 EST – Nov 21, 17:59 EST** (open; it scored our first upload Nov 4), is the only
-  phase that ranks: 1 upload/day, yaml cap 10, **final rank = best of the last five**, top 3 audited.
+  phase that ranks: 1 upload/day, **final rank = best of the last five**, top 3 audited. **5 uploads left** (11-12: +2 after the marking fix).
 - **Data: PROTEUS.** 10 people, 14 sessions, 2,655 windows, 41 EEG channels,
   120 Hz, 3 balanced classes. Sealed test = later sessions of these 10 people
   **plus 10 unseen people**, streamed one window at a time per session, label-free
@@ -59,7 +45,7 @@ that changes a decision, a number or the plan (§ 8).
 - **Zips ([SUBMISSIONS.md](SUBMISSIONS.md)):** X4f official `9fb7ffe3` (warm-up: exact match 10-29)
   and X4f all `60a0148c` (sealed) in `submissions/`, thread-pinned, every gate PASS,
   12–14 ms/window (sealed test ≈ 5 min of the 60 allowed). C2f all `7059b103` ready as
-  the fallback. **Ensemble all `1f6589b8` ready, not uploaded** (all gates PASS, 21.4 ms/window). **X4f all uploaded to the sealed phase Nov 4 18:01 EST: 0.713, rank 51 / 51
+  the fallback. **Ensemble all `1f6589b8` ready, not uploaded** (all gates PASS, 21.4 ms/window). **X4f all uploaded to the sealed phase Nov 4 18:01 EST: 0.713 (rescored 0.710 on 11-12), rank 51 / 51
   (Nov 6); 362.63 s ⇒ the sealed test is ≈ 12–13 k windows.**
 - **What the data say ([EDA](reports/proteus_eda/EDA.md)):** every session is its own
   domain (two sessions of one person differ as much as two people), which is why
@@ -70,10 +56,11 @@ that changes a decision, a number or the plan (§ 8).
 
 | # | Decision | My recommendation | Why it matters | Your effort |
 |---|---|---|---|---|
-| 18 | **Slot 3 = Thu Nov 12 before 12:00** (your plan, 11-10), from the sprint [prompts/2026-11-10_to_the_top.md](prompts/2026-11-10_to_the_top.md) | **Upload the B3 zip named at the top of this file** (`14541a30…`, sprint running; final check Thu 10:00). Predicted ≈ 0.77 sealed. Fallbacks B2 `1ae19a3b`, B1 `73e38638` | 10 points to the top; needs a structural gain, not a tweak | start the session; upload Thu |
+| 19 | **Confirm the rule after the +2 email:** is it still "best of the last five"? With 7 uploads, the last five drop slots 1–2 (0.710 / 0.735) | If yes: fine while B3 ≥ 0.735; if B3 scores lower, one later slot re-uploads slot 2's zip `1f6589b8` | decides whether any slot can be a pure gamble | read the email / page |
+| 18 | ~~**Slot 3 = Thu Nov 12 before 12:00**~~ **done: B3 = 0.755** (your plan, 11-10), from the sprint [prompts/2026-11-10_to_the_top.md](prompts/2026-11-10_to_the_top.md) | **Upload the B3 zip named at the top of this file** (`14541a30…`, sprint running; final check Thu 10:00). Predicted ≈ 0.77 sealed. Fallbacks B2 `1ae19a3b`, B1 `73e38638` | 10 points to the top; needs a structural gain, not a tweak | start the session; upload Thu |
 | 17 | ~~**Slot 3 (~Sat Nov 14)**~~ superseded by 18 (the aligned-Shallow draw is its safety net) | Hold: re-read after slot 2's sealed score. Optional draw: the stream-aligned ShallowNet ensemble (w 0.5): +3.37 vs X4f, +1.68 [+0.02, +3.28] vs slot 2 but later −0.16 (fails one bar); same family. ≈ 2 h to bake + gate | The only arm close to the bar; the other families lose | say "bake it" or nothing |
 | 16 | ~~**Weekend = develop the X4f + ShallowNet ensemble**~~ **done 11-06 18:30: zip `1f6589b8` baked, gated; lean (+1.69 [+0.94, +2.38])** (11-06 15:00 rule said "explore"; its two screens already ran today: TTA no gain, nets only useful in the ensemble) | Accept; the weekend brief bakes an ensemble zip with a plain-torch net (the server's braindecode is unpinned) and full gates; slot 2 recommended if lean on the nested row, else offered as a model-family draw with the risk stated | The only lever of 11-06 that moved; a family change is what the board gap needs | say go, or nothing (15:00 default) |
-| 15 | **Upload plan for the 4 remaining sealed slots** (final rank = best of the last five, so a worse upload cannot lower it) | Portfolio, not a ladder: **slot 2 Tue Nov 10** = **upload `submissions/ens_x4f_shallow_all_2026-11-06.zip` (sha256 `1f6589b8…`), fact-sheet `X4f-Shallow-ens`** (lean + all gates PASS); **mid-week exploration sprint Tue–Fri Nov 10–13** (desk study of the board, stronger net families judged in the ensemble, wider stacks, slot 2's sealed Δ as a measurement); **slot 3 ~Sat Nov 14** = its best; **slot 4 ~Tue Nov 17** = a different family or stack after its nested check; **slot 5 Thu Nov 19** (Fri Nov 20 18:00 EST latest; Friday kept for a re-upload after a failure). Every slot a family change or stack, none for ≤ 2-point tweaks; record Δsealed next to Δlocal each time. Calendar in `prompts/2026-11-06_weekend_ensemble.md` § 8 | 0.713 is last of 51; the field is 0.736–0.828 | confirm the slot counter; approve each upload |
+| 15 | ~~Upload plan for 4 slots~~ **replaced 11-12 by the 5-slot plan** ([prompts/2026-11-12_five_slots_plan.md](prompts/2026-11-12_five_slots_plan.md)); old text: (final rank = best of the last five, so a worse upload cannot lower it) | Portfolio, not a ladder: **slot 2 Tue Nov 10** = **upload `submissions/ens_x4f_shallow_all_2026-11-06.zip` (sha256 `1f6589b8…`), fact-sheet `X4f-Shallow-ens`** (lean + all gates PASS); **mid-week exploration sprint Tue–Fri Nov 10–13** (desk study of the board, stronger net families judged in the ensemble, wider stacks, slot 2's sealed Δ as a measurement); **slot 3 ~Sat Nov 14** = its best; **slot 4 ~Tue Nov 17** = a different family or stack after its nested check; **slot 5 Thu Nov 19** (Fri Nov 20 18:00 EST latest; Friday kept for a re-upload after a failure). Every slot a family change or stack, none for ≤ 2-point tweaks; record Δsealed next to Δlocal each time. Calendar in `prompts/2026-11-06_weekend_ensemble.md` § 8 | 0.713 is last of 51; the field is 0.736–0.828 | confirm the slot counter; approve each upload |
 | 13 | **Sealed model = X4f** (nested check passed 10-28: 0.621 nested vs 0.628 selected; inner choice split X4f 5 / C2f 5, so its edge over C2f is small but survives) | (1) ~~upload **X4f official**~~ **done 10-29: exact match, 22.6 s** (`submissions/riemann_sealed_proteus_x4f_official_2026-10-27.zip`, sha256 `9fb7ffe3`) to the warm-up; expected 0.546004 / 0.545484 / 0.545695; (2) if exact, upload **X4f all** (`…_x4f_all_2026-10-27.zip`, `60a0148c`) to the sealed phase | ~2 points over C2f on lopo, 6 over F64T | two uploads |
 | 14 | ~~Feature-engineering sprint~~ **run 10-28: no gain.** ROI relative power, asymmetry, \|asymmetry\|, burstiness: all within 1 point of C2f and X4f, CIs cross 0 (burst on X4f −0.9) | — | — | — |
 | 9 | ~~Warm-up upload of F64~~ done: exact match; 263 ms/window on the server | — | — | — |
@@ -142,11 +129,12 @@ seconds carry task signal, not only feedback.
 5. **In-stream refitting on the server (B3):** first upload of sklearn refits at predict time; quiet 47 ms/window
    locally (≈ 21 min server at the 2.1× factor); a 1,500 s refit budget makes a slow server degrade to B1, not time out.
 
-## 6. Next steps worth exploring (ranked; for slots 4 Tue Nov 17 and 5 Thu Nov 19)
+## 6. Next steps worth exploring (ranked; for slots 4–7: Sat Nov 14, Mon 16, Wed 18, Fri 20)
 
 | # | Step | Expected gain | Effort | Needs |
 |---|---|---|---|---|
-| 1 | Read slot 3's sealed score; record Δsealed vs Δlocal (+3.8 lopo / +3.3 later predicted) | calibrates everything below | 5 min | your upload |
+| 1 | ~~Read slot 3's sealed score~~ done: 0.755, Δsealed +2.0 vs Δlocal +3.3–3.8 (self-training transfers ≈ 55 %) | — | — | — |
+| 1b | **Known-person path:** half the sealed test is later sessions of our 10 training people, but our local check of person-specific models rests on 2 people (P04 is the worst). Ceiling check: oracle person + personal head on top of B3; then a causal person identifier with an "unknown" route | **measured 11-12: dropped.** Oracle ceiling +2.25 on later (picked fairly; P04-driven) ≈ +0.6 sealed; a wrong-person route costs 5–15 | — | — |
 | 2 | If B3 transfers: use the A100 — the refit (and possibly more nets) on GPU allows refits every window and bigger self-training (the CPU budget is the limit now) | +0.5–1 (plateau seen locally) | ½ day | a GPU path test on the warm-up |
 | 3 | Better pseudo-labels: the remaining gap to the label oracle is ≈ 10 points; ideas left: co-training X4f / nets on each other's confident windows, a second X4f-type model with different blocks self-trained jointly | uncertain | 1 day | — |
 | 4 | P04 (worst person, 3 sessions) gains nothing from any lever: a look at its data quality / artefacts | diagnosis | 2 h | — |
@@ -173,6 +161,12 @@ features, robust covariances, balancing tricks — all measured 11-12 on B1–B3
 - **Size:** under ~150 lines. Detail goes to the documents in § 7, not here.
 - **Numbers:** each one must match its source document.
 - **Change log** (newest first, one line each):
+  - 2026-11-12 12:00: known-person ceiling (oracle id) +2.25 on later, wrong-person −5 to −15 → dropped; local levers exhausted.
+  - 2026-11-12 11:40: slot 3 B3 sealed 0.755 (id 1049925, 1,074 s), rank 81 / 207; transfer ≈ 55 %; gate G1 = partial → slot 4 held; next = known-person ceiling check.
+  - 2026-11-13: Windows artifact transfer restored to NAS (12.96 GB); B3 predictions and selection results reproduce on Mac; ready to resume from the held B3 baseline.
+  - 2026-11-12 17:47: native Mac setup complete; public PROTEUS downloaded directly to the established NAS, window cache rebuilt, 349/349 checks PASS; private B3 artifacts still absent.
+  - 2026-11-12 10:55: Sprint A: 15 self-training variants + P04 check no gain vs B3; slot 4 held pending B3's score.
+  - 2026-11-12 10:45: marking fix: +2 uploads (5 left), slots rescored 0.710 / 0.735; 5-slot plan written (Opus decides / Sonnet builds / Haiku records); decision 19 new; 11-12 sprint closed after a Windows Update reboot.
   - 2026-11-11 00:35: candidate → B3 (self-training refit C 0.03, nested +2.04 vs B1), zip `14541a30`, gates PASS (quiet 47 ms).
   - 2026-11-10 19:50: sprint 11-12 running: AdaBN + in-stream self-training (B2) adopted, +3.7 lopo vs slot 2; slot-3 zip `1ae19a3b` gated; upload note at top.
   - 2026-11-10 15:15: brief for the unattended "to the top" sprint written (to Thu Nov 12 12:00; slot 3 upload Thu before noon); decision 18 new, 17 superseded.

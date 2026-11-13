@@ -1,6 +1,12 @@
 # HANDOFF
 
-## 00000000. RUNNING — 2026-11-10 19:50: sprint 11-12 "to the top" (unattended to Thu Nov 12 12:00)
+## 000000000. CURRENT — 2026-11-12 10:45: 5 sealed uploads left; plan = `prompts/2026-11-12_five_slots_plan.md`
+
+- Marking fix (organisers' email): +2 uploads for everyone → **5 left**; rescored slot 1 0.710, slot 2 0.735.
+- Sprint 11-12 closed (Windows Update reboot Wed 21:32 killed only a filler lane). **Slot 3 = B3** `submissions/ens_x4f_shallow_al_stC_all_2026-11-10.zip` (`14541a30…`, re-verified 10:31), user uploads Thu before 12:00.
+- Next: Sprint A (Opus brief Thu 13:00) for slot 4 Sat Nov 14; gate G1 on B3's score Fri. Roles: Opus decides, Sonnet builds/gates, Haiku watches/records.
+
+## 00000000. DONE — 2026-11-10 19:50 → 11-12 10:31: sprint 11-12 "to the top" (unattended to Thu Nov 12 12:00)
 
 - State / resume file: `logs/sprint_1112/STATE.md` (read first), queue `QUEUE.md`, results `RESULTS.md`.
 - **Slot-3 candidate (gated, Wed 00:35):** `submissions/ens_x4f_shallow_al_stC_all_2026-11-10.zip`, sha256
