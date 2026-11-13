@@ -86,3 +86,14 @@ feature/probability arrays (`.npy`, `.npz`), and submission ZIPs belong on
 NAS. The frozen B3 archive is not downloadable from Git.
 
 Use `MAC_SETUP.md` for the native environment and data-validation commands.
+
+The November 13 transfer is restored and checksum-verified; see
+`RESUME_STATUS.md`. To connect its NAS artifacts to a fresh Mac/Linux checkout:
+
+```bash
+python3 scripts/link_codabench_artifacts.py
+```
+
+Use `--artifact-root /path/to/windows-transfer/codabench` for a different mount
+location. The command reads the NAS import manifest, preserves tracked files,
+backs up existing local artifacts before linking, and is safe to repeat.

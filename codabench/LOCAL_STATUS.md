@@ -1,13 +1,16 @@
-# Local checkout status — 2026-11-12
+# Local checkout status — updated 2026-11-13
+
+**Current:** B3 and the research artifacts are restored on NAS and validated on
+the Mac. See [RESUME_STATUS.md](RESUME_STATUS.md).
 
 ## Git
 
 - Our competition code belongs to the parent ML repository. The ignored
   `2026-competition/` directory is a separate upstream Git repository.
 - Current branch: `codex/codabench-mac-setup`, tracking
-  `personal/feat/codabench-track2` at `45f81c5` when inspected.
+  `org/codex/codabench-mac-setup`. The original research code is `45f81c5`.
 - The original `feat/codabench-track2` remains at `adce572`, preserving its
-  unique November 9 documentation commit. No history was rewritten or pushed.
+  unique November 9 documentation commit. No history was rewritten; the setup branch is published to `org` in draft PR #1.
 - Both remotes were fetched successfully. The organization branch is at
   `d1b5927`, five commits behind the personal branch.
 - Local Git URL rewrites map the unavailable `github-personal` and
@@ -52,11 +55,11 @@ See `MAC_SETUP.md`. Start with `source ~/codabench/env.mac.sh`.
   all 2,655 windows took 97.5 seconds, including extraction.
 - Compatibility symlinks `~/codabench` and `~/neuralbench` support the existing
   scripts. The native entry point checks the NAS destination before use.
-- The exact B3 archive and the newer untracked per-split research artifacts
-  still require transfer from Windows/WSL. The archive is
-  `ens_x4f_shallow_al_stC_all_2026-11-10.zip`, expected SHA-256
-  `14541a30357f00c05fff261cbd5bea6839ec031f06189ff077997b9319cfc88b`.
-  The GitHub releases API returned no downloadable release assets.
+- The B3 archive and the saved experiment artifacts were restored from the
+  completed Windows transfer on November 13: 4,582 checksum-verified files,
+  12.96 GB. The frozen archive hash, split predictions, stream-state gates,
+  and original 16-configuration selection results all reproduce. Native
+  training smoke passed. See `RESUME_STATUS.md`.
 
 ## Checks performed
 
@@ -64,7 +67,7 @@ See `MAC_SETUP.md`. Start with `source ~/codabench/env.mac.sh`.
 - All 107 tracked Codabench Python files parsed without syntax errors.
 - All six existing submission ZIPs passed CRC checks; the November 6 ensemble
   matched its recorded full SHA-256 (`1f6589b8…`).
-- Native ShallowNet inference passed on a synthetic input. No training,
+- Native ShallowNet inference passed on a synthetic input. No production model training,
   leaderboard actions, or uploads were performed. The existing full self-test
   passed all 349 checks in 49.9 seconds; results are recorded in
   `logs/mac_setup/selftest_mac.log`.

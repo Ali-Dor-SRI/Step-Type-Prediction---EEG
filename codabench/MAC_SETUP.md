@@ -46,21 +46,20 @@ The original Windows/WSL shell scripts still target their original
 environment; use the native entry point above on this Mac. Cross-platform
 training reproducibility must be checked separately from data integrity.
 
-## Private artifacts still needed
+## Private artifacts restored — November 13
 
-GitHub has no release assets for this repository. The frozen B3 archive is
-not tracked by Git and was absent from the established NAS data folder:
+The frozen B3 archive and the six selected submission/experiment folders are
+now on NAS at `windows-transfer/codabench/`, retaining their original paths.
+All 4,582 files were checksum-verified. The working checkout links to the NAS
+artifacts; the original data and Python environment did not need replacing.
 
-```text
-ens_x4f_shallow_al_stC_all_2026-11-10.zip
-SHA-256: 14541a30357f00c05fff261cbd5bea6839ec031f06189ff077997b9319cfc88b
-```
+B3 SHA-256:
+`14541a30357f00c05fff261cbd5bea6839ec031f06189ff077997b9319cfc88b`.
 
-Transfer the original archive from the Windows `codabench/submissions/`
-folder to the NAS rather than retraining to recreate its exact weights.
-For continuation of the existing experiment sweeps, also preserve the
-untracked per-split weights and probability/probe files under
-`logs/sprint_1110/`, `logs/sprint_1112/`, and `logs/sprint_1114/`.
+Native prediction, stream-state and original model-selection checks passed.
+See [RESUME_STATUS.md](RESUME_STATUS.md) for evidence, paths and the restart
+point. A fresh Mac/Linux checkout can connect the NAS artifacts using
+`python3 scripts/link_codabench_artifacts.py`.
 
 ## Verification — November 12
 

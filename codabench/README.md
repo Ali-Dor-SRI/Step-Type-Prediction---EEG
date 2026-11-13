@@ -7,10 +7,11 @@ pipeline but reusing its models.
 ## Native Mac + NAS setup
 
 Code updates and publication: [GIT_WORKFLOW.md](GIT_WORKFLOW.md).
+Current restart point: [RESUME_STATUS.md](RESUME_STATUS.md).
 
 On this Mac, use `source ~/codabench/env.mac.sh`. Public PROTEUS data and
 the rebuilt caches live on the existing NAS. See [MAC_SETUP.md](MAC_SETUP.md)
-for paths, validation, and the private B3 artifacts still needing transfer.
+for paths, validation, and the restored B3 research artifacts.
 The WSL instructions below describe the original Windows machine.
 
 ## Start here tomorrow

@@ -5,6 +5,7 @@ on:
     paths:
       - 'codabench/**'
       - 'scripts/codabench_git.py'
+      - 'scripts/link_codabench_artifacts.py'
       - 'tests/test_codabench_git.py'
       - '.githooks/**'
       - '.github/workflows/codabench-source.yml'
@@ -12,6 +13,7 @@ on:
     paths:
       - 'codabench/**'
       - 'scripts/codabench_git.py'
+      - 'scripts/link_codabench_artifacts.py'
       - 'tests/test_codabench_git.py'
       - '.githooks/**'
       - '.github/workflows/codabench-source.yml'
@@ -30,6 +32,8 @@ jobs:
         with:
           python-version: '3.12'
       - name: Check source tracking, syntax, and artifact exclusions
-        run: python scripts/codabench_git.py check
+        run: |
+          python scripts/codabench_git.py check
+          python -m py_compile scripts/codabench_git.py scripts/link_codabench_artifacts.py
       - name: Check safe Git synchronization
         run: python -m unittest discover -s tests -p test_codabench_git.py -v

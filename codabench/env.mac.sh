@@ -11,6 +11,7 @@ fi
 export CODABENCH_ROOT="$(cd "$(dirname "$_cb_source")" && pwd -P)"
 export CODABENCH_RUNTIME="$CODABENCH_ROOT/logs/mac_setup/neuralbench"
 export CODABENCH_NAS_ROOT="${CODABENCH_NAS_ROOT:-/Volumes/Beast_PC/Projects/codabench}"
+export CODABENCH_ARTIFACT_ROOT="$CODABENCH_NAS_ROOT/windows-transfer/codabench"
 if [ ! -d "$CODABENCH_NAS_ROOT/neural_compet" ]; then
     echo "NAS data folder is unavailable: $CODABENCH_NAS_ROOT/neural_compet" >&2
     return 1
